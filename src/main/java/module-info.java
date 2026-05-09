@@ -14,4 +14,6 @@ module com.project.tas_pbo {
     exports com.project.tas_pbo;
     exports com.project.tas_pbo.controller;
     opens com.project.tas_pbo.controller to javafx.fxml;
+    exports com.project.tas_pbo.model;
+    opens com.project.tas_pbo.model to javafx.fxml;
 }
