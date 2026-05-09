@@ -1,4 +1,4 @@
-package com.project.tas_pbo;
+package com.project.tas_pbo.controller;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
