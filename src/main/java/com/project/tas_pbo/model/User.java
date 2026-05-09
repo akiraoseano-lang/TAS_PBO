@@ -35,4 +35,5 @@ public class User {
     public void setNoHp(String noHp) {
         this.noHp = noHp;
     }
+
 }
