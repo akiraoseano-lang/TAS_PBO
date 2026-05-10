@@ -6,6 +6,8 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.image.ImageView;
 import javafx.event.ActionEvent;
 
+import java.io.IOException;
+
 public class LoginController {
 
     @FXML private StackPane rootPane;
@@ -15,7 +17,6 @@ public class LoginController {
 
     @FXML
     public void initialize() {
-        // Agar gambar background responsif mengikuti ukuran window
         bgImage.fitWidthProperty().bind(rootPane.widthProperty());
         bgImage.fitHeightProperty().bind(rootPane.heightProperty());
     }
@@ -30,13 +31,10 @@ public class LoginController {
             return;
         }
 
-        // TODO: Koneksikan ke DAO kamu di sini
         System.out.println("Mencoba login untuk: " + user);
 
-        // Contoh logika sederhana
         if (user.equals("admin") && pass.equals("123")) {
             System.out.println("Login Berhasil!");
-            // Lanjut pindah halaman...
         } else {
             showAlert("Gagal", "Username atau Password salah!");
         }
@@ -44,7 +42,13 @@ public class LoginController {
 
     @FXML
     private void goToRegister(ActionEvent event) {
-        System.out.println("Pindah ke halaman Register...");
+        try {
+            SceneController.switchTo("/com/project/tas_pbo/view/register-view.fxml", event);
+        } catch (IOException e) {
+            e.printStackTrace();
+
+            System.out.println("Gagal pindah ke halaman register");
+        }
     }
 
     private void showAlert(String title, String message) {
