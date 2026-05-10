@@ -10,9 +10,13 @@ import java.io.IOException;
 public class TokoKelontongApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(TokoKelontongApplication.class.getResource("hello-view.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(TokoKelontongApplication.class.getResource("/com/project/tas_pbo/view/login-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 320, 240);
-        stage.setTitle("Hello!");
+
+        String css = this.getClass().getResource("css/style.css").toExternalForm();
+        scene.getStylesheets().add(css);
+
+        stage.setTitle("Toko Kelontong");
         stage.setScene(scene);
         stage.show();
     }
