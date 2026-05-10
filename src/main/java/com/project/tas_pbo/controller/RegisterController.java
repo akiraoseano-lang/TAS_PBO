@@ -5,6 +5,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
 import javafx.scene.image.ImageView;
 import javafx.event.ActionEvent;
+import java.io.IOException;
 
 public class RegisterController {
 
@@ -17,14 +18,14 @@ public class RegisterController {
 
     @FXML
     public void initialize() {
-        // Tambahkan pengecekan null biar gak crash saat run
+
         if (bgImage != null && rootPane != null) {
             bgImage.fitWidthProperty().bind(rootPane.widthProperty());
             bgImage.fitHeightProperty().bind(rootPane.heightProperty());
         }
     }
 
-    // WAJIB PAKAI @FXML BIAR FXML BISA NEMU METHOD INI
+
     @FXML
     public void handleRegister(ActionEvent event) {
         String user = txtUsername.getText();
@@ -34,8 +35,21 @@ public class RegisterController {
         if (user.isEmpty() || password.isEmpty() || noHp.isEmpty()) {
             alertMsg.setText("Username, password, no hp tidak boleh kosong!");
             alertMsg.setStyle("-fx-text-fill: red;");
+        } else if (password.length() < 8) {
+            alertMsg.setText("Password harus lebih dari 8 karakter");
+            alertMsg.setStyle("-fx-text-fill: red;");
         } else {
-            System.out.println("Berhasil Register: " + user);
+            alertMsg.setText("Register berhasil silahkan login");
+            alertMsg.setStyle("-fx-text-fill: light-green;");
+        }
+    }
+
+    @FXML
+    private void goToLogin(ActionEvent event) {
+        try {
+            SceneController.switchTo("/com/project/tas_pbo/view/login-view.fxml", event);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

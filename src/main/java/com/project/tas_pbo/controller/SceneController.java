@@ -10,10 +10,21 @@ import java.io.IOException;
 
 public class SceneController {
     public static void switchTo(String fxmlPath, ActionEvent event) throws IOException {
-        Parent root = FXMLLoader.load(SceneController.class.getResource(fxmlPath));
 
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        stage.setScene(new Scene(root));
-        stage.show();
+
+        Parent root = FXMLLoader.load(SceneController.class.getResource(fxmlPath));
+
+        boolean wasFullScreen = stage.isFullScreen();
+
+        if (stage.getScene() == null) {
+            stage.setScene(new Scene(root));
+        } else {
+            stage.getScene().setRoot(root);
+        }
+
+        if (wasFullScreen) {
+            stage.setFullScreen(true);
+        }
     }
 }

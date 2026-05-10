@@ -12,7 +12,7 @@
     <children>
         <ImageView fx:id="bgImage" fitHeight="600.0" fitWidth="900.0" preserveRatio="false">
             <image>
-                <Image url="@../image/background_Register_dan_Login.png" />
+                <Image url="@../image/Background_Login.png" />
             </image>
         </ImageView>
 
