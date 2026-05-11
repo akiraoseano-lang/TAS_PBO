@@ -14,6 +14,7 @@ public class LoginController {
     @FXML private ImageView bgImage;
     @FXML private TextField txtUsername;
     @FXML private PasswordField txtPassword;
+    @FXML private Label loginTextAlert;
 
     @FXML
     public void initialize() {
@@ -27,16 +28,18 @@ public class LoginController {
         String pass = txtPassword.getText();
 
         if (user.isEmpty() || pass.isEmpty()) {
-            showAlert("Error", "Isi dulu semua field-nya njir!");
-            return;
+            loginTextAlert.setText("Username dan Password tidak boleh kosong!");
+            loginTextAlert.setStyle("-fx-text-fill: red");
         }
 
         System.out.println("Mencoba login untuk: " + user);
 
-        if (user.equals("admin") && pass.equals("123")) {
-            System.out.println("Login Berhasil!");
+        if (user.equals("Oseano") && pass.equals("123")) {
+            loginTextAlert.setText("login Berhasil sebagai: " + user);
+            loginTextAlert.setStyle("-fx-text-fill: white");
         } else {
-            showAlert("Gagal", "Username atau Password salah!");
+            loginTextAlert.setText("Gagal Username atau Password salah!");
+            loginTextAlert.setStyle("-fx-text-fill: red");
         }
     }
 
@@ -51,11 +54,5 @@ public class LoginController {
         }
     }
 
-    private void showAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
+
 }

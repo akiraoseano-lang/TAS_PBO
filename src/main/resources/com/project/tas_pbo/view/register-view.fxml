@@ -46,7 +46,7 @@
                     <Label text="Have an account?" textFill="WHITE" />
                     <Hyperlink onAction="#goToLogin" style="-fx-font-weight: bold;" text="Login Here" textFill="#3498db" />
                 </HBox>
-            <Label fx:id="alertMsg" textFill="WHITE"/>
+            <Label fx:id="registerTextAlert" textFill="WHITE"/>
             </children>
         </VBox>
     </children>

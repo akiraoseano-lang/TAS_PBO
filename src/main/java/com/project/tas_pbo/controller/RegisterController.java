@@ -14,7 +14,7 @@ public class RegisterController {
     @FXML private TextField txtUsername;
     @FXML private PasswordField txtPassword;
     @FXML private TextField txtnoHp;
-    @FXML private Label alertMsg;
+    @FXML private Label registerTextAlert;
 
     @FXML
     public void initialize() {
@@ -33,14 +33,14 @@ public class RegisterController {
         String noHp = txtnoHp.getText();
 
         if (user.isEmpty() || password.isEmpty() || noHp.isEmpty()) {
-            alertMsg.setText("Username, password, no hp tidak boleh kosong!");
-            alertMsg.setStyle("-fx-text-fill: red;");
+            registerTextAlert.setText("Username, password, no hp tidak boleh kosong!");
+            registerTextAlert.setStyle("-fx-text-fill: red;");
         } else if (password.length() < 8) {
-            alertMsg.setText("Password harus lebih dari 8 karakter");
-            alertMsg.setStyle("-fx-text-fill: red;");
+            registerTextAlert.setText("Password harus lebih dari 8 karakter");
+            registerTextAlert.setStyle("-fx-text-fill: red;");
         } else {
-            alertMsg.setText("Register berhasil silahkan login");
-            alertMsg.setStyle("-fx-text-fill: light-green;");
+            registerTextAlert.setText("Register berhasil silahkan login");
+            registerTextAlert.setStyle("-fx-text-fill: light-green;");
         }
     }
 
