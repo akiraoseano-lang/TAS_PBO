@@ -1,0 +1,207 @@
+/* --- GLOBAL --- */
+.root {
+    -fx-font-family: "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+/* --- SIDEBAR --- */
+.sidebar {
+    -fx-background-color: #0f4c81; /* Warna biru gelap / Navy */
+}
+
+.sidebar-header {
+    -fx-border-color: transparent transparent rgba(255, 255, 255, 0.1) transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.logo-text {
+    -fx-text-fill: white;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+}
+
+.logo-subtext {
+    -fx-text-fill: #a0c4ff;
+    -fx-font-size: 12px;
+}
+
+.nav-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #d1e4ff;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+}
+
+.nav-btn:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.1);
+    -fx-text-fill: white;
+}
+
+.nav-btn-active {
+    -fx-background-color: #1a64a3;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-border-color: transparent transparent transparent white;
+    -fx-border-width: 0 0 0 4;
+}
+
+.user-profile {
+    -fx-background-color: rgba(0, 0, 0, 0.15);
+}
+
+.user-name {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+}
+
+.user-role {
+    -fx-text-fill: #a0c4ff;
+    -fx-font-size: 12px;
+}
+
+/* --- MAIN CONTENT AREA --- */
+.main-scroll {
+    -fx-background-color: transparent;
+    -fx-background: #f4f6f9; /* Warna abu-abu terang */
+}
+
+.main-scroll .viewport {
+    -fx-background-color: transparent;
+}
+
+.main-content-bg {
+    -fx-background-color: #f4f6f9;
+}
+
+.header-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1e293b;
+}
+
+.header-subtitle {
+    -fx-font-size: 14px;
+    -fx-text-fill: #64748b;
+}
+
+.header-time {
+    -fx-font-size: 14px;
+    -fx-text-fill: #475569;
+    -fx-font-weight: bold;
+}
+
+/* --- CARDS --- */
+.summary-card {
+    -fx-background-color: white;
+    -fx-background-radius: 8px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 4);
+}
+
+.card-title {
+    -fx-text-fill: #64748b;
+    -fx-font-size: 13px;
+}
+
+.card-value {
+    -fx-text-fill: #1e293b;
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+}
+
+.card-subtitle {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 11px;
+}
+
+.card-subtitle-green {
+    -fx-text-fill: #22c55e;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+/* --- CONTENT BOXES (Chart & Tables) --- */
+.content-box {
+    -fx-background-color: white;
+    -fx-background-radius: 8px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 4);
+}
+
+.section-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1e293b;
+}
+
+.btn-link {
+    -fx-background-color: transparent;
+    -fx-text-fill: #3b82f6;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 4px;
+    -fx-cursor: hand;
+    -fx-padding: 4 10 4 10;
+}
+
+.btn-link:hover {
+    -fx-background-color: #f1f5f9;
+}
+
+/* --- TABLE VIEW STYLING --- */
+.table-view {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: white;
+    -fx-border-color: transparent transparent #e2e8f0 transparent;
+}
+
+.table-view .column-header {
+    -fx-background-color: transparent;
+    -fx-size: 40px;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: #64748b;
+    -fx-font-weight: bold;
+    -fx-alignment: center-left;
+}
+
+.table-row-cell {
+    -fx-background-color: white;
+    -fx-border-color: transparent transparent #f1f5f9 transparent;
+    -fx-cell-size: 45px;
+}
+
+.table-row-cell:hover {
+    -fx-background-color: #f8fafc;
+}
+
+.table-row-cell:selected {
+    -fx-background-color: #eff6ff;
+    -fx-text-background-color: #1e293b;
+}
+
+/* --- CHART STYLING --- */
+.chart-plot-background {
+    -fx-background-color: transparent;
+}
+.chart-vertical-grid-lines {
+    -fx-stroke: transparent;
+}
+.chart-horizontal-grid-lines {
+    -fx-stroke: #f1f5f9;
+}
+.default-color0.chart-series-area-fill {
+    -fx-fill: linear-gradient(to bottom, rgba(59,130,246,0.4), rgba(59,130,246,0.0));
+}
+.default-color0.chart-series-area-line {
+    -fx-stroke: #3b82f6;
+    -fx-stroke-width: 2px;
+}
+.chart-area-symbol {
+    -fx-background-color: #3b82f6, white;
+    -fx-background-radius: 5px;
+    -fx-padding: 3px;
+}

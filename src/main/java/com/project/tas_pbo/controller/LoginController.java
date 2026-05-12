@@ -34,9 +34,14 @@ public class LoginController {
 
         System.out.println("Mencoba login untuk: " + user);
 
-        if (user.equals("Oseano") && pass.equals("123")) {
-            loginTextAlert.setText("login Berhasil sebagai: " + user);
-            loginTextAlert.setStyle("-fx-text-fill: white");
+        if (user.equals("Manager") && pass.equals("12345678")) {
+            try {
+                SceneController.switchTo("/com/project/tas_pbo/view/dashboard-manager-view.fxml", event);
+            } catch (IOException e) {
+                e.printStackTrace();
+
+                System.out.println("Gagal login sebagai manager");
+            }
         } else {
             loginTextAlert.setText("Gagal Username atau Password salah!");
             loginTextAlert.setStyle("-fx-text-fill: red");
