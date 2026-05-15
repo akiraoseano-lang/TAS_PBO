@@ -7,7 +7,7 @@ public class UserDAO {
     String noHp;
 
     private void insertData() {
-
+        String query = "SELECT * FROM PRODUCT";
     }
 
 }
