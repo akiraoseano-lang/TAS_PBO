@@ -57,11 +57,7 @@ public class Product {
     public String getDescription() {
         return description.get();
     }
-
-    public void setDescription (String description) {
-        this.description.set(description);
-    }
-
+    
     public Integer getStok() {
         return stok.get();
     }
