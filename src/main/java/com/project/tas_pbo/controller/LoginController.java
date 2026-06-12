@@ -11,16 +11,9 @@ import java.io.IOException;
 public class LoginController {
 
     @FXML private StackPane rootPane;
-    @FXML private ImageView bgImage;
     @FXML private TextField txtUsername;
     @FXML private PasswordField txtPassword;
     @FXML private Label loginTextAlert;
-
-    @FXML
-    public void initialize() {
-        bgImage.fitWidthProperty().bind(rootPane.widthProperty());
-        bgImage.fitHeightProperty().bind(rootPane.heightProperty());
-    }
 
     @FXML
     private void handleLogin(ActionEvent event) {
@@ -47,17 +40,5 @@ public class LoginController {
             loginTextAlert.setStyle("-fx-text-fill: red");
         }
     }
-
-    @FXML
-    private void goToRegister(ActionEvent event) {
-        try {
-            SceneController.switchTo("/com/project/tas_pbo/view/register-view.fxml", event);
-        } catch (IOException e) {
-            e.printStackTrace();
-
-            System.out.println("Gagal pindah ke halaman register");
-        }
-    }
-
 
 }

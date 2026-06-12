@@ -1,69 +1,185 @@
+/* ============================================================
+   POS Login Screen Stylesheet - Navy / Cream
+   ============================================================ */
 
-/* Container Utama */
-.root {
-    -fx-font-family: "Segoe UI", sans-serif;
+.root-pane {
+    -fx-background-color: #1B1B1F;
 }
 
-/* Efek Glassmorphism untuk Card Login */
-.glass-card {
-    -fx-background-color: rgba(255, 255, 255, 0.15);
-    -fx-background-radius: 20;
-    -fx-border-color: rgba(255, 255, 255, 0.3);
-    -fx-border-radius: 20;
-    -fx-border-width: 1.5;
+/* ---------- Outer Card ---------- */
+.card {
+    -fx-background-color: #FAF8F5;
+    -fx-background-radius: 16;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.35), 30, 0.2, 0, 10);
 }
 
-/* Gaya Input Field (Cuma Garis Bawah) */
-.text-field, .password-field {
+/* ============================================================
+   LEFT PANEL - BRAND / CLOCK
+   ============================================================ */
+
+.brand-panel {
+    -fx-background-color: #1B2A4A;
+    -fx-background-radius: 16 0 0 16;
+}
+
+/* Logo */
+.logo-box {
+    -fx-background-color: #2E8B57;
+    -fx-background-radius: 8;
+    -fx-min-width: 36;
+    -fx-min-height: 36;
+    -fx-max-width: 36;
+    -fx-max-height: 36;
+}
+
+.logo-icon {
     -fx-background-color: transparent;
-    -fx-border-color: transparent transparent white transparent;
-    -fx-border-width: 0 0 1.5 0; /* Garis bawah doang */
-    -fx-text-fill: white ;
-    -fx-prompt-text-fill: rgba(255, 255, 255, 0.6);
-    -fx-font-size: 14px;
-    -fx-padding: 5 0 5 0;
+    -fx-border-color: #FAF8F5;
+    -fx-border-width: 2;
+    -fx-border-radius: 4;
+    -fx-min-width: 14;
+    -fx-min-height: 14;
+    -fx-max-width: 14;
+    -fx-max-height: 14;
 }
 
-/* Saat Input di-klik (Focus) */
-.text-field:focused, .password-field:focused {
-    -fx-border-color: transparent transparent #3498db transparent; /* Berubah biru saat diketik */
-    -fx-border-width: 0 0 2 0;
-}
-
-/* Tombol Login Putih (Pill Shape) */
-.btn-pill-white {
-    -fx-background-color: white;
-    -fx-text-fill: #2c3e50;
-    -fx-background-radius: 25;
-    -fx-border-radius: 25;
-    -fx-font-weight: bold;
+.brand-name {
+    -fx-text-fill: #FAF8F5;
     -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+/* Date / time */
+.date-label {
+    -fx-text-fill: #B5D4F4;
+    -fx-font-size: 13px;
+}
+
+.time-label {
+    -fx-text-fill: #FAF8F5;
+    -fx-font-size: 34px;
+    -fx-font-weight: bold;
+    -fx-padding: 4 0 0 0;
+}
+
+/* Decorative status / barcode-style bar */
+.status-bar {
+    -fx-background-color: transparent;
+    -fx-border-color: #378ADD;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-padding: 14 14 14 14;
+    -fx-min-height: 50;
+}
+
+.status-segment {
+    -fx-min-height: 50;
+}
+
+.status-divider {
+    -fx-border-color: transparent transparent transparent #378ADD;
+    -fx-border-width: 0 0 0 1;
+    -fx-opacity: 0.5;
+}
+
+.status-dot {
+    -fx-background-color: #85B7EB;
+    -fx-background-radius: 100;
+    -fx-min-width: 8;
+    -fx-min-height: 8;
+    -fx-max-width: 8;
+    -fx-max-height: 8;
+}
+
+/* ============================================================
+   RIGHT PANEL - LOGIN FORM
+   ============================================================ */
+
+.form-panel {
+    -fx-background-color: #FAF8F5;
+    -fx-background-radius: 0 16 16 0;
+}
+
+.welcome-title {
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1B2A4A;
+}
+
+.welcome-subtitle {
+    -fx-font-size: 13px;
+    -fx-text-fill: #64748B;
+    -fx-padding: 4 0 0 0;
+}
+
+.field-label {
+    -fx-font-size: 12px;
+    -fx-text-fill: #64748B;
+}
+
+/* Input box wrapper (icon + textfield) */
+.input-box {
+    -fx-background-color: #FFFFFF;
+    -fx-background-radius: 8;
+    -fx-border-color: #D3D1C7;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-padding: 10 14 10 14;
+}
+
+.input-box:focused-within {
+    -fx-border-color: #378ADD;
+}
+
+/* Icon placeholders (simple square outlines) */
+.input-icon {
+    -fx-background-color: transparent;
+    -fx-border-color: #64748B;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 3;
+    -fx-min-width: 14;
+    -fx-min-height: 14;
+    -fx-max-width: 14;
+    -fx-max-height: 14;
+}
+
+/* Remove default TextField/PasswordField chrome */
+.input-field {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+    -fx-font-size: 14px;
+    -fx-text-fill: #1B2A4A;
+    -fx-prompt-text-fill: #B4B2A9;
+    -fx-padding: 0;
+}
+
+.input-field:focused {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+}
+
+/* Alert label */
+.alert-label {
+    -fx-font-size: 12px;
+    -fx-text-fill: #E5484D;
+}
+
+/* Sign in button */
+.signin-button {
+    -fx-background-color: #2E8B57;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-padding: 13 0 13 0;
     -fx-cursor: hand;
-    -fx-transition: 0.3s;
 }
 
-.btn-pill-white:hover {
-    -fx-background-color: #ecf0f1;
-    -fx-scale-x: 1.05; /* Efek membesar dikit pas di-hover */
-    -fx-scale-y: 1.05;
+.signin-button:hover {
+    -fx-background-color: #267349;
 }
 
-/* Gaya untuk Hyperlink */
-.hyperlink {
-    -fx-text-fill: #3498db;
-    -fx-underline: false;
-}
-
-.hyperlink:hover {
-    -fx-text-fill: #2980b9;
-}
-
-/* Gaya untuk CheckBox */
-.check-box {
-    -fx-text-fill: white;
-}
-
-.check-box .box {
-    -fx-background-color: rgba(255, 255, 255, 0.2);
-    -fx-border-color: white;
+.signin-button:pressed {
+    -fx-background-color: #1F5C3A;
 }
