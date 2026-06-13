@@ -25,7 +25,7 @@
 
             <HBox alignment="CENTER_LEFT" spacing="8">
                 <Label text="🏪" styleClass="logo-icon"/>
-                <Label text="RETAIL POS" styleClass="brand-title"/>
+                <Label text="SISTEM POS" styleClass="brand-title"/>
                 <Label styleClass="brand-version"/>
             </HBox>
 
@@ -98,7 +98,7 @@
                     </columnConstraints>
 
                     <Label text="Subtotal" styleClass="summary-label" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-                    <Label fx:id="subtotalLabel" text="1" styleClass="summary-value"
+                    <Label fx:id="subtotalLabel" text="0" styleClass="summary-value"
                            GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
                     <Label text="Diskon/Promo" styleClass="summary-label" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
