@@ -77,8 +77,8 @@
                                 <Circle fill="#e0e0e0" radius="20.0" stroke="TRANSPARENT" strokeType="INSIDE" />
                                 <VBox alignment="CENTER_LEFT">
                                     <children>
-                                        <Label styleClass="user-name" text="Admin" />
-                                        <Label styleClass="user-role" text="Administrator" />
+                                        <Label styleClass="user-name" text="Manager" />
+                                        <Label styleClass="user-role" text="Manager" />
                                     </children>
                                 </VBox>
                             </children>
