@@ -81,7 +81,7 @@
             <Region prefHeight="6" />
             <HBox styleClass="input-box" alignment="CENTER_LEFT" spacing="10">
                 <Region styleClass="input-icon icon-user" />
-                <TextField fx:id="txtUsername" promptText="cashier01"
+                <TextField fx:id="txtUsername" promptText="Username"
                            styleClass="input-field" HBox.hgrow="ALWAYS" />
             </HBox>
 
