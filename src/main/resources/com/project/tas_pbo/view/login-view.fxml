@@ -12,9 +12,14 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
+<?import java.net.URL?>
 <StackPane fx:id="rootPane" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="com.project.tas_pbo.controller.LoginController"
            styleClass="root-pane" prefWidth="1000" prefHeight="640">
+
+    <stylesheets>
+        <URL value="@../css/login.css" />
+    </stylesheets>
 
     <!-- Background image (bound to rootPane size in controller) -->
     <ImageView fx:id="bgImage" preserveRatio="false" opacity="0">
@@ -37,14 +42,14 @@
                 <StackPane styleClass="logo-box">
                     <Region styleClass="logo-icon" />
                 </StackPane>
-                <Label text="Toko Kasir" styleClass="brand-name" />
+                <Label text="Toko Kelontong" styleClass="brand-name" />
             </HBox>
 
             <Region VBox.vgrow="ALWAYS" />
 
             <!-- Date / time -->
-            <Label text="Friday, June 12" styleClass="date-label" />
-            <Label text="10:42 AM" styleClass="time-label" />
+            <Label fx:id="timeLabel" text="10:42 AM" styleClass="time-label" />
+            <Label fx:id="dateLabel" text="Friday, June 12" styleClass="date-label" />
 
             <Region prefHeight="24" />
 
