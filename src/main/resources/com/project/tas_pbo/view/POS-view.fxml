@@ -25,7 +25,7 @@
 
             <HBox alignment="CENTER_LEFT" spacing="8">
                 <Label text="🏪" styleClass="logo-icon"/>
-                <Label text="SISTEM POS" styleClass="brand-title"/>
+                <Label text="CASHIER" styleClass="brand-title"/>
                 <Label styleClass="brand-version"/>
             </HBox>
 
