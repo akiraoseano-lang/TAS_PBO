@@ -1,0 +1,123 @@
+package com.project.tas_pbo.DAO;
+
+import com.project.tas_pbo.model.Produk;
+import com.project.tas_pbo.database.DBconnection;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+public class ProdukDAO {
+
+    public List<Produk> getAllProduk() {
+        List<Produk> list = new ArrayList<>();
+        String sql = "SELECT * FROM produk ORDER BY id_produk ASC";
+
+        try (Connection conn = DBconnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                list.add(mapResultSetToProduk(rs));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+    public Produk getProdukById(int id) {
+        String sql = "SELECT * FROM produk WHERE id_produk = ?";
+
+        try (Connection conn = DBconnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToProduk(rs);
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public boolean addProduk(Produk produk) {
+        String sql = "INSERT INTO produk (nama_produk, kategori, harga, stok, satuan, stok_minimum) VALUES (?, ?, ?, ?, ?, ?)";
+
+        try (Connection conn = DBconnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, produk.getNamaProduk());
+            stmt.setString(2, produk.getKategori());
+            stmt.setDouble(3, produk.getHarga());
+            stmt.setInt(4, produk.getStok());
+            stmt.setString(5, produk.getSatuan());
+            stmt.setInt(6, produk.getStokMinimum());
+
+            return stmt.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean updateProduk(Produk produk) {
+        String sql = "UPDATE produk SET nama_produk = ?, kategori = ?, harga = ?, stok = ?, satuan = ?, stok_minimum = ? WHERE id_produk = ?";
+
+        try (Connection conn = DBconnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, produk.getNamaProduk());
+            stmt.setString(2, produk.getKategori());
+            stmt.setDouble(3, produk.getHarga());
+            stmt.setInt(4, produk.getStok());
+            stmt.setString(5, produk.getSatuan());
+            stmt.setInt(6, produk.getStokMinimum());
+            stmt.setInt(7, produk.getIdProduk());
+
+            return stmt.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean deleteProduk(int id) {
+        String sql = "DELETE FROM produk WHERE id_produk = ?";
+
+        try (Connection conn = DBconnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, id);
+            return stmt.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private Produk mapResultSetToProduk(ResultSet rs) throws SQLException {
+        Produk produk = new Produk();
+        produk.setIdProduk(rs.getInt("id_produk"));
+        produk.setNamaProduk(rs.getString("nama_produk"));
+        produk.setKategori(rs.getString("kategori"));
+        produk.setHarga(rs.getDouble("harga"));
+        produk.setStok(rs.getInt("stok"));
+        produk.setSatuan(rs.getString("satuan"));
+        produk.setStokMinimum(rs.getInt("stok_minimum"));
+        return produk;
+    }
+}
