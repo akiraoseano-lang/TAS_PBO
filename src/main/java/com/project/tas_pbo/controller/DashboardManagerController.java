@@ -6,15 +6,14 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class DashboardManagerController {
@@ -56,6 +55,15 @@ public class DashboardManagerController {
 
     private final ProdukDAO produkDAO = new ProdukDAO();
 
+    private ObservableList<Produk> produkData = FXCollections.observableArrayList();
+    private List<Produk> allProdukData = new ArrayList<>();
+    private int currentPage = 0;
+    private final int PAGE_SIZE = 10;
+
+    @FXML private Button btnPrevProduk;
+    @FXML private Button btnNextProduk;
+    @FXML private Label lblPageProduk;
+
     @FXML
     public void initialize() {
         allViews = new Node[] {
@@ -82,12 +90,6 @@ public class DashboardManagerController {
         colSatuan.setCellValueFactory(new PropertyValueFactory<>("satuan"));
     }
 
-    private void loadProdukData() {
-        List<Produk> produkList = produkDAO.getAllProduk();
-        ObservableList<Produk> data = FXCollections.observableArrayList(produkList);
-        tableProduk.setItems(data);
-    }
-
     @FXML
     private void showDashboardView() {
         switchTo(dashboardView, btnDashboard);
@@ -101,7 +103,69 @@ public class DashboardManagerController {
     @FXML
     private void showProdukView() {
         switchTo(produkView, btnProduk);
-        loadProdukData();
+        if (allProdukData.isEmpty()) {
+            loadProdukData();
+        }
+    }
+
+    private void loadProdukData() {
+        Task<List<Produk>> task = new Task<>() {
+            @Override
+            protected List<Produk> call() {
+                return produkDAO.getAllProduk();
+            }
+        };
+        task.setOnSucceeded(e -> {
+            allProdukData = task.getValue();
+            currentPage = 0;
+            showPage(currentPage);
+        });
+    }
+
+    private void showPage(int page) {
+        int fromIndex = page * PAGE_SIZE;
+        int toIndex = Math.min(fromIndex + PAGE_SIZE, allProdukData.size());
+        int totalPage = (int) Math.ceil((double) allProdukData.size() / PAGE_SIZE);
+
+        produkData.setAll(allProdukData.subList(fromIndex, toIndex));
+        tableProduk.setItems(produkData);
+
+        lblPageProduk.setText("Halaman " + (page + 1) + " dari " + totalPage);
+        btnPrevProduk.setDisable(page == 0);
+        btnNextProduk.setDisable(toIndex >= allProdukData.size());
+    }
+
+    @FXML
+    private void nextPageProduk() {
+        currentPage++;
+        showPage(currentPage);
+    }
+
+    @FXML
+    private void prevPageProduk() {
+        currentPage--;
+        showPage(currentPage);
+    }
+
+    public void afterInsertProduk(Produk newProduk) {
+        allProdukData.add(newProduk);
+        showPage(currentPage);
+    }
+
+    public void afterDeleteProduk(Produk produk) {
+        allProdukData.remove(produk);
+        if (currentPage > 0 && currentPage * PAGE_SIZE >= allProdukData.size()) {
+            currentPage--;
+        }
+        showPage(currentPage);
+    }
+
+    public void afterUpdateProduk(Produk updated) {
+        int index = allProdukData.indexOf(updated);
+        if (index >= 0) {
+            allProdukData.set(index, updated);
+            showPage(currentPage);
+        }
     }
 
     @FXML

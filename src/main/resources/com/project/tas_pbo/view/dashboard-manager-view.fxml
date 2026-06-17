@@ -361,6 +361,21 @@
                                         <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                                     </columnResizePolicy>
                                 </TableView>
+
+                                <!-- Pagination Controls -->
+                                <HBox alignment="CENTER" spacing="20.0">
+                                    <padding><Insets top="10.0" bottom="10.0" /></padding>
+                                    <children>
+                                        <Button fx:id="btnPrevProduk" text="◀ Sebelumnya"
+                                                styleClass="btn-link" onAction="#prevPageProduk"
+                                                disable="true" />
+                                        <Label fx:id="lblPageProduk" text="Halaman 1 dari 1"
+                                               styleClass="card-title" />
+                                        <Button fx:id="btnNextProduk" text="Selanjutnya ▶"
+                                                styleClass="btn-link" onAction="#nextPageProduk" />
+                                    </children>
+                                </HBox>
+
                             </children>
                             <padding><Insets bottom="20.0" left="20.0" right="20.0" top="20.0" /></padding>
                         </VBox>
