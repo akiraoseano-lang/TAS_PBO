@@ -118,8 +118,8 @@
                                         <Pane HBox.hgrow="ALWAYS" />
                                         <HBox alignment="CENTER_RIGHT" spacing="20.0">
                                             <children>
-                                                <Label styleClass="header-time" text="📅 24 Mei 2024" />
-                                                <Label styleClass="header-time" text="⏱ 10:30:45" />
+                                                <Label fx:id="dateLabel" styleClass="header-time" text="📅 24 Mei 2024" />
+                                                <Label fx:id="timeLabel" styleClass="header-time" text="⏱ 10:30:45" />
                                             </children>
                                         </HBox>
                                     </children>

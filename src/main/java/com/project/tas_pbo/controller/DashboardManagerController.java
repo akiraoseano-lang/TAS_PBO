@@ -2,6 +2,9 @@ package com.project.tas_pbo.controller;
 
 import com.project.tas_pbo.DAO.ProdukDAO;
 import com.project.tas_pbo.model.Produk;
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -21,6 +24,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.io.IOException;
 import javafx.event.ActionEvent;
+import javafx.util.Duration;
 
 public class DashboardManagerController {
 
@@ -32,6 +36,9 @@ public class DashboardManagerController {
     @FXML private VBox pelangganView;
     @FXML private VBox laporanView;
     @FXML private VBox pengaturanView;
+
+    @FXML private Label dateLabel;
+    @FXML private Label timeLabel;
 
     @FXML private Button btnDashboard;
     @FXML private Button btnPenjualan;
@@ -70,6 +77,11 @@ public class DashboardManagerController {
     @FXML private Button btnNextProduk;
     @FXML private Label lblPageProduk;
 
+    private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("hh:mm:ss a");
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("EEEE, MMMM d");
+
+
+
     @FXML
     public void initialize() {
         allViews = new Node[] {
@@ -82,6 +94,29 @@ public class DashboardManagerController {
         };
 
         setupProdukTable();
+        startClock();
+    }
+
+    @FXML
+    public void startClock() {
+        updateTime();
+        Timeline clock = new Timeline(
+                new KeyFrame(Duration.seconds(1), e -> updateTime())
+        );
+        clock.setCycleCount(Animation.INDEFINITE);
+        clock.play();
+    }
+
+    @FXML
+    public void updateTime() {
+        LocalDateTime now = LocalDateTime.now();
+
+        if (timeLabel != null) {
+            timeLabel.setText(now.format(TIME_FORMAT));
+        }
+        if (dateLabel != null) {
+            dateLabel.setText(now.format(DATE_FORMAT));
+        }
     }
 
     private void setupProdukTable() {
@@ -115,6 +150,10 @@ public class DashboardManagerController {
     }
 
     private void loadProdukData() {
+        btnNextProduk.setDisable(true);
+        btnPrevProduk.setDisable(true);
+        lblPageProduk.setText("Memuat Data...");
+
         Task<List<Produk>> task = new Task<>() {
             @Override
             protected List<Produk> call() {
@@ -126,9 +165,17 @@ public class DashboardManagerController {
             currentPage = 0;
             showPage(currentPage);
         });
+
+        task.setOnFailed(e -> {
+            lblPageProduk.setText("Gagal memuat data");
+        });
+
+        new Thread(task).start();
     }
 
     private void showPage(int page) {
+        if (allProdukData.isEmpty()) return;
+
         int fromIndex = page * PAGE_SIZE;
         int toIndex = Math.min(fromIndex + PAGE_SIZE, allProdukData.size());
         int totalPage = (int) Math.ceil((double) allProdukData.size() / PAGE_SIZE);
