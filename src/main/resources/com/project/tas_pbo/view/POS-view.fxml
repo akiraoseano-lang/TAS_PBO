@@ -36,7 +36,8 @@
 
             <Label fx:id="kasirLabel" text="Kasir:" styleClass="topbar-info"/>
             <Label text="|" styleClass="topbar-sep"/>
-            <Label fx:id="dateTimeLabel" text="Senin, 15 Januari 2024, 10:30 WIB" styleClass="topbar-info"/>
+            <Label fx:id="dateLabel" text="Senin, 15 Januari 2024" styleClass="topbar-info"/>
+            <Label fx:id="timeLabel" text="10:30 WIB" styleClass="topbar-info"/>
         </HBox>
     </top>
 
