@@ -16,7 +16,7 @@
 
 <BorderPane fx:id="rootPane" stylesheets="@../css/POS.css" styleClass="root-bg"
             xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.project.tas_pbo.controller.CashierController">
+            fx:controller="com.project.tas_pbo.controller.POSController">
 
     <!-- ===================== TOP BAR ===================== -->
     <top>
