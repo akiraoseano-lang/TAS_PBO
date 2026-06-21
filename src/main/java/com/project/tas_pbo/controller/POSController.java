@@ -6,6 +6,9 @@ import com.project.tas_pbo.model.Penjualan;
 import com.project.tas_pbo.model.PenjualanDetail;
 import com.project.tas_pbo.model.Produk;
 //import com.project.tas_pbo.util.Session;
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -16,9 +19,11 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
+import javafx.util.Duration;
 
 import java.text.DecimalFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
@@ -56,13 +61,13 @@ public class POSController {
     private final PenjualanDAO penjualanDAO = new PenjualanDAO();
     private final DecimalFormat rupiahFormat = new DecimalFormat("#,###");
 
+    private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("hh:mm:ss a");
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("EEEE, MMMM d");
+
     private double subtotal = 0;
     private double diskon = 0;
     private double totalTagihan = 0;
 
-    // =========================================================
-    // CART TABLE SETUP
-    // =========================================================
     private void setupCartTable() {
         colNo.setCellValueFactory(cellData -> new SimpleIntegerProperty(
                 cartTable.getItems().indexOf(cellData.getValue()) + 1
@@ -86,7 +91,7 @@ public class POSController {
     public void initialize() {
         setupCartTable();
         setupSearch();
-        setupClock();
+        startClock();
         setupPayField();
 
         kasirLabel.setText("Kasir: " );//Session.getCurrentUsername());
@@ -295,9 +300,6 @@ public class POSController {
         });
     }
 
-    // =========================================================
-    // TOTALS
-    // =========================================================
     private void updateTotals() {
         subtotal = cartItems.stream().mapToDouble(PenjualanDetail::getSubtotal).sum();
 
@@ -319,12 +321,8 @@ public class POSController {
     private void updateKembalian() {
         double bayar = parsePayField();
         double kembalian = bayar - totalTagihan;
-        // hook up to a "Kembalian" label here if one is added to the FXML later
     }
 
-    // =========================================================
-    // NUMPAD / PAY FIELD
-    // =========================================================
     private void setupPayField() {
         discountField.textProperty().addListener((obs, oldVal, newVal) -> updateTotals());
     }
@@ -343,7 +341,7 @@ public class POSController {
         String digit = source.getText();
 
         if (digit.equals("×") || digit.equals("−")) {
-            return; // reserved for future calculator-style input
+            return;
         }
 
         String current = payField.getText();
@@ -366,9 +364,7 @@ public class POSController {
         updateKembalian();
     }
 
-    // =========================================================
-    // PAYMENT METHOD SELECTION
-    // =========================================================
+
     private String selectedPaymentMethod = "Tunai";
 
     @FXML
@@ -382,9 +378,6 @@ public class POSController {
         source.getStyleClass().add("pay-method-active");
     }
 
-    // =========================================================
-    // BAYAR (CHECKOUT)
-    // =========================================================
     @FXML
     private void handleBayar() {
         if (cartItems.isEmpty()) {
@@ -406,7 +399,6 @@ public class POSController {
         Penjualan penjualan = new Penjualan();
         penjualan.setNoTransaksi(penjualanDAO.generateNoTransaksi());
         penjualan.setIdMember(null);
-        //penjualan.setIdUser(Session.getCurrentUserId());
         penjualan.setTotalBelanja(totalTagihan);
         penjualan.setBayar(bayar);
         penjualan.setKembalian(kembalian);
@@ -431,32 +423,26 @@ public class POSController {
         updateTotals();
     }
 
-
-    private void setupClock() {
-        updateClock();
-        Thread clockThread = new Thread(() -> {
-            while (true) {
-                try {
-                    Thread.sleep(1000);
-                    Platform.runLater(this::updateClock);
-                } catch (InterruptedException e) {
-                    break;
-                }
-            }
-        });
-        clockThread.setDaemon(true);
-        clockThread.start();
+    @FXML
+    public void startClock() {
+        updateTime();
+        Timeline clock = new Timeline(
+                new KeyFrame(Duration.seconds(1), e -> updateTime())
+        );
+        clock.setCycleCount(Animation.INDEFINITE);
+        clock.play();
     }
 
-    private void updateClock() {
-        LocalDate today = LocalDate.now();
-        LocalTime now = LocalTime.now();
+    @FXML
+    public void updateTime() {
+        LocalDateTime now = LocalDateTime.now();
 
-        String hari = today.getDayOfWeek().getDisplayName(TextStyle.FULL, new Locale("id", "ID"));
-        String bulan = today.getMonth().getDisplayName(TextStyle.FULL, new Locale("id", "ID"));
-
-        dateLabel.setText(hari + ", " + today.getDayOfMonth() + " " + bulan + " " + today.getYear());
-        timeLabel.setText(now.format(DateTimeFormatter.ofPattern("HH:mm")) + " WIB");
+        if (timeLabel != null) {
+            timeLabel.setText(now.format(TIME_FORMAT));
+        }
+        if (dateLabel != null) {
+            dateLabel.setText(now.format(DATE_FORMAT));
+        }
     }
 
     private void showAlert(Alert.AlertType type, String title, String message) {
