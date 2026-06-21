@@ -2,7 +2,7 @@ package com.project.tas_pbo.model;
 
 import javafx.beans.property.*;
 
-public class Product {
+public class Produk {
 
     private final IntegerProperty ID;
     private final StringProperty namaProduct;
@@ -10,7 +10,7 @@ public class Product {
     private final IntegerProperty stok;
     private final DoubleProperty price;
 
-    public Product(Integer ID, String namaProduct, String description, Integer stok, Double price) {
+    public Produk(Integer ID, String namaProduct, String description, Integer stok, Double price) {
         this.ID = new SimpleIntegerProperty(ID);
         this.namaProduct = new SimpleStringProperty(namaProduct);
         this.description = new SimpleStringProperty(description);
