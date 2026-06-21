@@ -1,77 +1,81 @@
 package com.project.tas_pbo.model;
 
-import javafx.beans.property.*;
-
 public class Produk {
 
-    private final IntegerProperty ID;
-    private final StringProperty namaProduct;
-    private final StringProperty description;
-    private final IntegerProperty stok;
-    private final DoubleProperty price;
+    private int idProduk;
+    private String namaProduk;
+    private String kategori;
+    private double harga;
+    private int stok;
+    private String satuan;
+    private int stokMinimum;
 
-    public Produk(Integer ID, String namaProduct, String description, Integer stok, Double price) {
-        this.ID = new SimpleIntegerProperty(ID);
-        this.namaProduct = new SimpleStringProperty(namaProduct);
-        this.description = new SimpleStringProperty(description);
-        this.stok = new SimpleIntegerProperty(stok);
-        this.price = new SimpleDoubleProperty(price);
+    public Produk() {
     }
 
-    public IntegerProperty idProperty() {
-        return ID;
+    public Produk(int idProduk, String namaProduk, String kategori, double harga, int stok, String satuan, int stokMinimum) {
+        this.idProduk = idProduk;
+        this.namaProduk = namaProduk;
+        this.kategori = kategori;
+        this.harga = harga;
+        this.stok = stok;
+        this.satuan = satuan;
+        this.stokMinimum = stokMinimum;
     }
 
-    public StringProperty nameProperty() {
-        return namaProduct;
+    public int getIdProduk() {
+        return idProduk;
     }
 
-    public StringProperty descriptionProperty() {
-        return description;
+    public void setIdProduk(int idProduk) {
+        this.idProduk = idProduk;
     }
 
-    public IntegerProperty stokProperty() {
+    public String getNamaProduk() {
+        return namaProduk;
+    }
+
+    public void setNamaProduk(String namaProduk) {
+        this.namaProduk = namaProduk;
+    }
+
+    public String getKategori() {
+        return kategori;
+    }
+
+    public void setKategori(String kategori) {
+        this.kategori = kategori;
+    }
+
+    public double getHarga() {
+        return harga;
+    }
+
+    public void setHarga(double harga) {
+        this.harga = harga;
+    }
+
+    public int getStok() {
         return stok;
     }
 
-    public DoubleProperty priceProperty() {
-        return price;
+    public void setStok(int stok) {
+        this.stok = stok;
     }
 
-    public int getId() {
-        return ID.get();
+    public String getSatuan() {
+        return satuan;
     }
 
-    public void setId(int id) {
-        this.ID.set(id);
+    public void setSatuan(String satuan) {
+        this.satuan = satuan;
     }
 
-    public String getNameProduct() {
-        return namaProduct.get();
+    public int getStokMinimum() {
+        return stokMinimum;
     }
 
-    public void setNameProduct(String namaProduct) {
-        this.namaProduct.set(namaProduct);
+    public void setStokMinimum(int stokMinimum) {
+        this.stokMinimum = stokMinimum;
     }
-
-    public String getDescription() {
-        return description.get();
-    }
-    
-    public Integer getStok() {
-        return stok.get();
-    }
-
-    public void setStok(Integer stok) {
-        this.stok.set(stok);
-    }
-
-    public Double getPrice() {
-        return price.get();
-    }
-
-    public void setPrice(Double price) {
-        this.price.set(price);
-    }
-
 }

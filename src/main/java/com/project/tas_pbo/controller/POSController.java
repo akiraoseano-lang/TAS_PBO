@@ -5,7 +5,7 @@ import com.project.tas_pbo.DAO.ProdukDAO;
 import com.project.tas_pbo.model.Penjualan;
 import com.project.tas_pbo.model.PenjualanDetail;
 import com.project.tas_pbo.model.Produk;
-import com.project.tas_pbo.util.Session;
+//import com.project.tas_pbo.util.Session;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -89,7 +89,7 @@ public class POSController {
         setupClock();
         setupPayField();
 
-        kasirLabel.setText("Kasir: " + Session.getCurrentUsername());
+        kasirLabel.setText("Kasir: " );//Session.getCurrentUsername());
         discountField.setText("0");
         payField.setText("0");
 
@@ -99,7 +99,7 @@ public class POSController {
     private void setupSearch() {
         searchField.textProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal == null || newVal.isBlank()) return;
-            handleLiveSearch(newVal.trim());
+             handleLiveSearch(newVal.trim());
         });
 
         searchField.setOnKeyPressed(event -> {
@@ -406,7 +406,7 @@ public class POSController {
         Penjualan penjualan = new Penjualan();
         penjualan.setNoTransaksi(penjualanDAO.generateNoTransaksi());
         penjualan.setIdMember(null);
-        penjualan.setIdUser(Session.getCurrentUserId());
+        //penjualan.setIdUser(Session.getCurrentUserId());
         penjualan.setTotalBelanja(totalTagihan);
         penjualan.setBayar(bayar);
         penjualan.setKembalian(kembalian);
@@ -431,9 +431,7 @@ public class POSController {
         updateTotals();
     }
 
-    // =========================================================
-    // CLOCK
-    // =========================================================
+
     private void setupClock() {
         updateClock();
         Thread clockThread = new Thread(() -> {
@@ -461,9 +459,6 @@ public class POSController {
         timeLabel.setText(now.format(DateTimeFormatter.ofPattern("HH:mm")) + " WIB");
     }
 
-    // =========================================================
-    // HELPERS
-    // =========================================================
     private void showAlert(Alert.AlertType type, String title, String message) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
