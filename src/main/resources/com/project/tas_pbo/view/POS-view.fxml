@@ -54,9 +54,10 @@
                     <columns>
                         <TableColumn fx:id="colNo" text="NO" prefWidth="40"/>
                         <TableColumn fx:id="colBarcode" text="BARCODE" prefWidth="140"/>
-                        <TableColumn fx:id="colNama" text="NAMA PRODUK" prefWidth="260"/>
+                        <TableColumn fx:id="colNama" text="NAMA PRODUK" prefWidth="160"/>
                         <TableColumn fx:id="colQty" text="QTY" prefWidth="70"/>
                         <TableColumn fx:id="colSatuan" text="SATUAN" prefWidth="80"/>
+                        <TableColumn fx:id="colHarga" text="HARGA" prefWidth="80"/>
                         <TableColumn fx:id="colTotal" text="TOTAL" prefWidth="110"/>
                     </columns>
                 </TableView>
@@ -65,20 +66,29 @@
                 <HBox spacing="8" alignment="CENTER_LEFT">
                     <TextField fx:id="searchField" promptText="Pencarian Produk / Scan Barcode (F2)"
                                styleClass="search-field" HBox.hgrow="ALWAYS"/>
-                    <Button text="🔍" styleClass="search-btn"/>
+                    <Button text="🔍" styleClass="search-btn" onAction="#handleScanBarcode"/>
                 </HBox>
 
                 <!-- Function buttons row -->
                 <HBox spacing="6" alignment="CENTER">
-                    <Button text="BAYAR&#10;F1" styleClass="func-btn, func-btn-pay" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
-                    <Button text="SCAN BARCODE&#10;F2" styleClass="func-btn" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
-                    <Button text="EDIT QTY&#10;F3" styleClass="func-btn" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
-                    <Button text="HAPUS ITEM&#10;F4" styleClass="func-btn" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
-                    <Button text="CEK MEMBER&#10;F5" styleClass="func-btn" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
-                    <Button text="CEK HARGA&#10;F6" styleClass="func-btn" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
-                    <Button text="PENDING&#10;F7" styleClass="func-btn" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
-                    <Button text="CETAK STRUK&#10;F8" styleClass="func-btn" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
-                    <Button text="DISKON&#10;F9" styleClass="func-btn" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+                    <Button text="BAYAR&#10;F1" styleClass="func-btn, func-btn-pay" HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                            onAction="#handleBayar"/>
+                    <Button text="SCAN BARCODE&#10;F2" styleClass="func-btn" HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                            onAction="#handleScanBarcode"/>
+                    <Button text="EDIT QTY&#10;F3" styleClass="func-btn" HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                            onAction="#handleEditQty"/>
+                    <Button text="HAPUS ITEM&#10;F4" styleClass="func-btn" HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                            onAction="#handleHapusItem"/>
+                    <Button text="CEK MEMBER&#10;F5" styleClass="func-btn" HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                            onAction="#handleCekMember"/>
+                    <Button text="CEK HARGA&#10;F6" styleClass="func-btn" HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                            onAction="#handleCekHarga"/>
+                    <Button text="PENDING&#10;F7" styleClass="func-btn" HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                            onAction="#handlePending"/>
+                    <Button text="CETAK STRUK&#10;F8" styleClass="func-btn" HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                            onAction="#handleCetakStruk"/>
+                    <Button text="DISKON&#10;F9" styleClass="func-btn" HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                            onAction="#handleDiskon"/>
                 </HBox>
             </VBox>
 
@@ -121,19 +131,19 @@
                     </columnConstraints>
 
                     <Button text="💵&#10;Tunai" styleClass="pay-method-btn, pay-method-active" maxWidth="Infinity"
-                            GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                            GridPane.rowIndex="0" GridPane.columnIndex="0" onAction="#handlePaymentMethod"/>
                     <Button text="💳&#10;Debit" styleClass="pay-method-btn" maxWidth="Infinity"
-                            GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                            GridPane.rowIndex="0" GridPane.columnIndex="1" onAction="#handlePaymentMethod"/>
                     <Button text="🔳&#10;QRIS" styleClass="pay-method-btn" maxWidth="Infinity"
-                            GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+                            GridPane.rowIndex="0" GridPane.columnIndex="2" onAction="#handlePaymentMethod"/>
                     <Button text="📱&#10;e-Wallet" styleClass="pay-method-btn" maxWidth="Infinity"
-                            GridPane.rowIndex="0" GridPane.columnIndex="3"/>
+                            GridPane.rowIndex="0" GridPane.columnIndex="3" onAction="#handlePaymentMethod"/>
                 </GridPane>
 
                 <!-- Amount paid field -->
                 <HBox spacing="8" alignment="CENTER">
                     <TextField fx:id="payField" styleClass="pay-field" HBox.hgrow="ALWAYS"/>
-                    <Button text="⌫" styleClass="backspace-btn"/>
+                    <Button text="⌫" styleClass="backspace-btn" onAction="#handleBackspace"/>
                 </HBox>
 
                 <!-- Numpad -->
@@ -150,20 +160,20 @@
                         <RowConstraints percentHeight="33.3"/>
                     </rowConstraints>
 
-                    <Button text="4" styleClass="num-btn" maxWidth="Infinity" maxHeight="Infinity" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-                    <Button text="5" styleClass="num-btn" maxWidth="Infinity" maxHeight="Infinity" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
-                    <Button text="6" styleClass="num-btn" maxWidth="Infinity" maxHeight="Infinity" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
-                    <Button text="×" styleClass="num-btn, num-btn-op" maxWidth="Infinity" maxHeight="Infinity" GridPane.rowIndex="0" GridPane.columnIndex="3"/>
+                    <Button text="4" styleClass="num-btn" maxWidth="Infinity" maxHeight="Infinity" GridPane.rowIndex="0" GridPane.columnIndex="0" onAction="#handleNumpad"/>
+                    <Button text="5" styleClass="num-btn" maxWidth="Infinity" maxHeight="Infinity" GridPane.rowIndex="0" GridPane.columnIndex="1" onAction="#handleNumpad"/>
+                    <Button text="6" styleClass="num-btn" maxWidth="Infinity" maxHeight="Infinity" GridPane.rowIndex="0" GridPane.columnIndex="2" onAction="#handleNumpad"/>
+                    <Button text="×" styleClass="num-btn, num-btn-op" maxWidth="Infinity" maxHeight="Infinity" GridPane.rowIndex="0" GridPane.columnIndex="3" onAction="#handleNumpad"/>
 
-                    <Button text="1" styleClass="num-btn" maxWidth="Infinity" maxHeight="Infinity" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-                    <Button text="2" styleClass="num-btn" maxWidth="Infinity" maxHeight="Infinity" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
-                    <Button text="3" styleClass="num-btn" maxWidth="Infinity" maxHeight="Infinity" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
-                    <Button text="−" styleClass="num-btn, num-btn-op" maxWidth="Infinity" maxHeight="Infinity" GridPane.rowIndex="1" GridPane.columnIndex="3"/>
+                    <Button text="1" styleClass="num-btn" maxWidth="Infinity" maxHeight="Infinity" GridPane.rowIndex="1" GridPane.columnIndex="0" onAction="#handleNumpad"/>
+                    <Button text="2" styleClass="num-btn" maxWidth="Infinity" maxHeight="Infinity" GridPane.rowIndex="1" GridPane.columnIndex="1" onAction="#handleNumpad"/>
+                    <Button text="3" styleClass="num-btn" maxWidth="Infinity" maxHeight="Infinity" GridPane.rowIndex="1" GridPane.columnIndex="2" onAction="#handleNumpad"/>
+                    <Button text="−" styleClass="num-btn, num-btn-op" maxWidth="Infinity" maxHeight="Infinity" GridPane.rowIndex="1" GridPane.columnIndex="3" onAction="#handleNumpad"/>
 
-                    <Button text="0" styleClass="num-btn" maxWidth="Infinity" maxHeight="Infinity" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-                    <Button text="." styleClass="num-btn" maxWidth="Infinity" maxHeight="Infinity" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                    <Button text="0" styleClass="num-btn" maxWidth="Infinity" maxHeight="Infinity" GridPane.rowIndex="2" GridPane.columnIndex="0" onAction="#handleNumpad"/>
+                    <Button text="." styleClass="num-btn" maxWidth="Infinity" maxHeight="Infinity" GridPane.rowIndex="2" GridPane.columnIndex="1" onAction="#handleNumpad"/>
                     <Button fx:id="bayarButton" text="BAYAR" styleClass="bayar-btn" maxWidth="Infinity" maxHeight="Infinity"
-                            GridPane.rowIndex="2" GridPane.columnIndex="2" GridPane.columnSpan="2"/>
+                            GridPane.rowIndex="2" GridPane.columnIndex="2" GridPane.columnSpan="2" onAction="#handleBayar"/>
                 </GridPane>
 
             </VBox>

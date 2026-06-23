@@ -22,13 +22,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.util.Duration;
 
 import java.text.DecimalFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.TextStyle;
-import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 
 public class POSController {
@@ -44,6 +39,7 @@ public class POSController {
     @FXML private TableColumn<PenjualanDetail, String> colNama;
     @FXML private TableColumn<PenjualanDetail, Integer> colQty;
     @FXML private TableColumn<PenjualanDetail, String> colSatuan;
+    @FXML private TableColumn<PenjualanDetail, String> colHarga;
     @FXML private TableColumn<PenjualanDetail, String> colTotal;
 
     @FXML private TextField searchField;
@@ -68,17 +64,35 @@ public class POSController {
     private double diskon = 0;
     private double totalTagihan = 0;
 
+    @FXML
+    public void initialize() {
+        setupCartTable();
+        setupSearch();
+        startClock();
+        setupPayField();
+
+        kasirLabel.setText("Kasir: ");
+        discountField.setText("0");
+        payField.setText("0");
+
+
+        Platform.runLater(() -> searchField.requestFocus());
+
+        updateTotals();
+    }
+
     private void setupCartTable() {
         colNo.setCellValueFactory(cellData -> new SimpleIntegerProperty(
                 cartTable.getItems().indexOf(cellData.getValue()) + 1
         ).asObject());
 
-        colBarcode.setCellValueFactory(new PropertyValueFactory<>("idProduk"));
+        colBarcode.setCellValueFactory(new PropertyValueFactory<>("barcode"));
         colNama.setCellValueFactory(new PropertyValueFactory<>("namaProduk"));
         colQty.setCellValueFactory(new PropertyValueFactory<>("jumlah"));
-
         colSatuan.setCellValueFactory(cellData -> new SimpleStringProperty("Pcs"));
-
+        colHarga.setCellValueFactory(cellData -> new SimpleStringProperty(
+                "Rp " + rupiahFormat.format(cellData.getValue().getHargaSatuan())
+        ));
         colTotal.setCellValueFactory(cellData -> new SimpleStringProperty(
                 rupiahFormat.format(cellData.getValue().getSubtotal())
         ));
@@ -87,26 +101,8 @@ public class POSController {
         cartTable.setPlaceholder(new Label("Belum ada item, scan atau cari produk"));
     }
 
-    @FXML
-    public void initialize() {
-        setupCartTable();
-        setupSearch();
-        startClock();
-        setupPayField();
-
-        kasirLabel.setText("Kasir: " );//Session.getCurrentUsername());
-        discountField.setText("0");
-        payField.setText("0");
-
-        updateTotals();
-    }
-
     private void setupSearch() {
-        searchField.textProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal == null || newVal.isBlank()) return;
-             handleLiveSearch(newVal.trim());
-        });
-
+        // Enter key: lookup and add to cart
         searchField.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ENTER) {
                 handleSearchEnter(searchField.getText().trim());
@@ -114,35 +110,20 @@ public class POSController {
         });
     }
 
-    private void handleLiveSearch(String keyword) {
-        List<Produk> results = produkDAO.searchProduk(keyword);
-    }
-
     private void handleSearchEnter(String keyword) {
         if (keyword.isEmpty()) return;
 
-        List<Produk> results = produkDAO.searchProduk(keyword);
+        Produk produk = produkDAO.findByBarcodeOrId(keyword);
 
-        if (results.isEmpty()) {
-            showAlert(Alert.AlertType.WARNING, "Produk tidak ditemukan", "Tidak ada produk yang cocok dengan \"" + keyword + "\".");
+        if (produk == null) {
+            showAlert(Alert.AlertType.WARNING, "Produk tidak ditemukan",
+                    "Tidak ada produk dengan barcode/ID \"" + keyword + "\".");
             return;
         }
 
-        if (results.size() == 1) {
-            addToCart(results.get(0), 1);
-            searchField.clear();
-        } else {
-            ChoiceDialog<Produk> dialog = new ChoiceDialog<>(results.get(0), results);
-            dialog.setTitle("Pilih Produk");
-            dialog.setHeaderText("Beberapa produk cocok dengan pencarian Anda");
-            dialog.setContentText("Produk:");
-
-            Optional<Produk> selected = dialog.showAndWait();
-            selected.ifPresent(produk -> {
-                addToCart(produk, 1);
-                searchField.clear();
-            });
-        }
+        addToCart(produk, 1);
+        searchField.clear();
+        searchField.requestFocus();
     }
 
     private void addToCart(Produk produk, int qty) {
@@ -153,7 +134,7 @@ public class POSController {
         }
 
         for (PenjualanDetail item : cartItems) {
-            if (item.getIdProduk() == produk.getIdProduk()) {
+            if (item.getBarcode() == produk.getBarcode()) {
                 int newQty = item.getJumlah() + qty;
                 if (newQty > produk.getStok()) {
                     showAlert(Alert.AlertType.WARNING, "Stok tidak cukup",
@@ -169,6 +150,7 @@ public class POSController {
 
         PenjualanDetail detail = new PenjualanDetail(
                 produk.getIdProduk(),
+                produk.getBarcode(),
                 produk.getNamaProduk(),
                 produk.getHarga(),
                 qty
@@ -244,21 +226,19 @@ public class POSController {
     private void handleCekHarga() {
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Cek Harga");
-        dialog.setHeaderText("Cari produk untuk melihat harga");
-        dialog.setContentText("Nama/ID Produk:");
+        dialog.setHeaderText("Scan barcode atau masukkan ID produk");
+        dialog.setContentText("Barcode/ID:");
 
         Optional<String> result = dialog.showAndWait();
         result.ifPresent(keyword -> {
-            List<Produk> found = produkDAO.searchProduk(keyword.trim());
-            if (found.isEmpty()) {
+            Produk produk = produkDAO.findByBarcodeOrId(keyword.trim());
+            if (produk == null) {
                 showAlert(Alert.AlertType.WARNING, "Tidak ditemukan", "Produk tidak ditemukan.");
             } else {
-                StringBuilder sb = new StringBuilder();
-                for (Produk p : found) {
-                    sb.append(p.getNamaProduk()).append(" : Rp ")
-                            .append(rupiahFormat.format(p.getHarga())).append("\n");
-                }
-                showAlert(Alert.AlertType.INFORMATION, "Harga Produk", sb.toString());
+                showAlert(Alert.AlertType.INFORMATION, "Harga Produk",
+                        produk.getNamaProduk() +
+                                "\nHarga  : Rp " + rupiahFormat.format(produk.getHarga()) +
+                                "\nStok   : " + produk.getStok() + " " + produk.getSatuan());
             }
         });
     }
@@ -340,14 +320,10 @@ public class POSController {
         Button source = (Button) event.getSource();
         String digit = source.getText();
 
-        if (digit.equals("×") || digit.equals("−")) {
-            return;
-        }
+        if (digit.equals("×") || digit.equals("−")) return;
 
         String current = payField.getText();
-        if (current.equals("0")) {
-            current = "";
-        }
+        if (current.equals("0")) current = "";
 
         payField.setText(current + digit);
         updateKembalian();
@@ -363,7 +339,6 @@ public class POSController {
         }
         updateKembalian();
     }
-
 
     private String selectedPaymentMethod = "Tunai";
 
@@ -399,6 +374,7 @@ public class POSController {
         Penjualan penjualan = new Penjualan();
         penjualan.setNoTransaksi(penjualanDAO.generateNoTransaksi());
         penjualan.setIdMember(null);
+        penjualan.setIdUser(1);
         penjualan.setTotalBelanja(totalTagihan);
         penjualan.setBayar(bayar);
         penjualan.setKembalian(kembalian);
@@ -421,6 +397,7 @@ public class POSController {
         payField.setText("0");
         searchField.clear();
         updateTotals();
+        Platform.runLater(() -> searchField.requestFocus());
     }
 
     @FXML
@@ -436,13 +413,8 @@ public class POSController {
     @FXML
     public void updateTime() {
         LocalDateTime now = LocalDateTime.now();
-
-        if (timeLabel != null) {
-            timeLabel.setText(now.format(TIME_FORMAT));
-        }
-        if (dateLabel != null) {
-            dateLabel.setText(now.format(DATE_FORMAT));
-        }
+        if (timeLabel != null) timeLabel.setText(now.format(TIME_FORMAT));
+        if (dateLabel != null) dateLabel.setText(now.format(DATE_FORMAT));
     }
 
     private void showAlert(Alert.AlertType type, String title, String message) {

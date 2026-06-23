@@ -1,4 +1,0 @@
-package com.project.tas_pbo.model;
-
-public class Detail_Transaction {
-}

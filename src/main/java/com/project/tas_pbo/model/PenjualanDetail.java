@@ -3,6 +3,7 @@ package com.project.tas_pbo.model;
 public class PenjualanDetail {
 
     private int idDetail;
+    private String barcode;
     private int idPenjualan;
     private int idProduk;
     private String namaProduk;
@@ -13,8 +14,9 @@ public class PenjualanDetail {
     public PenjualanDetail() {
     }
 
-    public PenjualanDetail(int idProduk, String namaProduk, double hargaSatuan, int jumlah) {
+    public PenjualanDetail(int idProduk, String barcode, String namaProduk, double hargaSatuan, int jumlah) {
         this.idProduk = idProduk;
+        this.barcode = barcode;
         this.namaProduk = namaProduk;
         this.hargaSatuan = hargaSatuan;
         this.jumlah = jumlah;
@@ -43,6 +45,14 @@ public class PenjualanDetail {
 
     public void setIdProduk(int idProduk) {
         this.idProduk = idProduk;
+    }
+
+    public String getBarcode() {
+        return barcode;
+    }
+
+    public void setBarcode(String barcode) {
+        this.barcode = barcode;
     }
 
     public String getNamaProduk() {
