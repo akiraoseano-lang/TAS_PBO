@@ -1,0 +1,304 @@
+/* ===================== ROOT ===================== */
+.root-bg {
+    -fx-background-color: #f0f1f3;
+    -fx-font-family: "Segoe UI", "Arial", sans-serif;
+}
+
+/* ===================== TOP BAR ===================== */
+.topbar {
+    -fx-background-color: linear-gradient(to right, #1e3a8a, #1e40af);
+}
+
+.logo-icon {
+    -fx-font-size: 18px;
+    -fx-background-color: #dc2626;
+    -fx-background-radius: 4;
+    -fx-padding: 2 6 2 6;
+}
+
+.brand-title {
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+}
+
+.brand-version {
+    -fx-text-fill: #93c5fd;
+    -fx-font-size: 11px;
+}
+
+.topbar-sep {
+    -fx-text-fill: #93c5fd;
+}
+
+.store-name {
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+.topbar-info {
+    -fx-text-fill: #dbeafe;
+    -fx-font-size: 12px;
+}
+
+/* ===================== PANELS ===================== */
+.panel {
+    -fx-background-color: white;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-border-color: #d1d5db;
+    -fx-border-width: 1;
+    -fx-padding: 10;
+}
+
+.panel-title {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1f2937;
+}
+
+/* ===================== CART TABLE ===================== */
+.cart-table {
+    -fx-border-color: #d1d5db;
+}
+
+.cart-table .column-header-background {
+    -fx-background-color: #dc2626;
+}
+
+.cart-table .column-header,
+.cart-table .filler {
+    -fx-background-color: #dc2626;
+    -fx-size: 32px;
+}
+
+.cart-table .column-header .label {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 11px;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.cart-table .table-row-cell {
+    -fx-border-color: transparent transparent #e5e7eb transparent;
+    -fx-cell-size: 30px;
+}
+
+.cart-table .table-row-cell:odd {
+    -fx-background-color: #f9fafb;
+}
+
+.cart-table .table-row-cell:even {
+    -fx-background-color: white;
+}
+
+.cart-table .table-row-cell:selected {
+    -fx-background-color: #fef3c7;
+}
+
+.cart-table .table-cell {
+    -fx-font-size: 12px;
+    -fx-text-fill: #1f2937;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 4 8 4 8;
+}
+
+/* ===================== SEARCH BAR ===================== */
+.search-field {
+    -fx-background-color: white;
+    -fx-border-color: #d1d5db;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-font-size: 12px;
+    -fx-pref-height: 34px;
+}
+
+.search-btn {
+    -fx-background-color: #dc2626;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-pref-width: 40px;
+    -fx-pref-height: 34px;
+    -fx-background-radius: 4;
+    -fx-cursor: hand;
+}
+
+.search-btn:hover {
+    -fx-background-color: #b91c1c;
+}
+
+/* ===================== FUNCTION BUTTONS ===================== */
+.func-btn {
+    -fx-background-color: #f3f4f6;
+    -fx-border-color: #d1d5db;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-text-fill: #374151;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-text-alignment: center;
+    -fx-pref-height: 50px;
+    -fx-cursor: hand;
+}
+
+.func-btn:hover {
+    -fx-background-color: #e5e7eb;
+}
+
+.func-btn-pay {
+    -fx-background-color: #2563eb;
+    -fx-text-fill: white;
+    -fx-border-color: #1d4ed8;
+}
+
+.func-btn-pay:hover {
+    -fx-background-color: #1d4ed8;
+}
+
+/* ===================== TOTAL PANEL (RIGHT) ===================== */
+.total-panel {
+    -fx-background-color: white;
+}
+
+.total-box {
+    -fx-background-color: #dc2626;
+    -fx-background-radius: 6;
+    -fx-padding: 12;
+}
+
+.total-box-label {
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+.total-box-value {
+    -fx-text-fill: #fde047;
+    -fx-font-size: 34px;
+    -fx-font-weight: bold;
+}
+
+/* ===================== SUMMARY GRID ===================== */
+.summary-grid {
+    -fx-padding: 4 0 4 0;
+}
+
+.summary-label {
+    -fx-text-fill: #4b5563;
+    -fx-font-size: 13px;
+}
+
+.summary-value {
+    -fx-text-fill: #1f2937;
+    -fx-font-size: 13px;
+    -fx-alignment: CENTER_RIGHT;
+}
+
+.summary-label-bold {
+    -fx-text-fill: #1f2937;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.summary-value-bold {
+    -fx-text-fill: #1f2937;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-alignment: CENTER_RIGHT;
+}
+
+.discount-field {
+    -fx-background-color: #f9fafb;
+    -fx-border-color: #d1d5db;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-font-size: 12px;
+    -fx-pref-height: 28px;
+    -fx-alignment: CENTER_RIGHT;
+}
+
+/* ===================== PAYMENT METHOD BUTTONS ===================== */
+.pay-method-btn {
+    -fx-background-color: #f3f4f6;
+    -fx-border-color: #d1d5db;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-text-fill: #374151;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-text-alignment: center;
+    -fx-pref-height: 50px;
+    -fx-cursor: hand;
+}
+
+.pay-method-btn:hover {
+    -fx-background-color: #e5e7eb;
+}
+
+.pay-method-active {
+    -fx-background-color: #dcfce7;
+    -fx-border-color: #16a34a;
+    -fx-text-fill: #15803d;
+}
+
+/* ===================== AMOUNT PAID FIELD ===================== */
+.pay-field {
+    -fx-background-color: white;
+    -fx-border-color: #d1d5db;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-alignment: CENTER_RIGHT;
+    -fx-pref-height: 38px;
+}
+
+.backspace-btn {
+    -fx-background-color: #e5e7eb;
+    -fx-border-color: #d1d5db;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-font-size: 14px;
+    -fx-pref-width: 44px;
+    -fx-pref-height: 38px;
+    -fx-cursor: hand;
+}
+
+.backspace-btn:hover {
+    -fx-background-color: #d1d5db;
+}
+
+/* ===================== NUMPAD ===================== */
+.num-btn {
+    -fx-background-color: #f3f4f6;
+    -fx-border-color: #d1d5db;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-text-fill: #1f2937;
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-cursor: hand;
+}
+
+.num-btn:hover {
+    -fx-background-color: #e5e7eb;
+}
+
+.num-btn-op {
+    -fx-background-color: #e5e7eb;
+    -fx-text-fill: #4b5563;
+}
+
+.bayar-btn {
+    -fx-background-color: #16a34a;
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 4;
+    -fx-cursor: hand;
+}
+
+.bayar-btn:hover {
+    -fx-background-color: #15803d;
+}

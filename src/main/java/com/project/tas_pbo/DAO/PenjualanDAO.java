@@ -1,0 +1,130 @@
+package com.project.tas_pbo.DAO;
+
+import com.project.tas_pbo.database.DBconnection;
+import com.project.tas_pbo.model.Penjualan;
+import com.project.tas_pbo.model.PenjualanDetail;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.List;
+
+public class PenjualanDAO {
+
+    public int saveTransaction(Penjualan penjualan, List<PenjualanDetail> items) {
+        String sqlHeader = "INSERT INTO penjualan (no_transaksi, id_member, id_user, total_belanja, bayar, kembalian) " +
+                "VALUES (?, ?, ?, ?, ?, ?)";
+
+        String sqlDetail = "INSERT INTO penjualan_detail (id_penjualan, id_produk, nama_produk, harga_satuan, jumlah, subtotal) " +
+                "VALUES (?, ?, ?, ?, ?, ?)";
+
+        String sqlUpdateStok = "UPDATE produk SET stok = stok - ? WHERE id_produk = ?";
+
+        Connection conn = null;
+
+        try {
+            conn = DBconnection.connect();
+            conn.setAutoCommit(false);
+
+            int generatedId;
+
+
+            try (PreparedStatement stmt = conn.prepareStatement(sqlHeader, Statement.RETURN_GENERATED_KEYS)) {
+                stmt.setString(1, penjualan.getNoTransaksi());
+
+                if (penjualan.getIdMember() != null) {
+                    stmt.setInt(2, penjualan.getIdMember());
+                } else {
+                    stmt.setNull(2, java.sql.Types.INTEGER);
+                }
+
+                stmt.setInt(3, penjualan.getIdUser());
+                stmt.setDouble(4, penjualan.getTotalBelanja());
+                stmt.setDouble(5, penjualan.getBayar());
+                stmt.setDouble(6, penjualan.getKembalian());
+
+                stmt.executeUpdate();
+
+                try (ResultSet keys = stmt.getGeneratedKeys()) {
+                    if (keys.next()) {
+                        generatedId = keys.getInt(1);
+                    } else {
+                        conn.rollback();
+                        return -1;
+                    }
+                }
+            }
+
+            try (PreparedStatement stmtDetail = conn.prepareStatement(sqlDetail);
+                 PreparedStatement stmtStok = conn.prepareStatement(sqlUpdateStok)) {
+
+                for (PenjualanDetail item : items) {
+                    stmtDetail.setInt(1, generatedId);
+                    stmtDetail.setInt(2, item.getIdProduk());
+                    stmtDetail.setString(3, item.getNamaProduk());
+                    stmtDetail.setDouble(4, item.getHargaSatuan());
+                    stmtDetail.setInt(5, item.getJumlah());
+                    stmtDetail.setDouble(6, item.getSubtotal());
+                    stmtDetail.addBatch();
+
+                    stmtStok.setInt(1, item.getJumlah());
+                    stmtStok.setInt(2, item.getIdProduk());
+                    stmtStok.addBatch();
+                }
+
+                stmtDetail.executeBatch();
+                stmtStok.executeBatch();
+            }
+
+            conn.commit();
+            return generatedId;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                } catch (SQLException rollbackEx) {
+                    rollbackEx.printStackTrace();
+                }
+            }
+            return -1;
+
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public String generateNoTransaksi() {
+        String today = new java.text.SimpleDateFormat("yyyyMMdd").format(new java.util.Date());
+        String prefix = "TRX-" + today + "-";
+
+        String sql = "SELECT COUNT(*) AS jumlah FROM penjualan WHERE no_transaksi LIKE ?";
+
+        try (Connection conn = DBconnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, prefix + "%");
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    int count = rs.getInt("jumlah") + 1;
+                    return prefix + String.format("%04d", count);
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return prefix + "0001";
+    }
+}

@@ -31,6 +31,70 @@ public class ProdukDAO {
         return list;
     }
 
+    public List<Produk> searchProduk(String keyword) {
+        List<Produk> list = new ArrayList<>();
+        String sql = "SELECT * FROM produk WHERE nama_produk LIKE ? OR id_produk = ? ORDER BY nama_produk ASC LIMIT 20";
+
+        try (Connection conn = DBconnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, "%" + keyword + "%");
+            try {
+                stmt.setInt(2, Integer.parseInt(keyword));
+            } catch (NumberFormatException e) {
+                stmt.setInt(2, -1); // no match if not numeric
+            }
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapResultSetToProduk(rs));
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+    public Produk findByBarcodeOrId(String keyword) {
+
+        String sqlByBarcode = "SELECT * FROM produk WHERE barcode = ?";
+        try (Connection conn = DBconnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(sqlByBarcode)) {
+
+            stmt.setString(1, keyword);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToProduk(rs);
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        if (keyword.matches("\\d+")) {
+            String sqlById = "SELECT * FROM produk WHERE id_produk = ?";
+            try (Connection conn = DBconnection.connect();
+                 PreparedStatement stmt = conn.prepareStatement(sqlById)) {
+
+                stmt.setInt(1, Integer.parseInt(keyword));
+                try (ResultSet rs = stmt.executeQuery()) {
+                    if (rs.next()) {
+                        return mapResultSetToProduk(rs);
+                    }
+                }
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return null;
+    }
+
     public Produk getProdukById(int id) {
         String sql = "SELECT * FROM produk WHERE id_produk = ?";
 
@@ -111,7 +175,8 @@ public class ProdukDAO {
 
     private Produk mapResultSetToProduk(ResultSet rs) throws SQLException {
         Produk produk = new Produk();
-        produk.setIdProduk(rs.getInt("id_produk"));
+        produk.setIdProduk(rs.getInt("id_produk")); // ADD THIS LINE
+        produk.setBarcode(rs.getString("barcode"));
         produk.setNamaProduk(rs.getString("nama_produk"));
         produk.setKategori(rs.getString("kategori"));
         produk.setHarga(rs.getDouble("harga"));
