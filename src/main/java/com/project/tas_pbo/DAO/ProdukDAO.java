@@ -175,6 +175,7 @@ public class ProdukDAO {
 
     private Produk mapResultSetToProduk(ResultSet rs) throws SQLException {
         Produk produk = new Produk();
+        produk.setIdProduk(rs.getInt("id_produk")); // ADD THIS LINE
         produk.setBarcode(rs.getString("barcode"));
         produk.setNamaProduk(rs.getString("nama_produk"));
         produk.setKategori(rs.getString("kategori"));

@@ -5,7 +5,6 @@ import com.project.tas_pbo.DAO.ProdukDAO;
 import com.project.tas_pbo.model.Penjualan;
 import com.project.tas_pbo.model.PenjualanDetail;
 import com.project.tas_pbo.model.Produk;
-//import com.project.tas_pbo.util.Session;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -35,7 +34,7 @@ public class POSController {
 
     @FXML private TableView<PenjualanDetail> cartTable;
     @FXML private TableColumn<PenjualanDetail, Integer> colNo;
-    @FXML private TableColumn<PenjualanDetail, Integer> colBarcode;
+    @FXML private TableColumn<PenjualanDetail, String> colBarcode;
     @FXML private TableColumn<PenjualanDetail, String> colNama;
     @FXML private TableColumn<PenjualanDetail, Integer> colQty;
     @FXML private TableColumn<PenjualanDetail, String> colSatuan;
@@ -75,7 +74,6 @@ public class POSController {
         discountField.setText("0");
         payField.setText("0");
 
-
         Platform.runLater(() -> searchField.requestFocus());
 
         updateTotals();
@@ -102,10 +100,11 @@ public class POSController {
     }
 
     private void setupSearch() {
-        // Enter key: lookup and add to cart
         searchField.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ENTER) {
-                handleSearchEnter(searchField.getText().trim());
+                String keyword = searchField.getText().trim();
+                searchField.clear(); // clear immediately on Enter
+                handleSearchEnter(keyword);
             }
         });
     }
@@ -114,6 +113,9 @@ public class POSController {
         if (keyword.isEmpty()) return;
 
         Produk produk = produkDAO.findByBarcodeOrId(keyword);
+
+        System.out.println("Searching: " + keyword);
+        System.out.println("Found: " + (produk == null ? "null" : produk.getIdProduk() + " - " + produk.getNamaProduk() + " - " + produk.getBarcode()));
 
         if (produk == null) {
             showAlert(Alert.AlertType.WARNING, "Produk tidak ditemukan",
@@ -134,7 +136,7 @@ public class POSController {
         }
 
         for (PenjualanDetail item : cartItems) {
-            if (item.getBarcode() == produk.getBarcode()) {
+            if (item.getIdProduk() == produk.getIdProduk()) {
                 int newQty = item.getJumlah() + qty;
                 if (newQty > produk.getStok()) {
                     showAlert(Alert.AlertType.WARNING, "Stok tidak cukup",
@@ -326,6 +328,12 @@ public class POSController {
         if (current.equals("0")) current = "";
 
         payField.setText(current + digit);
+        updateKembalian();
+    }
+
+    @FXML
+    private void handleClearPay() {
+        payField.setText("0");
         updateKembalian();
     }
 

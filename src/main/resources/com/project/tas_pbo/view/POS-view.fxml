@@ -155,25 +155,31 @@
                         <ColumnConstraints percentWidth="25"/>
                     </columnConstraints>
                     <rowConstraints>
-                        <RowConstraints percentHeight="33.3"/>
-                        <RowConstraints percentHeight="33.3"/>
-                        <RowConstraints percentHeight="33.3"/>
+                        <RowConstraints percentHeight="25"/>
+                        <RowConstraints percentHeight="25"/>
+                        <RowConstraints percentHeight="25"/>
+                        <RowConstraints percentHeight="25"/>
                     </rowConstraints>
 
-                    <Button text="4" styleClass="num-btn" maxWidth="Infinity" maxHeight="Infinity" GridPane.rowIndex="0" GridPane.columnIndex="0" onAction="#handleNumpad"/>
-                    <Button text="5" styleClass="num-btn" maxWidth="Infinity" maxHeight="Infinity" GridPane.rowIndex="0" GridPane.columnIndex="1" onAction="#handleNumpad"/>
-                    <Button text="6" styleClass="num-btn" maxWidth="Infinity" maxHeight="Infinity" GridPane.rowIndex="0" GridPane.columnIndex="2" onAction="#handleNumpad"/>
+                    <Button text="7" styleClass="num-btn" maxWidth="Infinity" maxHeight="Infinity" GridPane.rowIndex="0" GridPane.columnIndex="0" onAction="#handleNumpad"/>
+                    <Button text="8" styleClass="num-btn" maxWidth="Infinity" maxHeight="Infinity" GridPane.rowIndex="0" GridPane.columnIndex="1" onAction="#handleNumpad"/>
+                    <Button text="9" styleClass="num-btn" maxWidth="Infinity" maxHeight="Infinity" GridPane.rowIndex="0" GridPane.columnIndex="2" onAction="#handleNumpad"/>
                     <Button text="×" styleClass="num-btn, num-btn-op" maxWidth="Infinity" maxHeight="Infinity" GridPane.rowIndex="0" GridPane.columnIndex="3" onAction="#handleNumpad"/>
 
-                    <Button text="1" styleClass="num-btn" maxWidth="Infinity" maxHeight="Infinity" GridPane.rowIndex="1" GridPane.columnIndex="0" onAction="#handleNumpad"/>
-                    <Button text="2" styleClass="num-btn" maxWidth="Infinity" maxHeight="Infinity" GridPane.rowIndex="1" GridPane.columnIndex="1" onAction="#handleNumpad"/>
-                    <Button text="3" styleClass="num-btn" maxWidth="Infinity" maxHeight="Infinity" GridPane.rowIndex="1" GridPane.columnIndex="2" onAction="#handleNumpad"/>
+                    <Button text="4" styleClass="num-btn" maxWidth="Infinity" maxHeight="Infinity" GridPane.rowIndex="1" GridPane.columnIndex="0" onAction="#handleNumpad"/>
+                    <Button text="5" styleClass="num-btn" maxWidth="Infinity" maxHeight="Infinity" GridPane.rowIndex="1" GridPane.columnIndex="1" onAction="#handleNumpad"/>
+                    <Button text="6" styleClass="num-btn" maxWidth="Infinity" maxHeight="Infinity" GridPane.rowIndex="1" GridPane.columnIndex="2" onAction="#handleNumpad"/>
                     <Button text="−" styleClass="num-btn, num-btn-op" maxWidth="Infinity" maxHeight="Infinity" GridPane.rowIndex="1" GridPane.columnIndex="3" onAction="#handleNumpad"/>
 
-                    <Button text="0" styleClass="num-btn" maxWidth="Infinity" maxHeight="Infinity" GridPane.rowIndex="2" GridPane.columnIndex="0" onAction="#handleNumpad"/>
-                    <Button text="." styleClass="num-btn" maxWidth="Infinity" maxHeight="Infinity" GridPane.rowIndex="2" GridPane.columnIndex="1" onAction="#handleNumpad"/>
+                    <Button text="1" styleClass="num-btn" maxWidth="Infinity" maxHeight="Infinity" GridPane.rowIndex="2" GridPane.columnIndex="0" onAction="#handleNumpad"/>
+                    <Button text="2" styleClass="num-btn" maxWidth="Infinity" maxHeight="Infinity" GridPane.rowIndex="2" GridPane.columnIndex="1" onAction="#handleNumpad"/>
+                    <Button text="3" styleClass="num-btn" maxWidth="Infinity" maxHeight="Infinity" GridPane.rowIndex="2" GridPane.columnIndex="2" onAction="#handleNumpad"/>
+                    <Button text="C" styleClass="num-btn, num-btn-op" maxWidth="Infinity" maxHeight="Infinity" GridPane.rowIndex="2" GridPane.columnIndex="3" onAction="#handleClearPay"/>
+
+                    <Button text="0" styleClass="num-btn" maxWidth="Infinity" maxHeight="Infinity" GridPane.rowIndex="3" GridPane.columnIndex="0" onAction="#handleNumpad"/>
+                    <Button text="." styleClass="num-btn" maxWidth="Infinity" maxHeight="Infinity" GridPane.rowIndex="3" GridPane.columnIndex="1" onAction="#handleNumpad"/>
                     <Button fx:id="bayarButton" text="BAYAR" styleClass="bayar-btn" maxWidth="Infinity" maxHeight="Infinity"
-                            GridPane.rowIndex="2" GridPane.columnIndex="2" GridPane.columnSpan="2" onAction="#handleBayar"/>
+                            GridPane.rowIndex="3" GridPane.columnIndex="2" GridPane.columnSpan="2" onAction="#handleBayar"/>
                 </GridPane>
 
             </VBox>

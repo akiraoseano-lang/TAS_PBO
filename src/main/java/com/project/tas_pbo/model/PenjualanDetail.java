@@ -3,9 +3,9 @@ package com.project.tas_pbo.model;
 public class PenjualanDetail {
 
     private int idDetail;
-    private String barcode;
     private int idPenjualan;
     private int idProduk;
+    private String barcode;
     private String namaProduk;
     private double hargaSatuan;
     private int jumlah;
@@ -23,68 +23,30 @@ public class PenjualanDetail {
         this.subtotal = hargaSatuan * jumlah;
     }
 
-    public int getIdDetail() {
-        return idDetail;
-    }
+    public int getIdDetail() { return idDetail; }
+    public void setIdDetail(int idDetail) { this.idDetail = idDetail; }
 
-    public void setIdDetail(int idDetail) {
-        this.idDetail = idDetail;
-    }
+    public int getIdPenjualan() { return idPenjualan; }
+    public void setIdPenjualan(int idPenjualan) { this.idPenjualan = idPenjualan; }
 
-    public int getIdPenjualan() {
-        return idPenjualan;
-    }
+    public int getIdProduk() { return idProduk; }
+    public void setIdProduk(int idProduk) { this.idProduk = idProduk; }
 
-    public void setIdPenjualan(int idPenjualan) {
-        this.idPenjualan = idPenjualan;
-    }
+    public String getBarcode() { return barcode; }
+    public void setBarcode(String barcode) { this.barcode = barcode; }
 
-    public int getIdProduk() {
-        return idProduk;
-    }
+    public String getNamaProduk() { return namaProduk; }
+    public void setNamaProduk(String namaProduk) { this.namaProduk = namaProduk; }
 
-    public void setIdProduk(int idProduk) {
-        this.idProduk = idProduk;
-    }
+    public double getHargaSatuan() { return hargaSatuan; }
+    public void setHargaSatuan(double hargaSatuan) { this.hargaSatuan = hargaSatuan; }
 
-    public String getBarcode() {
-        return barcode;
-    }
-
-    public void setBarcode(String barcode) {
-        this.barcode = barcode;
-    }
-
-    public String getNamaProduk() {
-        return namaProduk;
-    }
-
-    public void setNamaProduk(String namaProduk) {
-        this.namaProduk = namaProduk;
-    }
-
-    public double getHargaSatuan() {
-        return hargaSatuan;
-    }
-
-    public void setHargaSatuan(double hargaSatuan) {
-        this.hargaSatuan = hargaSatuan;
-    }
-
-    public int getJumlah() {
-        return jumlah;
-    }
-
+    public int getJumlah() { return jumlah; }
     public void setJumlah(int jumlah) {
         this.jumlah = jumlah;
         this.subtotal = this.hargaSatuan * jumlah;
     }
 
-    public double getSubtotal() {
-        return subtotal;
-    }
-
-    public void setSubtotal(double subtotal) {
-        this.subtotal = subtotal;
-    }
+    public double getSubtotal() { return subtotal; }
+    public void setSubtotal(double subtotal) { this.subtotal = subtotal; }
 }
