@@ -9,6 +9,7 @@ module com.project.tas_pbo {
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.bootstrapfx.core;
     requires eu.hansolo.tilesfx;
+    requires java.sql;
 
     opens com.project.tas_pbo to javafx.fxml;
     exports com.project.tas_pbo;
