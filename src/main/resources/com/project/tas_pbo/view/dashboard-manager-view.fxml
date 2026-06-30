@@ -70,7 +70,7 @@
 
                 <VBox>
                     <children>
-                        <Button alignment="BASELINE_LEFT" graphicTextGap="15.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="250.0" styleClass="nav-btn" text="Logout">
+                        <Button alignment="BASELINE_LEFT" graphicTextGap="15.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="250.0" styleClass="nav-btn" onAction="#handleLogin" text="Logout">
                             <padding><Insets left="30.0" /></padding>
                         </Button>
                         <HBox alignment="CENTER_LEFT" prefHeight="70.0" spacing="15.0" styleClass="user-profile">

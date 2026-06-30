@@ -26,6 +26,8 @@ import java.io.IOException;
 import javafx.event.ActionEvent;
 import javafx.util.Duration;
 
+import com.project.tas_pbo.util.Session;
+
 public class DashboardManagerController {
 
     @FXML private ScrollPane dashboardView;
@@ -248,6 +250,16 @@ public class DashboardManagerController {
         }
         for (Button b : allButtons) {
             b.getStyleClass().setAll(b == activeBtn ? "nav-btn-active" : "nav-btn");
+        }
+    }
+
+    @FXML
+    private void handleLogin(ActionEvent event) {
+        Session.clear();
+        try {
+            SceneController.switchTo("/com/project/tas_pbo/view/login-view.fxml", event);
+        } catch (IOException e) {
+        e.printStackTrace();
         }
     }
 }
