@@ -28,7 +28,6 @@ import javafx.util.Duration;
 
 public class DashboardManagerController {
 
-    // ===== Views (StackPane children) =====
     @FXML private ScrollPane dashboardView;
     @FXML private VBox penjualanView;
     @FXML private VBox produkView;

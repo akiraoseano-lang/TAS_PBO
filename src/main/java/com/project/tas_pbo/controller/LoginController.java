@@ -1,16 +1,17 @@
 package com.project.tas_pbo.controller;
 
+import com.project.tas_pbo.DAO.UserDAO;
+import com.project.tas_pbo.model.User;
+import com.project.tas_pbo.util.Session;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
-import javafx.scene.image.ImageView;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.util.Duration;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.io.IOException;
 import javafx.event.ActionEvent;
@@ -26,6 +27,8 @@ public class LoginController {
 
     private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("hh:mm:ss a");
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("EEEE, MMMM d");
+
+    private final UserDAO userDAO = new UserDAO();
 
     @FXML
     public void initialize() {
@@ -45,39 +48,55 @@ public class LoginController {
     @FXML
     public void updateTime() {
         LocalDateTime now = LocalDateTime.now();
-
-        if (timeLabel != null) {
-            timeLabel.setText(now.format(TIME_FORMAT));
-        }
-        if (dateLabel != null) {
-            dateLabel.setText(now.format(DATE_FORMAT));
-        }
+        if (timeLabel != null) timeLabel.setText(now.format(TIME_FORMAT));
+        if (dateLabel != null) dateLabel.setText(now.format(DATE_FORMAT));
     }
 
     @FXML
     private void handleLogin(ActionEvent event) {
-        String user = txtUsername.getText();
-        String pass = txtPassword.getText();
+        String username = txtUsername.getText().trim();
+        String password = txtPassword.getText().trim();
 
-        if (user.isEmpty() || pass.isEmpty()) {
-            loginTextAlert.setText("Username dan Password tidak boleh kosong!");
-            loginTextAlert.setStyle("-fx-text-fill: red");
+        if (username.isEmpty() || password.isEmpty()) {
+            showAlert("Username dan Password tidak boleh kosong!", true);
+            return;
         }
 
-        System.out.println("Mencoba login untuk: " + user);
+        System.out.println("Mencoba login untuk: " + username);
 
-        if (user.equals("Manager") && pass.equals("12345678")) {
-            try {
-                SceneController.switchTo("/com/project/tas_pbo/view/dashboard-manager-view.fxml", event);
-            } catch (IOException e) {
-                e.printStackTrace();
+        User user = userDAO.login(username, password);
 
-                System.out.println("Gagal login sebagai manager");
+        if (user == null) {
+            showAlert("Username atau Password salah!", true);
+            return;
+        }
+
+        Session.setCurrentUser(user);
+        System.out.println("Login berhasil: " + user.getNamaLengkap() + " (" + user.getRole() + ")");
+
+        try {
+            switch (user.getRole()) {
+                case "Manager" ->
+                        SceneController.switchTo("/com/project/tas_pbo/view/dashboard-manager-view.fxml", event);
+
+                case "Kasir" ->
+                        SceneController.switchTo("/com/project/tas_pbo/view/POS-view.fxml", event);
+
+                case "Admin" ->
+                        SceneController.switchTo("/com/project/tas_pbo/view/admin-dashboard-view.fxml", event);
+
+                default -> showAlert("Role tidak dikenali: " + user.getRole(), true);
             }
-        } else {
-            loginTextAlert.setText("Gagal Username atau Password salah!");
-            loginTextAlert.setStyle("-fx-text-fill: red");
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Gagal membuka halaman. Coba lagi.", true);
         }
     }
 
+    private void showAlert(String message, boolean isError) {
+        loginTextAlert.setText(message);
+        loginTextAlert.setStyle(isError
+                ? "-fx-text-fill: red;"
+                : "-fx-text-fill: green;");
+    }
 }
