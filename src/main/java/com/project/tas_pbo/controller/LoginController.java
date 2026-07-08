@@ -21,6 +21,8 @@ public class LoginController {
     @FXML private StackPane rootPane;
     @FXML private TextField txtUsername;
     @FXML private PasswordField txtPassword;
+    @FXML private TextField txtPasswordVisible;
+    @FXML private CheckBox chkShowPassword;
     @FXML private Label loginTextAlert;
     @FXML private Label timeLabel;
     @FXML private Label dateLabel;
@@ -33,6 +35,9 @@ public class LoginController {
     @FXML
     public void initialize() {
         startClock();
+        txtPasswordVisible.textProperty().bindBidirectional(txtPassword.textProperty());
+        txtPasswordVisible.managedProperty().bind(txtPasswordVisible.visibleProperty());
+        txtPassword.managedProperty().bind(txtPassword.visibleProperty());
     }
 
     @FXML
@@ -90,6 +95,21 @@ public class LoginController {
         } catch (IOException e) {
             e.printStackTrace();
             showAlert("Gagal membuka halaman. Coba lagi.", true);
+        }
+    }
+
+    @FXML
+    private void handleShowPassword() {
+        if (chkShowPassword.isSelected()) {
+            txtPasswordVisible.setVisible(true);
+            txtPassword.setVisible(false);
+            txtPasswordVisible.requestFocus();
+            txtPasswordVisible.selectEnd();
+        } else {
+            txtPassword.setVisible(true);
+            txtPasswordVisible.setVisible(false);
+            txtPassword.requestFocus();
+            txtPassword.selectEnd();
         }
     }
 

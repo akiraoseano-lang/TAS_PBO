@@ -183,3 +183,36 @@
 .signin-button:pressed {
     -fx-background-color: #1F5C3A;
 }
+
+/* ---------- Show Password CheckBox ---------- */
+.show-password-checkbox {
+    -fx-font-size: 12px;
+    -fx-text-fill: #64748B;
+    -fx-cursor: hand;
+    -fx-padding: 2 0 2 0;
+}
+
+.show-password-checkbox .box {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #D3D1C7;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-border-width: 1;
+}
+
+.show-password-checkbox:focused .box {
+    -fx-border-color: #378ADD;
+}
+
+.show-password-checkbox:hover .box {
+    -fx-border-color: #378ADD;
+}
+
+.show-password-checkbox:selected .box {
+    -fx-background-color: #2E8B57;
+    -fx-border-color: #2E8B57;
+}
+
+.show-password-checkbox:selected .mark {
+    -fx-background-color: #FFFFFF;
+}

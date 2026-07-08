@@ -50,16 +50,10 @@
                         <Button fx:id="btnProduk" alignment="BASELINE_LEFT" graphicTextGap="15.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="250.0" styleClass="nav-btn" text="Produk" onAction="#showProdukView">
                             <padding><Insets left="30.0" /></padding>
                         </Button>
-                        <Button fx:id="btnStok" alignment="BASELINE_LEFT" graphicTextGap="15.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="250.0" styleClass="nav-btn" text="Stok" onAction="#showStokView">
-                            <padding><Insets left="30.0" /></padding>
-                        </Button>
-                        <Button fx:id="btnPelanggan" alignment="BASELINE_LEFT" graphicTextGap="15.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="250.0" styleClass="nav-btn" text="Pelanggan" onAction="#showPelangganView">
+                        <Button fx:id="btnMember" alignment="BASELINE_LEFT" graphicTextGap="15.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="250.0" styleClass="nav-btn" text="Member" onAction="#showPelangganView">
                             <padding><Insets left="30.0" /></padding>
                         </Button>
                         <Button fx:id="btnLaporan" alignment="BASELINE_LEFT" graphicTextGap="15.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="250.0" styleClass="nav-btn" text="Laporan" onAction="#showLaporanView">
-                            <padding><Insets left="30.0" /></padding>
-                        </Button>
-                        <Button fx:id="btnPengaturan" alignment="BASELINE_LEFT" graphicTextGap="15.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="250.0" styleClass="nav-btn" text="Pengaturan" onAction="#showPengaturanView">
                             <padding><Insets left="30.0" /></padding>
                         </Button>
                     </children>
@@ -70,7 +64,7 @@
 
                 <VBox>
                     <children>
-                        <Button alignment="BASELINE_LEFT" graphicTextGap="15.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="250.0" styleClass="nav-btn" onAction="#handleLogin" text="Logout">
+                        <Button alignment="BASELINE_LEFT" graphicTextGap="15.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="250.0" styleClass="nav-btn" onAction="#handleLogout" text="Logout">
                             <padding><Insets left="30.0" /></padding>
                         </Button>
                         <HBox alignment="CENTER_LEFT" prefHeight="70.0" spacing="15.0" styleClass="user-profile">
@@ -135,8 +129,8 @@
                                                 <VBox alignment="CENTER_LEFT" spacing="5.0">
                                                     <children>
                                                         <Label styleClass="card-title" text="Total Penjualan" />
-                                                        <Label styleClass="card-value" text="Rp 1.250.000" />
-                                                        <Label styleClass="card-subtitle-green" text="Hari ini  ↑ 12%" />
+                                                        <Label fx:id="lblTotalPenjualan" styleClass="card-value" text="Rp 0" />
+                                                        <Label styleClass="card-subtitle-green" text="Semua Penjualan" />
                                                     </children>
                                                 </VBox>
                                             </children>
@@ -151,7 +145,7 @@
                                                 <VBox alignment="CENTER_LEFT" spacing="5.0">
                                                     <children>
                                                         <Label styleClass="card-title" text="Total Produk" />
-                                                        <Label styleClass="card-value" text="128" />
+                                                        <Label fx:id="lblTotalProduk" styleClass="card-value" text="0" />
                                                         <Label styleClass="card-subtitle" text="Semua Produk" />
                                                     </children>
                                                 </VBox>
@@ -167,7 +161,7 @@
                                                 <VBox alignment="CENTER_LEFT" spacing="5.0">
                                                     <children>
                                                         <Label styleClass="card-title" text="Total Stok" />
-                                                        <Label styleClass="card-value" text="2.456" />
+                                                        <Label fx:id="lblTotalStok" styleClass="card-value" text="0" />
                                                         <Label styleClass="card-subtitle" text="Semua Stok" />
                                                     </children>
                                                 </VBox>
@@ -183,7 +177,7 @@
                                                 <VBox alignment="CENTER_LEFT" spacing="5.0">
                                                     <children>
                                                         <Label styleClass="card-title" text="Total Pelanggan" />
-                                                        <Label styleClass="card-value" text="86" />
+                                                        <Label fx:id="lblTotalPelanggan" styleClass="card-value" text="0" />
                                                         <Label styleClass="card-subtitle" text="Semua Pelanggan" />
                                                     </children>
                                                 </VBox>
@@ -216,17 +210,16 @@
                                                     <children>
                                                         <Label styleClass="section-title" text="Stok Produk Menipis" />
                                                         <Pane HBox.hgrow="ALWAYS" />
-                                                        <Button styleClass="btn-link" text="Lihat Semua" onAction="#showStokView" />
                                                     </children>
                                                     <VBox.margin><Insets bottom="15.0" /></VBox.margin>
                                                 </HBox>
                                                 <TableView fx:id="tableStok" prefHeight="250.0" VBox.vgrow="ALWAYS">
                                                     <columns>
-                                                        <TableColumn prefWidth="40.0" text="No" />
-                                                        <TableColumn prefWidth="130.0" text="Produk" />
-                                                        <TableColumn prefWidth="50.0" text="Stok" />
-                                                        <TableColumn prefWidth="70.0" text="Satuan" />
-                                                        <TableColumn prefWidth="70.0" text="Status" />
+                                                        <TableColumn fx:id="colStokNo" prefWidth="40.0" text="No" />
+                                                        <TableColumn fx:id="colStokNama" prefWidth="130.0" text="Produk" />
+                                                        <TableColumn fx:id="colStokQty" prefWidth="50.0" text="Stok" />
+                                                        <TableColumn fx:id="colStokSatuan" prefWidth="70.0" text="Satuan" />
+                                                        <TableColumn fx:id="colStokStatus" prefWidth="70.0" text="Status" />
                                                     </columns>
                                                     <columnResizePolicy>
                                                         <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
@@ -252,11 +245,11 @@
                                                 </HBox>
                                                 <TableView fx:id="tablePenjualan" prefHeight="200.0" VBox.vgrow="ALWAYS">
                                                     <columns>
-                                                        <TableColumn prefWidth="40.0" text="No" />
-                                                        <TableColumn prefWidth="120.0" text="No. Transaksi" />
-                                                        <TableColumn prefWidth="100.0" text="Pelanggan" />
-                                                        <TableColumn prefWidth="100.0" text="Total" />
-                                                        <TableColumn prefWidth="120.0" text="Waktu" />
+                                                        <TableColumn fx:id="colPenjualanNo" prefWidth="40.0" text="No" />
+                                                        <TableColumn fx:id="colPenjualanNoTrx" prefWidth="120.0" text="No. Transaksi" />
+                                                        <TableColumn fx:id="colPenjualanMember" prefWidth="100.0" text="Pelanggan" />
+                                                        <TableColumn fx:id="colPenjualanTotal" prefWidth="100.0" text="Total" />
+                                                        <TableColumn fx:id="colPenjualanWaktu" prefWidth="120.0" text="Waktu" />
                                                     </columns>
                                                     <columnResizePolicy>
                                                         <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
@@ -278,10 +271,10 @@
                                                 </HBox>
                                                 <TableView fx:id="tableTerlaris" prefHeight="200.0" VBox.vgrow="ALWAYS">
                                                     <columns>
-                                                        <TableColumn prefWidth="40.0" text="No" />
-                                                        <TableColumn prefWidth="150.0" text="Produk" />
-                                                        <TableColumn prefWidth="80.0" text="Terjual" />
-                                                        <TableColumn prefWidth="70.0" text="Satuan" />
+                                                        <TableColumn fx:id="colTerlarisNo" prefWidth="40.0" text="No" />
+                                                        <TableColumn fx:id="colTerlarisNama" prefWidth="150.0" text="Produk" />
+                                                        <TableColumn fx:id="colTerlarisJumlah" prefWidth="80.0" text="Terjual" />
+                                                        <TableColumn fx:id="colTerlarisSatuan" prefWidth="70.0" text="Satuan" />
                                                     </columns>
                                                     <columnResizePolicy>
                                                         <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
@@ -308,7 +301,6 @@
                             <children>
                                 <Label styleClass="header-title" text="☰   Penjualan" />
                                 <Pane HBox.hgrow="ALWAYS" />
-                                <Button styleClass="btn-link" text="+ Transaksi Baru" />
                             </children>
                         </HBox>
                         <VBox styleClass="content-box" VBox.vgrow="ALWAYS">
@@ -316,11 +308,11 @@
                                 <Label styleClass="section-title" text="Daftar Penjualan" />
                                 <TableView fx:id="tablePenjualanAll" VBox.vgrow="ALWAYS">
                                     <columns>
-                                        <TableColumn prefWidth="40.0" text="No" />
-                                        <TableColumn prefWidth="120.0" text="No. Transaksi" />
-                                        <TableColumn prefWidth="120.0" text="Pelanggan" />
-                                        <TableColumn prefWidth="100.0" text="Total" />
-                                        <TableColumn prefWidth="120.0" text="Waktu" />
+                                        <TableColumn fx:id="colPenjualanAllNo" prefWidth="40.0" text="No" />
+                                        <TableColumn fx:id="colPenjualanAllNoTrx" prefWidth="120.0" text="No. Transaksi" />
+                                        <TableColumn fx:id="colPenjualanAllMember" prefWidth="120.0" text="Pelanggan" />
+                                        <TableColumn fx:id="colPenjualanAllTotal" prefWidth="100.0" text="Total" />
+                                        <TableColumn fx:id="colPenjualanAllWaktu" prefWidth="120.0" text="Waktu" />
                                     </columns>
                                     <columnResizePolicy>
                                         <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
@@ -342,7 +334,6 @@
                             <children>
                                 <Label styleClass="header-title" text="☰   Produk" />
                                 <Pane HBox.hgrow="ALWAYS" />
-                                <Button styleClass="btn-link" text="+ Tambah Produk" />
                             </children>
                         </HBox>
                         <VBox styleClass="content-box" VBox.vgrow="ALWAYS">
@@ -382,41 +373,7 @@
                     </children>
                 </VBox>
 
-                <!-- ================= STOK VIEW ================= -->
-                <VBox fx:id="stokView" visible="false" managed="false" spacing="20.0" styleClass="main-content-bg">
-                    <padding>
-                        <Insets bottom="30.0" left="30.0" right="30.0" top="20.0" />
-                    </padding>
-                    <children>
-                        <HBox alignment="CENTER_LEFT" prefHeight="50.0">
-                            <children>
-                                <Label styleClass="header-title" text="☰   Stok" />
-                                <Pane HBox.hgrow="ALWAYS" />
-                                <Button styleClass="btn-link" text="+ Input Stok" />
-                            </children>
-                        </HBox>
-                        <VBox styleClass="content-box" VBox.vgrow="ALWAYS">
-                            <children>
-                                <Label styleClass="section-title" text="Data Stok Produk" />
-                                <TableView fx:id="tableStokAll" VBox.vgrow="ALWAYS">
-                                    <columns>
-                                        <TableColumn prefWidth="40.0" text="No" />
-                                        <TableColumn prefWidth="200.0" text="Produk" />
-                                        <TableColumn prefWidth="100.0" text="Stok" />
-                                        <TableColumn prefWidth="100.0" text="Satuan" />
-                                        <TableColumn prefWidth="100.0" text="Status" />
-                                    </columns>
-                                    <columnResizePolicy>
-                                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-                                    </columnResizePolicy>
-                                </TableView>
-                            </children>
-                            <padding><Insets bottom="20.0" left="20.0" right="20.0" top="20.0" /></padding>
-                        </VBox>
-                    </children>
-                </VBox>
-
-                <!-- ================= PELANGGAN VIEW ================= -->
+                <!-- ================= MEMBER VIEW ================= -->
                 <VBox fx:id="pelangganView" visible="false" managed="false" spacing="20.0" styleClass="main-content-bg">
                     <padding>
                         <Insets bottom="30.0" left="30.0" right="30.0" top="20.0" />
@@ -424,20 +381,20 @@
                     <children>
                         <HBox alignment="CENTER_LEFT" prefHeight="50.0">
                             <children>
-                                <Label styleClass="header-title" text="☰   Pelanggan" />
+                                <Label styleClass="header-title" text="☰   Member" />
                                 <Pane HBox.hgrow="ALWAYS" />
-                                <Button styleClass="btn-link" text="+ Tambah Pelanggan" />
                             </children>
                         </HBox>
                         <VBox styleClass="content-box" VBox.vgrow="ALWAYS">
                             <children>
-                                <Label styleClass="section-title" text="Daftar Pelanggan" />
+                                <Label styleClass="section-title" text="Daftar Member" />
                                 <TableView fx:id="tablePelanggan" VBox.vgrow="ALWAYS">
                                     <columns>
-                                        <TableColumn prefWidth="40.0" text="No" />
-                                        <TableColumn prefWidth="180.0" text="Nama" />
-                                        <TableColumn prefWidth="150.0" text="No. Telepon" />
-                                        <TableColumn prefWidth="100.0" text="Total Belanja" />
+                                        <TableColumn fx:id="colMemberNo" prefWidth="40.0" text="No" />
+                                        <TableColumn fx:id="colMemberKode" prefWidth="80.0" text="Kode" />
+                                        <TableColumn fx:id="colMemberNama" prefWidth="180.0" text="Nama" />
+                                        <TableColumn fx:id="colMemberTelepon" prefWidth="150.0" text="No. Telepon" />
+                                        <TableColumn fx:id="colMemberAlamat" prefWidth="150.0" text="Alamat" />
                                     </columns>
                                     <columnResizePolicy>
                                         <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
@@ -469,28 +426,6 @@
                         </VBox>
                     </children>
                 </VBox>
-
-                <!-- ================= PENGATURAN VIEW ================= -->
-                <VBox fx:id="pengaturanView" visible="false" managed="false" spacing="20.0" styleClass="main-content-bg">
-                    <padding>
-                        <Insets bottom="30.0" left="30.0" right="30.0" top="20.0" />
-                    </padding>
-                    <children>
-                        <HBox alignment="CENTER_LEFT" prefHeight="50.0">
-                            <children>
-                                <Label styleClass="header-title" text="☰   Pengaturan" />
-                            </children>
-                        </HBox>
-                        <VBox styleClass="content-box" VBox.vgrow="ALWAYS">
-                            <children>
-                                <Label styleClass="section-title" text="Pengaturan Sistem" />
-                                <Label text="Konten pengaturan akan ditampilkan di sini." />
-                            </children>
-                            <padding><Insets bottom="20.0" left="20.0" right="20.0" top="20.0" /></padding>
-                        </VBox>
-                    </children>
-                </VBox>
-
             </children>
         </StackPane>
     </center>

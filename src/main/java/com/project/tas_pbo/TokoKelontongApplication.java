@@ -11,7 +11,7 @@ public class TokoKelontongApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(TokoKelontongApplication.class.getResource("/com/project/tas_pbo/view/login-view.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 320, 240);
+        Scene scene = new Scene(fxmlLoader.load(), 1366, 768);
 
         stage.setTitle("Toko Kelontong");
         stage.setScene(scene);

@@ -185,4 +185,72 @@ public class ProdukDAO {
         produk.setStokMinimum(rs.getInt("stok_minimum"));
         return produk;
     }
+
+    public int getTotalProduk() {
+        String sql = "SELECT COUNT(*) AS total FROM produk";
+        try (Connection conn = DBconnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt("total");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public int getTotalStok() {
+        String sql = "SELECT SUM(stok) AS total FROM produk";
+        try (Connection conn = DBconnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt("total");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public List<Produk> getProdukMenipis() {
+        List<Produk> list = new ArrayList<>();
+        String sql = "SELECT * FROM produk WHERE stok <= stok_minimum ORDER BY stok ASC";
+        try (Connection conn = DBconnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                list.add(mapResultSetToProduk(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public List<com.project.tas_pbo.model.ProdukTerlaris> getProdukTerlaris(int limit) {
+        List<com.project.tas_pbo.model.ProdukTerlaris> list = new ArrayList<>();
+        String sql = "SELECT pd.nama_produk, SUM(pd.jumlah) AS total_terjual, p.satuan " +
+                     "FROM penjualan_detail pd " +
+                     "JOIN produk p ON pd.id_produk = p.id_produk " +
+                     "GROUP BY pd.id_produk, pd.nama_produk, p.satuan " +
+                     "ORDER BY total_terjual DESC LIMIT ?";
+        try (Connection conn = DBconnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, limit);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    list.add(new com.project.tas_pbo.model.ProdukTerlaris(
+                        rs.getString("nama_produk"),
+                        rs.getInt("total_terjual"),
+                        rs.getString("satuan")
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 }

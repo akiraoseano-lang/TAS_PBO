@@ -127,4 +127,92 @@ public class PenjualanDAO {
 
         return prefix + "0001";
     }
+
+    public double getTotalPenjualan() {
+        String sql = "SELECT SUM(total_belanja) AS total FROM penjualan";
+        try (Connection conn = DBconnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                return rs.getDouble("total");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0.0;
+    }
+
+    public int getTotalPelanggan() {
+        String sql = "SELECT COUNT(*) AS total FROM member";
+        try (Connection conn = DBconnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt("total");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public List<Penjualan> getAllPenjualan() {
+        List<Penjualan> list = new java.util.ArrayList<>();
+        String sql = "SELECT * FROM penjualan ORDER BY waktu_transaksi DESC, id_penjualan DESC";
+        try (Connection conn = DBconnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                Penjualan p = new Penjualan();
+                p.setIdPenjualan(rs.getInt("id_penjualan"));
+                p.setNoTransaksi(rs.getString("no_transaksi"));
+                int idMember = rs.getInt("id_member");
+                if (rs.wasNull()) {
+                    p.setIdMember(null);
+                } else {
+                    p.setIdMember(idMember);
+                }
+                p.setIdUser(rs.getInt("id_user"));
+                p.setTotalBelanja(rs.getDouble("total_belanja"));
+                p.setBayar(rs.getDouble("bayar"));
+                p.setKembalian(rs.getDouble("kembalian"));
+                p.setWaktuTransaksi(rs.getTimestamp("waktu_transaksi"));
+                list.add(p);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public List<Penjualan> getLatestPenjualan(int limit) {
+        List<Penjualan> list = new java.util.ArrayList<>();
+        String sql = "SELECT * FROM penjualan ORDER BY waktu_transaksi DESC, id_penjualan DESC LIMIT ?";
+        try (Connection conn = DBconnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, limit);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Penjualan p = new Penjualan();
+                    p.setIdPenjualan(rs.getInt("id_penjualan"));
+                    p.setNoTransaksi(rs.getString("no_transaksi"));
+                    int idMember = rs.getInt("id_member");
+                    if (rs.wasNull()) {
+                        p.setIdMember(null);
+                    } else {
+                        p.setIdMember(idMember);
+                    }
+                    p.setIdUser(rs.getInt("id_user"));
+                    p.setTotalBelanja(rs.getDouble("total_belanja"));
+                    p.setBayar(rs.getDouble("bayar"));
+                    p.setKembalian(rs.getDouble("kembalian"));
+                    p.setWaktuTransaksi(rs.getTimestamp("waktu_transaksi"));
+                    list.add(p);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 }
