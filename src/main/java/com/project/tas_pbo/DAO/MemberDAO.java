@@ -25,6 +25,33 @@ public class MemberDAO {
         return list;
     }
 
+    public Member getByKode(String kodeMember) {
+
+        String sql = "SELECT * FROM member WHERE kode_member = ?";
+
+        try (Connection conn = DBconnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            System.out.println("Kode yang dicari = " + kodeMember);
+
+            stmt.setString(1, kodeMember);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+
+                if (rs.next()) {
+                    System.out.println("Ketemu member!");
+                    return map(rs);
+                }
+
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        System.out.println("Tidak ketemu member");
+        return null;
+    }
+
     public List<Member> searchMember(String keyword) {
         List<Member> list = new ArrayList<>();
         String sql = "SELECT * FROM member WHERE nama_member LIKE ? OR kode_member LIKE ? OR no_telepon LIKE ?";
