@@ -1,8 +1,7 @@
 package com.project.tas_pbo.model;
 
-import java.sql.Timestamp;
-
 public class Member {
+
     private int idMember;
     private String kodeMember;
     private String namaMember;
@@ -10,19 +9,14 @@ public class Member {
     private String alamat;
     private int poin;
     private double totalBelanja;
-    private Timestamp createdAt;
 
     public Member() {}
 
-    public Member(int idMember, String kodeMember, String namaMember, String noTelepon, String alamat, int poin, double totalBelanja, Timestamp createdAt) {
-        this.idMember = idMember;
+    public Member(String kodeMember, String namaMember, String noTelepon, String alamat) {
         this.kodeMember = kodeMember;
         this.namaMember = namaMember;
         this.noTelepon = noTelepon;
         this.alamat = alamat;
-        this.poin = poin;
-        this.totalBelanja = totalBelanja;
-        this.createdAt = createdAt;
     }
 
     public int getIdMember() { return idMember; }
@@ -46,6 +40,6 @@ public class Member {
     public double getTotalBelanja() { return totalBelanja; }
     public void setTotalBelanja(double totalBelanja) { this.totalBelanja = totalBelanja; }
 
-    public Timestamp getCreatedAt() { return createdAt; }
-    public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
+    @Override
+    public String toString() { return kodeMember + " - " + namaMember; }
 }

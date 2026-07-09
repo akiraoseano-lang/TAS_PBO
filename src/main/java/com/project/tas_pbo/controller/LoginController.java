@@ -88,7 +88,7 @@ public class LoginController {
                         SceneController.switchTo("/com/project/tas_pbo/view/POS-view.fxml", event);
 
                 case "Admin" ->
-                        SceneController.switchTo("/com/project/tas_pbo/view/admin-dashboard-view.fxml", event);
+                        SceneController.switchTo("/com/project/tas_pbo/view/dashboard-admin-view.fxml", event);
 
                 default -> showAlert("Role tidak dikenali: " + user.getRole(), true);
             }
