@@ -7,6 +7,7 @@ public class Member {
     private String namaMember;
     private String noTelepon;
     private String alamat;
+    private Boolean isMember;
     private int poin;
     private double totalBelanja;
 
@@ -17,6 +18,13 @@ public class Member {
         this.namaMember = namaMember;
         this.noTelepon = noTelepon;
         this.alamat = alamat;
+    }
+
+    public boolean isMember() {
+        return isMember;
+    }
+    public void setMember(boolean member) {
+        isMember = member;
     }
 
     public int getIdMember() { return idMember; }
