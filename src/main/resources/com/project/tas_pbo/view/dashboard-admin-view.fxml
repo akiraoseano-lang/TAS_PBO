@@ -64,11 +64,6 @@
                                 text="Member" onAction="#showMemberView">
                             <padding><Insets left="30.0"/></padding>
                         </Button>
-                        <Button fx:id="btnLaporan" alignment="BASELINE_LEFT" mnemonicParsing="false"
-                                prefHeight="45.0" prefWidth="250.0" styleClass="nav-btn"
-                                text="Laporan" onAction="#showLaporanView">
-                            <padding><Insets left="30.0"/></padding>
-                        </Button>
                     </children>
                     <VBox.margin><Insets top="20.0"/></VBox.margin>
                 </VBox>

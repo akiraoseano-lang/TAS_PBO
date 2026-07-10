@@ -38,14 +38,12 @@ public class AdminDashboardController {
     @FXML private Button btnProduk;
     @FXML private Button btnStok;
     @FXML private Button btnMember;
-    @FXML private Button btnLaporan;
 
     // ===== Views =====
     @FXML private ScrollPane dashboardView;
     @FXML private VBox produkView;
     @FXML private VBox stokView;
     @FXML private VBox memberView;
-    @FXML private VBox laporanView;
 
     // ===== Top bar =====
     @FXML private Label welcomeLabel;
@@ -121,8 +119,8 @@ public class AdminDashboardController {
 
     @FXML
     public void initialize() {
-        allViews = new Node[]{dashboardView, produkView, stokView, memberView, laporanView};
-        allButtons = new Button[]{btnDashboard, btnProduk, btnStok, btnMember, btnLaporan};
+        allViews = new Node[]{dashboardView, produkView, stokView, memberView};
+        allButtons = new Button[]{btnDashboard, btnProduk, btnStok, btnMember};
 
         setupProdukTable();
         setupStokTable();
@@ -156,10 +154,6 @@ public class AdminDashboardController {
     @FXML private void showMemberView() {
         switchTo(memberView, btnMember);
         loadMemberData();
-    }
-
-    @FXML private void showLaporanView() {
-        switchTo(laporanView, btnLaporan);
     }
 
     private void switchTo(Node activeView, Button activeBtn) {
