@@ -116,17 +116,18 @@ public class ProdukDAO {
     }
 
     public boolean addProduk(Produk produk) {
-        String sql = "INSERT INTO produk (nama_produk, kategori, harga, stok, satuan, stok_minimum) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO produk (nama_produk, barcode, kategori, harga, stok, satuan, stok_minimum) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DBconnection.connect();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, produk.getNamaProduk());
-            stmt.setString(2, produk.getKategori());
-            stmt.setDouble(3, produk.getHarga());
-            stmt.setInt(4, produk.getStok());
-            stmt.setString(5, produk.getSatuan());
-            stmt.setInt(6, produk.getStokMinimum());
+            stmt.setString(2, produk.getBarcode());
+            stmt.setString(3, produk.getKategori());
+            stmt.setDouble(4, produk.getHarga());
+            stmt.setInt(5, produk.getStok());
+            stmt.setString(6, produk.getSatuan());
+            stmt.setInt(7, produk.getStokMinimum());
 
             return stmt.executeUpdate() > 0;
 
@@ -137,18 +138,19 @@ public class ProdukDAO {
     }
 
     public boolean updateProduk(Produk produk) {
-        String sql = "UPDATE produk SET nama_produk = ?, kategori = ?, harga = ?, stok = ?, satuan = ?, stok_minimum = ? WHERE id_produk = ?";
+        String sql = "UPDATE produk SET nama_produk = ?, barcode = ?, kategori = ?, harga = ?, stok = ?, satuan = ?, stok_minimum = ? WHERE id_produk = ?";
 
         try (Connection conn = DBconnection.connect();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, produk.getNamaProduk());
-            stmt.setString(2, produk.getKategori());
-            stmt.setDouble(3, produk.getHarga());
-            stmt.setInt(4, produk.getStok());
-            stmt.setString(5, produk.getSatuan());
-            stmt.setInt(6, produk.getStokMinimum());
-            stmt.setInt(7, produk.getIdProduk());
+            stmt.setString(2, produk.getBarcode());
+            stmt.setString(3, produk.getKategori());
+            stmt.setDouble(4, produk.getHarga());
+            stmt.setInt(5, produk.getStok());
+            stmt.setString(6, produk.getSatuan());
+            stmt.setInt(7, produk.getStokMinimum());
+            stmt.setInt(8, produk.getIdProduk());
 
             return stmt.executeUpdate() > 0;
 
