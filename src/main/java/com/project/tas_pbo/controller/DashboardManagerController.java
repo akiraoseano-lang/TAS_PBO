@@ -1,12 +1,16 @@
 package com.project.tas_pbo.controller;
 
 import com.project.tas_pbo.DAO.ProdukDAO;
+import com.project.tas_pbo.DAO.LaporanDAO;
 import com.project.tas_pbo.DAO.PenjualanDAO;
 import com.project.tas_pbo.DAO.MemberDAO;
 import com.project.tas_pbo.model.Produk;
+import com.project.tas_pbo.model.LaporanHarian;
 import com.project.tas_pbo.model.Penjualan;
 import com.project.tas_pbo.model.ProdukTerlaris;
 import com.project.tas_pbo.model.Member;
+import com.project.tas_pbo.service.ReportGenerator;
+import com.project.tas_pbo.util.Session;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -17,6 +21,8 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.chart.AreaChart;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
@@ -30,9 +36,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.io.IOException;
 import javafx.event.ActionEvent;
+import javafx.stage.Stage;
 import javafx.util.Duration;
-
-import com.project.tas_pbo.util.Session;
 
 public class DashboardManagerController {
 
@@ -40,18 +45,22 @@ public class DashboardManagerController {
     @FXML private VBox penjualanView;
     @FXML private VBox produkView;
     @FXML private VBox pelangganView;
-    @FXML private VBox laporanView;
+    @FXML private ScrollPane laporanView;
 
     @FXML private Label dateLabel;
     @FXML private Label timeLabel;
 
+    @FXML private Label lblUserName;
+    @FXML private Label lblUserRole;
+    @FXML private Label lblGreeting;
+
     @FXML private Button btnDashboard;
     @FXML private Button btnPenjualan;
     @FXML private Button btnProduk;
-    @FXML private Button btnMember;
+    @FXML private Button btnPelanggan; // Sesuai dengan fx:id="btnPelanggan" di FXML [cite: 9]
     @FXML private Button btnLaporan;
 
-    // Summary Cards Labels
+    // Summary Cards Labels untuk Dashboard
     @FXML private Label lblTotalPenjualan;
     @FXML private Label lblTotalProduk;
     @FXML private Label lblTotalStok;
@@ -64,6 +73,11 @@ public class DashboardManagerController {
     @FXML private TableView<Produk> tableProduk;
     @FXML private TableView<Member> tablePelanggan;
 
+    // ===== Dashboard chart =====
+    @FXML private AreaChart<String, Number> salesChart;
+    @FXML private Button btnChart7Hari;
+    @FXML private Button btnChart1Bulan;
+
     // tableProduk columns
     @FXML private TableColumn<Produk, Integer> colNo;
     @FXML private TableColumn<Produk, String> colNamaProduk;
@@ -72,14 +86,14 @@ public class DashboardManagerController {
     @FXML private TableColumn<Produk, Integer> colStok;
     @FXML private TableColumn<Produk, String> colSatuan;
 
-    // tableProduk columns
+    // tableStok columns (Dashboard)
     @FXML private TableColumn<Produk, Integer> colStokNo;
     @FXML private TableColumn<Produk, String> colStokNama;
     @FXML private TableColumn<Produk, Integer> colStokQty;
     @FXML private TableColumn<Produk, String> colStokSatuan;
     @FXML private TableColumn<Produk, String> colStokStatus;
 
-    // tablePenjualan columns
+    // tablePenjualan columns (Dashboard)
     @FXML private TableColumn<Penjualan, Integer> colPenjualanNo;
     @FXML private TableColumn<Penjualan, String> colPenjualanNoTrx;
     @FXML private TableColumn<Penjualan, String> colPenjualanMember;
@@ -92,21 +106,31 @@ public class DashboardManagerController {
     @FXML private TableColumn<ProdukTerlaris, Integer> colTerlarisJumlah;
     @FXML private TableColumn<ProdukTerlaris, String> colTerlarisSatuan;
 
-    // tablePenjualanAll columns
+    // tablePenjualanAll columns (Penjualan Tab) [cite: 121, 122, 123, 124]
     @FXML private TableColumn<Penjualan, Integer> colPenjualanAllNo;
     @FXML private TableColumn<Penjualan, String> colPenjualanAllNoTrx;
     @FXML private TableColumn<Penjualan, String> colPenjualanAllMember;
     @FXML private TableColumn<Penjualan, Double> colPenjualanAllTotal;
     @FXML private TableColumn<Penjualan, String> colPenjualanAllWaktu;
 
-    // tablePelanggan columns
+    // tablePelanggan columns [cite: 155, 156, 157]
     @FXML private TableColumn<Member, Integer> colMemberNo;
     @FXML private TableColumn<Member, String> colMemberKode;
     @FXML private TableColumn<Member, String> colMemberNama;
     @FXML private TableColumn<Member, String> colMemberTelepon;
     @FXML private TableColumn<Member, String> colMemberAlamat;
 
-//    @FXML private TableColumn
+    // laporan view
+    @FXML private Button btnLaporan7Hari;
+    @FXML private Button btnLaporan1Bulan;
+    @FXML private AreaChart<String, Number> laporanChart;
+    @FXML private Label lblTotalTransaksi;
+    @FXML private Label lblTotalPenjualanLaporan; // Dibuat unik agar tidak bentrok dengan Dashboard
+    @FXML private Label lblRataRata;
+    @FXML private TableView<LaporanHarian> tableLaporan;
+    @FXML private TableColumn<LaporanHarian, String> colLaporanTanggal;
+    @FXML private TableColumn<LaporanHarian, Integer> colLaporanTransaksi;
+    @FXML private TableColumn<LaporanHarian, String> colLaporanTotal;
 
     private Node[] allViews;
     private Button[] allButtons;
@@ -120,6 +144,7 @@ public class DashboardManagerController {
     private List<Produk> allProdukData = new ArrayList<>();
     private int currentPage = 0;
     private final int PAGE_SIZE = 10;
+    private int currentLaporanDays = 7;
 
     @FXML private Button btnPrevProduk;
     @FXML private Button btnNextProduk;
@@ -127,8 +152,6 @@ public class DashboardManagerController {
 
     private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("hh:mm:ss a");
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("EEEE, MMMM d");
-
-
 
     @FXML
     public void initialize() {
@@ -138,16 +161,20 @@ public class DashboardManagerController {
         };
         allButtons = new Button[] {
                 btnDashboard, btnPenjualan, btnProduk,
-                btnMember, btnLaporan
+                btnPelanggan, btnLaporan
         };
 
         setupProdukTable();
         loadProdukData();
         setupDashboardTables();
-        setupPernjualanTable();
+        setupPenjualanTable(); 
         setupMemberTable();
+        setupLaporanTable();
         startClock();
         loadDashboardStats();
+        setUserInfo();
+        loadChart(7);
+        if (btnChart7Hari != null) btnChart7Hari.setStyle("-fx-font-weight: bold;");
     }
 
     @FXML
@@ -172,6 +199,191 @@ public class DashboardManagerController {
         }
     }
 
+    private void setUserInfo() {
+        var user = Session.getCurrentUser();
+        if (user != null) {
+            lblUserName.setText(user.getNamaLengkap());
+            lblUserRole.setText(user.getRole());
+            lblGreeting.setText("Selamat datang, " + user.getNamaLengkap() + "!");
+        }
+    }
+
+    private void loadChart(int days) {
+        Task<List<LaporanHarian>> task = new Task<>() {
+            @Override
+            protected List<LaporanHarian> call() {
+                return LaporanDAO.getDailySales(days);
+            }
+        };
+
+        task.setOnSucceeded(e -> {
+            List<LaporanHarian> data = task.getValue();
+            updateChart(salesChart, data);
+        });
+
+        new Thread(task).start();
+    }
+
+    private void loadLaporanChart(int days) {
+        Task<List<LaporanHarian>> task = new Task<>() {
+            @Override
+            protected List<LaporanHarian> call() {
+                return LaporanDAO.getDailySales(days);
+            }
+        };
+
+        task.setOnSucceeded(e -> {
+            List<LaporanHarian> data = task.getValue();
+            if (laporanChart != null) updateChart(laporanChart, data);
+        });
+
+        new Thread(task).start();
+    }
+
+    private void updateChart(AreaChart<String, Number> chart, List<LaporanHarian> data) {
+        chart.getData().clear();
+
+        XYChart.Series<String, Number> seriesPenjualan = new XYChart.Series<>();
+        seriesPenjualan.setName("Total Penjualan (Rp)");
+
+        XYChart.Series<String, Number> seriesTransaksi = new XYChart.Series<>();
+        seriesTransaksi.setName("Jumlah Transaksi");
+
+        for (LaporanHarian h : data) {
+            String label = h.getTanggalFormatted();
+            seriesPenjualan.getData().add(
+                    new XYChart.Data<>(label, h.getTotalPenjualan())
+            );
+            seriesTransaksi.getData().add(
+                    new XYChart.Data<>(label, h.getJumlahTransaksi())
+            );
+        }
+
+        chart.getData().addAll(seriesPenjualan, seriesTransaksi);
+        chart.setTitle(data.isEmpty() ? "Tidak ada data" : "");
+    }
+
+    @FXML
+    private void handleChart7Hari() {
+        loadChart(7);
+        if (btnChart7Hari != null) btnChart7Hari.setStyle("-fx-font-weight: bold;");
+        if (btnChart1Bulan != null) btnChart1Bulan.setStyle("");
+    }
+
+    @FXML
+    private void handleChart1Bulan() {
+        loadChart(30);
+        if (btnChart1Bulan != null) btnChart1Bulan.setStyle("-fx-font-weight: bold;");
+        if (btnChart7Hari != null) btnChart7Hari.setStyle("");
+    }
+
+    private void setupLaporanTable() {
+        if (tableLaporan == null) return;
+
+        colLaporanTanggal.setCellValueFactory(cd ->
+                new SimpleStringProperty(cd.getValue().getTanggalFull()));
+        colLaporanTransaksi.setCellValueFactory(cd ->
+                new SimpleIntegerProperty(cd.getValue().getJumlahTransaksi()).asObject());
+        colLaporanTotal.setCellValueFactory(cd ->
+                new SimpleStringProperty("Rp " + rupiahFormat.format(
+                        (long) cd.getValue().getTotalPenjualan())));
+    }
+
+    private void loadLaporanData(int days) {
+        currentLaporanDays = days;
+
+        Task<Void> task = new Task<>() {
+            @Override
+            protected Void call() {
+                List<LaporanHarian> daily = LaporanDAO.getDailySales(days);
+                LaporanHarian summary = LaporanDAO.getSummary(days);
+
+                javafx.application.Platform.runLater(() -> {
+                    if (lblTotalTransaksi != null)
+                        lblTotalTransaksi.setText(String.valueOf(summary.getJumlahTransaksi()));
+                    if (lblTotalPenjualanLaporan != null)
+                        lblTotalPenjualanLaporan.setText("Rp " + rupiahFormat.format(
+                                (long) summary.getTotalPenjualan()));
+                    if (lblRataRata != null)
+                        lblRataRata.setText("Rp " + rupiahFormat.format(
+                                (long) summary.getRataRata()));
+
+                    if (tableLaporan != null)
+                        tableLaporan.setItems(FXCollections.observableArrayList(daily));
+
+                    loadLaporanChart(days);
+                });
+
+                return null;
+            }
+        };
+
+        new Thread(task).start();
+    }
+
+    @FXML
+    private void handleLaporan7Hari() {
+        loadLaporanData(7);
+        if (btnLaporan7Hari != null) btnLaporan7Hari.setStyle("-fx-font-weight: bold;");
+        if (btnLaporan1Bulan != null) btnLaporan1Bulan.setStyle("");
+    }
+
+    @FXML
+    private void handleLaporan1Bulan() {
+        loadLaporanData(30);
+        if (btnLaporan1Bulan != null) btnLaporan1Bulan.setStyle("-fx-font-weight: bold;");
+        if (btnLaporan7Hari != null) btnLaporan7Hari.setStyle("");
+    }
+
+    @FXML
+    private void handleCetakLaporan() {
+        generateAndPrint(false);
+    }
+
+    @FXML
+    private void handleSimpanPdf() {
+        generateAndPrint(true);
+    }
+
+    private void generateAndPrint(boolean savePdf) {
+        Task<String> task = new Task<>() {
+            @Override
+            protected String call() {
+                List<LaporanHarian> daily = LaporanDAO.getDailySales(currentLaporanDays);
+                LaporanHarian summary = LaporanDAO.getSummary(currentLaporanDays);
+                List<String[]> topProduk = LaporanDAO.getTopProduk(currentLaporanDays, 10);
+                return ReportGenerator.generateReportText(daily, summary, topProduk, currentLaporanDays);
+            }
+        };
+
+        task.setOnSucceeded(e -> {
+            String reportText = task.getValue();
+            if (savePdf) {
+                Stage stage = (Stage) laporanView.getScene().getWindow();
+                ReportGenerator.saveAsPdf(reportText, stage);
+            } else {
+                ReportGenerator.printReport(reportText);
+            }
+        });
+
+        new Thread(task).start();
+    }
+
+    @FXML
+    private void handlePreviewLaporan() {
+        Task<String> task = new Task<>() {
+            @Override
+            protected String call() {
+                List<LaporanHarian> daily = LaporanDAO.getDailySales(currentLaporanDays);
+                LaporanHarian summary = LaporanDAO.getSummary(currentLaporanDays);
+                List<String[]> topProduk = LaporanDAO.getTopProduk(currentLaporanDays, 10);
+                return ReportGenerator.generateReportText(daily, summary, topProduk, currentLaporanDays);
+            }
+        };
+        task.setOnSucceeded(e -> ReportGenerator.showPreview(task.getValue()));
+        new Thread(task).start();
+    }
+
     private void setupProdukTable() {
         colNo.setCellValueFactory(cellData -> new SimpleIntegerProperty(
                 tableProduk.getItems().indexOf(cellData.getValue()) + 1
@@ -184,8 +396,9 @@ public class DashboardManagerController {
         colSatuan.setCellValueFactory(new PropertyValueFactory<>("satuan"));
     }
 
-    // 4. Setup tablePenjualanAll (Penjualan tab)
-    public void setupPernjualanTable() {
+    public void setupPenjualanTable() {
+        if (tablePenjualanAll == null) return;
+
         colPenjualanAllNo.setCellValueFactory(cellData -> new SimpleIntegerProperty(
                 tablePenjualanAll.getItems().indexOf(cellData.getValue()) + 1
         ).asObject());
@@ -205,7 +418,8 @@ public class DashboardManagerController {
     }
 
     public void setupMemberTable() {
-        // 5. Setup tablePelanggan (Member tab)
+        if (tablePelanggan == null) return;
+
         colMemberNo.setCellValueFactory(cellData -> new SimpleIntegerProperty(
                 tablePelanggan.getItems().indexOf(cellData.getValue()) + 1
         ).asObject());
@@ -216,7 +430,6 @@ public class DashboardManagerController {
     }
 
     private void setupDashboardTables() {
-        // 1. Setup tableStok (Products Low/Menipis)
         colStokNo.setCellValueFactory(cellData -> new SimpleIntegerProperty(
                 tableStok.getItems().indexOf(cellData.getValue()) + 1
         ).asObject());
@@ -232,7 +445,6 @@ public class DashboardManagerController {
             }
         });
 
-        // 2. Setup tablePenjualan (Latest Penjualan on Dashboard)
         colPenjualanNo.setCellValueFactory(cellData -> new SimpleIntegerProperty(
                 tablePenjualan.getItems().indexOf(cellData.getValue()) + 1
         ).asObject());
@@ -250,7 +462,6 @@ public class DashboardManagerController {
             return new SimpleStringProperty("-");
         });
 
-        // 3. Setup tableTerlaris (Top Selling Products)
         colTerlarisNo.setCellValueFactory(cellData -> new SimpleIntegerProperty(
                 tableTerlaris.getItems().indexOf(cellData.getValue()) + 1
         ).asObject());
@@ -296,14 +507,19 @@ public class DashboardManagerController {
                 tableStok.setItems(FXCollections.observableArrayList(produkMenipisList));
                 tablePenjualan.setItems(FXCollections.observableArrayList(latestPenjualanList));
                 tableTerlaris.setItems(FXCollections.observableArrayList(produkTerlarisList));
-                tablePenjualanAll.setItems(FXCollections.observableArrayList(allPenjualanList));
-                tablePelanggan.setItems(FXCollections.observableArrayList(memberList));
+
+                if (tablePenjualanAll != null) {
+                    tablePenjualanAll.setItems(FXCollections.observableArrayList(allPenjualanList));
+                    tablePenjualanAll.refresh();
+                }
+                if (tablePelanggan != null) {
+                    tablePelanggan.setItems(FXCollections.observableArrayList(memberList));
+                    tablePelanggan.refresh();
+                }
 
                 tableStok.refresh();
                 tablePenjualan.refresh();
                 tableTerlaris.refresh();
-                tablePenjualanAll.refresh();
-                tablePelanggan.refresh();
             }
 
             @Override
@@ -390,13 +606,14 @@ public class DashboardManagerController {
 
     @FXML
     private void showPelangganView() {
-        switchTo(pelangganView, btnMember);
+        switchTo(pelangganView, btnPelanggan); // Diubah dari btnMember ke btnPelanggan sesuai deklarasi komponen baru [cite: 9]
         loadDashboardStats();
     }
 
     @FXML
     private void showLaporanView() {
         switchTo(laporanView, btnLaporan);
+        loadLaporanData(currentLaporanDays);
     }
 
     private void switchTo(Node activeView, Button activeBtn) {
@@ -411,12 +628,12 @@ public class DashboardManagerController {
     }
 
     @FXML
-    private void handleLogout(ActionEvent event) {
+    private void handleLogin(ActionEvent event) {
         Session.clear();
         try {
             SceneController.switchTo("/com/project/tas_pbo/view/login-view.fxml", event);
         } catch (IOException e) {
-        e.printStackTrace();
+            e.printStackTrace();
         }
     }
 }
