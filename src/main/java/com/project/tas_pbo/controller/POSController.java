@@ -1,5 +1,6 @@
 package com.project.tas_pbo.controller;
 
+import com.project.tas_pbo.service.QrisClient;
 import com.project.tas_pbo.DAO.MemberDAO;
 import com.project.tas_pbo.DAO.PenjualanDAO;
 import com.project.tas_pbo.DAO.ProdukDAO;
@@ -331,6 +332,7 @@ public class POSController {
         });
     }
 
+    //ini akan ku ubah jadi button logout
     @FXML
     private void handlePending() {
         if (cartItems.isEmpty()) {
@@ -421,14 +423,162 @@ public class POSController {
 
     private String selectedPaymentMethod = "Tunai";
 
+// =========================================================
+// ADD THESE FIELDS to POSController class:
+// =========================================================
+
+    private boolean isQrisPayment = false;
+    private String activeQrisOrderId = null;
+    private javafx.animation.Timeline qrisStatusPoller = null;
+
+// =========================================================
+// REPLACE handlePaymentMethod with this:
+// =========================================================
+
     @FXML
     private void handlePaymentMethod(javafx.event.ActionEvent event) {
         Button source = (Button) event.getSource();
-        selectedPaymentMethod = source.getText().replaceAll("[^a-zA-Z ]", "").trim();
+        String method = source.getText().replaceAll("[^a-zA-Z\\-]", "").trim();
+
+        // Cancel QRIS if switching away from it
+        if (isQrisPayment && !method.contains("QRIS")) {
+            cancelQrisIfActive();
+        }
+
+        selectedPaymentMethod = method;
+        isQrisPayment = method.contains("QRIS");
+
+        // Update button styles
         source.getParent().getChildrenUnmodifiable().forEach(node ->
                 node.getStyleClass().remove("pay-method-active"));
         source.getStyleClass().add("pay-method-active");
+
+        // If QRIS selected and cart not empty → create QR immediately
+        if (isQrisPayment && !cartItems.isEmpty()) {
+            initiateQrisPayment();
+        }
     }
+
+// =========================================================
+// ADD THESE NEW METHODS to POSController:
+// =========================================================
+
+    private void initiateQrisPayment() {
+        if (totalTagihan <= 0) {
+            showAlert(Alert.AlertType.WARNING, "Keranjang kosong",
+                    "Tambahkan produk sebelum membayar dengan QRIS.");
+            return;
+        }
+
+        // Show loading alert
+        Alert loadingAlert = new Alert(Alert.AlertType.INFORMATION);
+        loadingAlert.setTitle("QRIS");
+        loadingAlert.setHeaderText("Membuat QR Code...");
+        loadingAlert.setContentText("Mohon tunggu sebentar.");
+        loadingAlert.show();
+
+        // Call Spring Boot in background thread
+        javafx.concurrent.Task<QrisClient.QrisResult> task = new javafx.concurrent.Task<>() {
+            @Override
+            protected QrisClient.QrisResult call() {
+                return QrisClient.createQris((long) totalTagihan);
+            }
+        };
+
+        task.setOnSucceeded(e -> {
+            loadingAlert.close();
+            QrisClient.QrisResult result = task.getValue();
+
+            if (result.success) {
+                activeQrisOrderId = result.orderId;
+
+                // Tell cashier where to open the QR on their phone
+                Alert qrisAlert = new Alert(Alert.AlertType.INFORMATION);
+                qrisAlert.setTitle("QRIS Siap");
+                qrisAlert.setHeaderText("QR Code berhasil dibuat!");
+                qrisAlert.setContentText(
+                        "Total: Rp " + rupiahFormat.format((long) totalTagihan) + "\n\n" +
+                                "Buka di HP Anda:\n" + result.viewUrl + "\n\n" +
+                                "Atau tampilkan ke pelanggan untuk scan.\n" +
+                                "Menunggu pembayaran..."
+                );
+                qrisAlert.show();
+
+                // Start polling status every 3 seconds
+                startQrisStatusPolling(qrisAlert);
+
+            } else {
+                showAlert(Alert.AlertType.ERROR, "QRIS Gagal",
+                        result.error + "\n\nPastikan server QRIS berjalan di localhost:8080");
+            }
+        });
+
+        task.setOnFailed(e -> {
+            loadingAlert.close();
+            showAlert(Alert.AlertType.ERROR, "Error", "Gagal membuat QRIS: " + task.getException().getMessage());
+        });
+
+        new Thread(task).start();
+    }
+
+    private void startQrisStatusPolling(Alert qrisAlert) {
+        if (qrisStatusPoller != null) {
+            qrisStatusPoller.stop();
+        }
+
+        qrisStatusPoller = new javafx.animation.Timeline(
+                new javafx.animation.KeyFrame(
+                        javafx.util.Duration.seconds(3),
+                        e -> pollQrisStatus(qrisAlert)
+                )
+        );
+        qrisStatusPoller.setCycleCount(javafx.animation.Animation.INDEFINITE);
+        qrisStatusPoller.play();
+    }
+
+    private void pollQrisStatus(Alert qrisAlert) {
+        javafx.concurrent.Task<String> task = new javafx.concurrent.Task<>() {
+            @Override
+            protected String call() {
+                return QrisClient.checkStatus();
+            }
+        };
+
+        task.setOnSucceeded(e -> {
+            String status = task.getValue();
+
+            if ("SUCCESS".equals(status)) {
+                // Payment done!
+                if (qrisStatusPoller != null) qrisStatusPoller.stop();
+                if (qrisAlert.isShowing()) qrisAlert.close();
+
+                // Complete the transaction
+                finalizeBayar();
+
+            } else if ("EXPIRED".equals(status) || "CANCELLED".equals(status)) {
+                if (qrisStatusPoller != null) qrisStatusPoller.stop();
+                if (qrisAlert.isShowing()) qrisAlert.close();
+                showAlert(Alert.AlertType.WARNING, "QRIS Kadaluarsa",
+                        "QR Code sudah kadaluarsa. Silakan coba lagi.");
+                isQrisPayment = false;
+            }
+        });
+
+        new Thread(task).start();
+    }
+
+    private void cancelQrisIfActive() {
+        if (activeQrisOrderId != null) {
+            if (qrisStatusPoller != null) qrisStatusPoller.stop();
+            new Thread(QrisClient::cancelQris).start();
+            activeQrisOrderId = null;
+            isQrisPayment = false;
+        }
+    }
+
+// =========================================================
+// REPLACE handleBayar with this (supports both cash + QRIS):
+// =========================================================
 
     @FXML
     private void handleBayar() {
@@ -438,15 +588,34 @@ public class POSController {
             return;
         }
 
-        double bayar = parsePayField();
-        if (bayar < totalTagihan) {
-            showAlert(Alert.AlertType.WARNING, "Pembayaran kurang",
-                    "Jumlah bayar (Rp " + rupiahFormat.format(bayar) +
-                            ") kurang dari total tagihan (Rp " + rupiahFormat.format(totalTagihan) + ").");
-            return;
+        if (isQrisPayment) {
+            // QRIS: initiate or check if already active
+            if (activeQrisOrderId == null) {
+                initiateQrisPayment();
+            } else {
+                showAlert(Alert.AlertType.INFORMATION, "QRIS Aktif",
+                        "QR Code sudah aktif. Minta pelanggan scan QR di HP kasir.");
+            }
+        } else {
+            // Cash/Debit/eWallet: normal flow
+            double bayar = parsePayField();
+            if (bayar < totalTagihan) {
+                showAlert(Alert.AlertType.WARNING, "Pembayaran kurang",
+                        "Jumlah bayar (Rp " + rupiahFormat.format((long) bayar) +
+                                ") kurang dari total tagihan (Rp " + rupiahFormat.format((long) totalTagihan) + ").");
+                return;
+            }
+            finalizeBayar();
         }
+    }
 
-        double kembalian = bayar - totalTagihan;
+    /**
+     * Saves transaction to DB, prints receipt, and resets.
+     * Called for both cash and QRIS (after QRIS confirmed).
+     */
+    private void finalizeBayar() {
+        double bayar = isQrisPayment ? totalTagihan : parsePayField();
+        double kembalian = isQrisPayment ? 0 : bayar - totalTagihan;
         double potongan = discountService.getDiscountAmount(currentMember, subtotal);
         double discountRate = discountService.getDiscountRate(currentMember, subtotal);
 
@@ -464,18 +633,26 @@ public class POSController {
         int generatedId = penjualanDAO.saveTransaction(penjualan, cartItems);
 
         if (generatedId > 0) {
-            String receipt = ReceiptPrinter.generateReceipt(
-                    penjualan, lastCartItems, currentMember, discountRate, potongan);
+            // Notify Spring Boot to clear mobile page
+            if (isQrisPayment) {
+                new Thread(QrisClient::completeQris).start();
+            }
 
-            Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
-            successAlert.setTitle("Pembayaran Berhasil");
-            successAlert.setHeaderText("Transaksi " + penjualan.getNoTransaksi() + " berhasil!");
-            successAlert.setContentText("Kembalian: Rp " + rupiahFormat.format(kembalian) +
-                    "\n\nKlik OK untuk melihat struk, atau tutup untuk lanjut.");
-            successAlert.showAndWait();
+            showAlert(Alert.AlertType.INFORMATION, "Pembayaran Berhasil",
+                    "Transaksi " + penjualan.getNoTransaksi() + " berhasil!\n" +
+                            (isQrisPayment ? "Metode: QRIS" :
+                                    "Kembalian: Rp " + rupiahFormat.format((long) kembalian)));
 
-            ReceiptPrinter.showReceiptDialog(
-                    penjualan, lastCartItems, currentMember, discountRate, potongan);
+            // Show receipt
+            ReceiptPrinter.showReceiptDialog(penjualan, lastCartItems, currentMember, discountRate, potongan);
+
+            // Reset
+            isQrisPayment = false;
+            activeQrisOrderId = null;
+            if (qrisStatusPoller != null) qrisStatusPoller.stop();
+            resetTransactionInternal();
+            loadProdukData();
+
         } else {
             showAlert(Alert.AlertType.ERROR, "Gagal", "Transaksi gagal disimpan. Silakan coba lagi.");
         }
