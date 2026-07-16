@@ -4,11 +4,13 @@ import com.project.tas_pbo.DAO.ProdukDAO;
 import com.project.tas_pbo.DAO.LaporanDAO;
 import com.project.tas_pbo.DAO.PenjualanDAO;
 import com.project.tas_pbo.DAO.MemberDAO;
+import com.project.tas_pbo.DAO.UserDAO;
 import com.project.tas_pbo.model.Produk;
 import com.project.tas_pbo.model.LaporanHarian;
 import com.project.tas_pbo.model.Penjualan;
 import com.project.tas_pbo.model.ProdukTerlaris;
 import com.project.tas_pbo.model.Member;
+import com.project.tas_pbo.model.User;
 import com.project.tas_pbo.service.ReportGenerator;
 import com.project.tas_pbo.util.Session;
 import javafx.animation.Animation;
@@ -29,6 +31,7 @@ import javafx.scene.layout.VBox;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.text.NumberFormat;
 import java.util.Locale;
 
@@ -46,6 +49,7 @@ public class DashboardManagerController {
     @FXML private VBox produkView;
     @FXML private VBox pelangganView;
     @FXML private ScrollPane laporanView;
+    @FXML private VBox userView;
 
     @FXML private Label dateLabel;
     @FXML private Label timeLabel;
@@ -59,6 +63,7 @@ public class DashboardManagerController {
     @FXML private Button btnProduk;
     @FXML private Button btnPelanggan; // Sesuai dengan fx:id="btnPelanggan" di FXML [cite: 9]
     @FXML private Button btnLaporan;
+    @FXML private Button btnUser;
 
     // Summary Cards Labels untuk Dashboard
     @FXML private Label lblTotalPenjualan;
@@ -120,6 +125,14 @@ public class DashboardManagerController {
     @FXML private TableColumn<Member, String> colMemberTelepon;
     @FXML private TableColumn<Member, String> colMemberAlamat;
 
+    // user view
+    @FXML private TableView<User> tableUser;
+    @FXML private TableColumn<User, Integer> colUserNo;
+    @FXML private TableColumn<User, String> colUserUsername;
+    @FXML private TableColumn<User, String> colUserNama;
+    @FXML private TableColumn<User, String> colUserRole;
+    @FXML private TextField searchUserField;
+
     // laporan view
     @FXML private Button btnLaporan7Hari;
     @FXML private Button btnLaporan1Bulan;
@@ -138,6 +151,7 @@ public class DashboardManagerController {
     private final ProdukDAO produkDAO = new ProdukDAO();
     private final PenjualanDAO penjualanDAO = new PenjualanDAO();
     private final MemberDAO memberDAO = new MemberDAO();
+    private final UserDAO userDAO = new UserDAO();
     private final NumberFormat rupiahFormat = NumberFormat.getCurrencyInstance(new Locale("in", "ID"));
 
     private ObservableList<Produk> produkData = FXCollections.observableArrayList();
@@ -157,11 +171,11 @@ public class DashboardManagerController {
     public void initialize() {
         allViews = new Node[] {
                 dashboardView, penjualanView, produkView,
-                pelangganView, laporanView
+                pelangganView, laporanView, userView
         };
         allButtons = new Button[] {
                 btnDashboard, btnPenjualan, btnProduk,
-                btnPelanggan, btnLaporan
+                btnPelanggan, btnLaporan, btnUser
         };
 
         setupProdukTable();
@@ -169,6 +183,7 @@ public class DashboardManagerController {
         setupDashboardTables();
         setupPenjualanTable(); 
         setupMemberTable();
+        setupUserTable();
         setupLaporanTable();
         startClock();
         loadDashboardStats();
@@ -616,6 +631,12 @@ public class DashboardManagerController {
         loadLaporanData(currentLaporanDays);
     }
 
+    @FXML
+    private void showUserView() {
+        switchTo(userView, btnUser);
+        loadUserData();
+    }
+
     private void switchTo(Node activeView, Button activeBtn) {
         for (Node v : allViews) {
             boolean isActive = (v == activeView);
@@ -627,6 +648,195 @@ public class DashboardManagerController {
         }
     }
 
+    // =========================================================
+    // USER MANAGEMENT (same as Admin)
+    // =========================================================
+    private void setupUserTable() {
+        colUserNo.setCellValueFactory(cd -> new SimpleIntegerProperty(
+                tableUser.getItems().indexOf(cd.getValue()) + 1).asObject());
+        colUserUsername.setCellValueFactory(new PropertyValueFactory<>("username"));
+        colUserNama.setCellValueFactory(new PropertyValueFactory<>("namaLengkap"));
+        colUserRole.setCellValueFactory(new PropertyValueFactory<>("role"));
+    }
+
+    private void loadUserData() {
+        List<User> list = userDAO.getAllUsers();
+        tableUser.setItems(FXCollections.observableArrayList(list));
+    }
+
+    @FXML
+    private void handleSearchUser() {
+        String keyword = searchUserField.getText().trim();
+        List<User> results = keyword.isEmpty()
+                ? userDAO.getAllUsers()
+                : userDAO.searchUser(keyword);
+        tableUser.setItems(FXCollections.observableArrayList(results));
+    }
+
+    @FXML
+    private void handleTambahUser() {
+        Dialog<User> dialog = new Dialog<>();
+        dialog.setTitle("Tambah Pengguna");
+        dialog.setHeaderText("Isi data pengguna baru");
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+        TextField fUsername = new TextField(); fUsername.setPromptText("Username");
+        PasswordField fPassword = new PasswordField(); fPassword.setPromptText("Password");
+        TextField fNama = new TextField(); fNama.setPromptText("Nama Lengkap");
+        ComboBox<String> fRole = new ComboBox<>();
+        fRole.getItems().addAll("Admin", "Kasir", "Manager");
+        fRole.setValue("Kasir");
+
+        VBox form = new VBox(8, fUsername, fPassword, fNama, fRole);
+        dialog.getDialogPane().setContent(form);
+        javafx.application.Platform.runLater(fUsername::requestFocus);
+
+        dialog.setResultConverter(btn -> {
+            if (btn == ButtonType.OK) {
+                if (fUsername.getText().trim().isEmpty() || fPassword.getText().trim().isEmpty()) {
+                    showAlert(Alert.AlertType.ERROR, "Input salah", "Username dan Password wajib diisi.");
+                    return null;
+                }
+                User u = new User();
+                u.setUsername(fUsername.getText().trim());
+                u.setPassword(fPassword.getText().trim());
+                u.setNamaLengkap(fNama.getText().trim());
+                u.setRole(fRole.getValue());
+                return u;
+            }
+            return null;
+        });
+
+        Optional<User> result = dialog.showAndWait();
+        result.ifPresent(u -> {
+            boolean success = userDAO.addUser(u);
+            if (success) {
+                loadUserData();
+                showAlert(Alert.AlertType.INFORMATION, "Berhasil", "Pengguna " + u.getNamaLengkap() + " berhasil ditambahkan.");
+            } else {
+                showAlert(Alert.AlertType.ERROR, "Gagal", "Pengguna gagal ditambahkan.");
+            }
+        });
+    }
+
+    @FXML
+    private void handleEditUser() {
+        User selected = tableUser.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showAlert(Alert.AlertType.INFORMATION, "Pilih Pengguna", "Pilih pengguna yang ingin diedit.");
+            return;
+        }
+
+        Dialog<User> dialog = new Dialog<>();
+        dialog.setTitle("Edit Pengguna");
+        dialog.setHeaderText("Edit data: " + selected.getNamaLengkap());
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+        TextField fUsername = new TextField(selected.getUsername());
+        TextField fNama = new TextField(selected.getNamaLengkap());
+        ComboBox<String> fRole = new ComboBox<>();
+        fRole.getItems().addAll("Admin", "Kasir", "Manager");
+        fRole.setValue(selected.getRole());
+
+        VBox form = new VBox(8,
+                new Label("ID: " + selected.getIdUser()),
+                fUsername, fNama, fRole);
+        dialog.getDialogPane().setContent(form);
+
+        dialog.setResultConverter(btn -> {
+            if (btn == ButtonType.OK) {
+                selected.setUsername(fUsername.getText().trim());
+                selected.setNamaLengkap(fNama.getText().trim());
+                selected.setRole(fRole.getValue());
+                return selected;
+            }
+            return null;
+        });
+
+        Optional<User> result = dialog.showAndWait();
+        result.ifPresent(u -> {
+            boolean success = userDAO.updateUser(u);
+            if (success) {
+                tableUser.refresh();
+                showAlert(Alert.AlertType.INFORMATION, "Berhasil", "Pengguna berhasil diupdate.");
+            } else {
+                showAlert(Alert.AlertType.ERROR, "Gagal", "Pengguna gagal diupdate.");
+            }
+        });
+    }
+
+    @FXML
+    private void handleGantiPasswordUser() {
+        User selected = tableUser.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showAlert(Alert.AlertType.INFORMATION, "Pilih Pengguna", "Pilih pengguna yang ingin diganti passwordnya.");
+            return;
+        }
+
+        Dialog<String> dialog = new Dialog<>();
+        dialog.setTitle("Ganti Password");
+        dialog.setHeaderText("Ganti password untuk: " + selected.getNamaLengkap());
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+        PasswordField fPassword = new PasswordField(); fPassword.setPromptText("Password baru");
+
+        VBox form = new VBox(8, fPassword);
+        dialog.getDialogPane().setContent(form);
+        javafx.application.Platform.runLater(fPassword::requestFocus);
+
+        dialog.setResultConverter(btn -> {
+            if (btn == ButtonType.OK) {
+                String pw = fPassword.getText().trim();
+                if (pw.isEmpty()) {
+                    showAlert(Alert.AlertType.ERROR, "Input salah", "Password tidak boleh kosong.");
+                    return null;
+                }
+                return pw;
+            }
+            return null;
+        });
+
+        Optional<String> result = dialog.showAndWait();
+        result.ifPresent(pw -> {
+            boolean success = userDAO.updateUserPassword(selected.getIdUser(), pw);
+            if (success) {
+                showAlert(Alert.AlertType.INFORMATION, "Berhasil", "Password berhasil diganti.");
+            } else {
+                showAlert(Alert.AlertType.ERROR, "Gagal", "Password gagal diganti.");
+            }
+        });
+    }
+
+    @FXML
+    private void handleHapusUser() {
+        User selected = tableUser.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showAlert(Alert.AlertType.INFORMATION, "Pilih Pengguna", "Pilih pengguna yang ingin dihapus.");
+            return;
+        }
+
+        if (selected.getIdUser() == Session.getCurrentUserId()) {
+            showAlert(Alert.AlertType.WARNING, "Tidak bisa dihapus", "Anda tidak bisa menghapus akun Anda sendiri.");
+            return;
+        }
+
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Hapus Pengguna");
+        confirm.setHeaderText("Yakin ingin menghapus " + selected.getNamaLengkap() + "?");
+        confirm.setContentText("Data yang dihapus tidak dapat dikembalikan.");
+
+        Optional<ButtonType> result = confirm.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            boolean success = userDAO.deleteUser(selected.getIdUser());
+            if (success) {
+                loadUserData();
+                showAlert(Alert.AlertType.INFORMATION, "Berhasil", "Pengguna berhasil dihapus.");
+            } else {
+                showAlert(Alert.AlertType.ERROR, "Gagal", "Pengguna gagal dihapus.");
+            }
+        }
+    }
+
     @FXML
     private void handleLogin(ActionEvent event) {
         Session.clear();
@@ -635,5 +845,13 @@ public class DashboardManagerController {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void showAlert(Alert.AlertType type, String title, String message) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }
