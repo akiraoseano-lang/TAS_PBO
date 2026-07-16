@@ -638,13 +638,24 @@ public class POSController {
                 new Thread(QrisClient::completeQris).start();
             }
 
-            showAlert(Alert.AlertType.INFORMATION, "Pembayaran Berhasil",
-                    "Transaksi " + penjualan.getNoTransaksi() + " berhasil!\n" +
-                            (isQrisPayment ? "Metode: QRIS" :
-                                    "Kembalian: Rp " + rupiahFormat.format((long) kembalian)));
+            Alert successAlert = new Alert(Alert.AlertType.CONFIRMATION);
+            successAlert.setTitle("Pembayaran Berhasil");
+            successAlert.setHeaderText("Transaksi " + penjualan.getNoTransaksi() + " berhasil!");
+            successAlert.setContentText(
+                    (isQrisPayment ? "Metode: QRIS" :
+                            "Kembalian: Rp " + rupiahFormat.format((long) kembalian)) +
+                            "\n\nPilih aksi untuk struk:");
+            ButtonType btnCetak = new ButtonType("🖨 Cetak Struk");
+            ButtonType btnLihat = new ButtonType("👁 Lihat Struk");
+            ButtonType btnTidak = new ButtonType("Tidak", ButtonBar.ButtonData.CANCEL_CLOSE);
+            successAlert.getButtonTypes().setAll(btnCetak, btnLihat, btnTidak);
 
-            // Show receipt
-            ReceiptPrinter.showReceiptDialog(penjualan, lastCartItems, currentMember, discountRate, potongan);
+            Optional<ButtonType> result = successAlert.showAndWait();
+            if (result.isPresent() && result.get() == btnCetak) {
+                ReceiptPrinter.printToPrinter(penjualan, lastCartItems, currentMember, discountRate, potongan);
+            } else if (result.isPresent() && result.get() == btnLihat) {
+                ReceiptPrinter.showReceiptDialog(penjualan, lastCartItems, currentMember, discountRate, potongan);
+            }
 
             // Reset
             isQrisPayment = false;

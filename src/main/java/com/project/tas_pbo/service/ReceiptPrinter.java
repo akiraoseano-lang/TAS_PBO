@@ -116,6 +116,13 @@ public class ReceiptPrinter {
             return;
         }
 
+        // Tampilkan dialog pemilih printer
+        boolean proceed = job.showPrintDialog(null);
+        if (!proceed) {
+            showReceiptDialog(penjualan, items, member, diskonRate, potongan);
+            return;
+        }
+
         Printer printer = job.getPrinter();
 
         // Set 58mm paper size
