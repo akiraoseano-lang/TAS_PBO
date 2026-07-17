@@ -20,6 +20,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -27,6 +28,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.util.Duration;
 
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -332,14 +334,28 @@ public class POSController {
         });
     }
 
-    //ini akan ku ubah jadi button logout
     @FXML
-    private void handlePending() {
-        if (cartItems.isEmpty()) {
-            showAlert(Alert.AlertType.INFORMATION, "Keranjang kosong", "Tidak ada item untuk di-pending.");
+    private void handleLogout(ActionEvent event) {
+        String header = cartItems.isEmpty()
+                ? "Yakin ingin logout?"
+                : "Transaksi masih berlangsung";
+        String content = cartItems.isEmpty()
+                ? "Anda akan kembali ke halaman login."
+                : "Ada item di keranjang. Yakin ingin logout?";
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Logout");
+        confirm.setHeaderText(header);
+        confirm.setContentText(content);
+        Optional<ButtonType> result = confirm.showAndWait();
+        if (result.isEmpty() || result.get() != ButtonType.OK) {
             return;
         }
-        showAlert(Alert.AlertType.INFORMATION, "Pending", "Transaksi ditahan sementara (fitur penuh menyusul).");
+        Session.clear();
+        try {
+            SceneController.switchTo("/com/project/tas_pbo/view/login-view.fxml", event);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML

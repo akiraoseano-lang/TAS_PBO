@@ -108,8 +108,8 @@
                                 HBox.hgrow="ALWAYS" maxWidth="Infinity" onAction="#handleCekMember"/>
                         <Button text="CEK HARGA&#10;F6" styleClass="func-btn"
                                 HBox.hgrow="ALWAYS" maxWidth="Infinity" onAction="#handleCekHarga"/>
-                        <Button text="PENDING&#10;F7" styleClass="func-btn"
-                                HBox.hgrow="ALWAYS" maxWidth="Infinity" onAction="#handlePending"/>
+                        <Button text="LOGOUT&#10;F7" styleClass="func-btn"
+                                HBox.hgrow="ALWAYS" maxWidth="Infinity" onAction="#handleLogout"/>
                         <Button text="CETAK STRUK&#10;F8" styleClass="func-btn"
                                 HBox.hgrow="ALWAYS" maxWidth="Infinity" onAction="#handleCetakStruk"/>
                         <Button text="DISKON&#10;F9" styleClass="func-btn"
