@@ -1,14 +1,11 @@
 package com.project.tas_pbo.controller;
 
 import com.project.tas_pbo.service.QrisClient;
-import com.project.tas_pbo.DAO.MemberDAO;
 import com.project.tas_pbo.DAO.PenjualanDAO;
 import com.project.tas_pbo.DAO.ProdukDAO;
-import com.project.tas_pbo.model.Member;
 import com.project.tas_pbo.model.Penjualan;
 import com.project.tas_pbo.model.PenjualanDetail;
 import com.project.tas_pbo.model.Produk;
-import com.project.tas_pbo.service.DiscountService;
 import com.project.tas_pbo.service.ReceiptPrinter;
 import com.project.tas_pbo.util.Session;
 import javafx.animation.Animation;
@@ -39,7 +36,6 @@ public class POSController {
 
     @FXML private BorderPane rootPane;
     @FXML private Label kasirLabel;
-    @FXML private Label memberLabel;
     @FXML private Label dateLabel;
     @FXML private Label timeLabel;
 
@@ -64,8 +60,6 @@ public class POSController {
 
     @FXML private Label grandTotalLabel;
     @FXML private Label subtotalLabel;
-    @FXML private Label discountLabel;
-    @FXML private Label potonganLabel;
     @FXML private Label totalTagihanLabel;
 
     @FXML private TextField payField;
@@ -75,8 +69,6 @@ public class POSController {
     private final ObservableList<Produk> produkItems = FXCollections.observableArrayList();
     private final ProdukDAO produkDAO = new ProdukDAO();
     private final PenjualanDAO penjualanDAO = new PenjualanDAO();
-    private final MemberDAO memberDAO = new MemberDAO();
-    private final DiscountService discountService = new DiscountService();
     private final DecimalFormat rupiahFormat = new DecimalFormat("#,###");
 
     private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("hh:mm:ss a");
@@ -84,7 +76,6 @@ public class POSController {
 
     private double subtotal = 0;
     private double totalTagihan = 0;
-    private Member currentMember = null;
 
     private Penjualan lastPenjualan = null;
     private List<PenjualanDetail> lastCartItems = null;
@@ -96,7 +87,6 @@ public class POSController {
         startClock();
 
         kasirLabel.setText("Kasir: " + Session.getCurrentUsername());
-        memberLabel.setText("Member: -");
         payField.setText("0");
 
         loadProdukData();
@@ -278,7 +268,7 @@ public class POSController {
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
         confirm.setTitle("Reset Transaksi");
         confirm.setHeaderText("Yakin ingin mereset transaksi?");
-        confirm.setContentText("Semua item di keranjang akan dihapus dan member akan di-reset.");
+        confirm.setContentText("Semua item di keranjang akan dihapus.");
 
         Optional<ButtonType> result = confirm.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
@@ -287,39 +277,20 @@ public class POSController {
     }
 
     @FXML
-    private void handleCekMember() {
-        TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Cek Member");
-        dialog.setHeaderText("Masukkan Kode Member");
-        dialog.setContentText("Kode : ");
-
-        Optional<String> result = dialog.showAndWait();
-        result.ifPresent(kode -> {
-            Member member = memberDAO.getByKode(kode.trim());
-            if (member == null) {
-                currentMember = null;
-                memberLabel.setText("Member: -");
-                showAlert(Alert.AlertType.ERROR, "Gagal", "Member tidak ditemukan");
-            } else {
-                currentMember = member;
-                memberLabel.setText("Member: " + member.getNamaMember());
-                updateTotals();
-                showAlert(Alert.AlertType.INFORMATION, "Berhasil",
-                        "Member: " + member.getNamaMember() + "\nPoin: " + member.getPoin());
-            }
-        });
-    }
-
-    @FXML
     private void handleCekHarga() {
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Cek Harga");
-        dialog.setHeaderText("Scan barcode atau masukkan nama produk");
-        dialog.setContentText("Cari:");
+        dialog.setHeaderText("Masukkan nama produk");
+        dialog.setContentText("Nama produk:");
 
         Optional<String> result = dialog.showAndWait();
         result.ifPresent(keyword -> {
-            List<Produk> found = produkDAO.searchProduk(keyword.trim());
+            String trimmed = keyword.trim();
+            if (trimmed.isEmpty()) {
+                showAlert(Alert.AlertType.WARNING, "Input kosong", "Masukkan nama produk terlebih dahulu.");
+                return;
+            }
+            List<Produk> found = produkDAO.searchByName(trimmed);
             if (found.isEmpty()) {
                 showAlert(Alert.AlertType.WARNING, "Tidak ditemukan", "Produk tidak ditemukan.");
             } else {
@@ -358,39 +329,11 @@ public class POSController {
         }
     }
 
-    @FXML
-    private void handleDiskon() {
-        TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Diskon / Promo");
-        dialog.setHeaderText("Masukkan diskon manual (%)");
-        dialog.setContentText("Diskon %:");
-
-        Optional<String> result = dialog.showAndWait();
-        result.ifPresent(input -> {
-            try {
-                double pct = Double.parseDouble(input.trim());
-                if (pct < 0 || pct > 100) {
-                    showAlert(Alert.AlertType.ERROR, "Tidak valid", "Diskon harus antara 0-100%");
-                    return;
-                }
-                showAlert(Alert.AlertType.INFORMATION, "Diskon",
-                        "Diskon " + pct + "% diterapkan (fitur manual diskon akan ditambahkan).");
-            } catch (NumberFormatException e) {
-                showAlert(Alert.AlertType.ERROR, "Input tidak valid", "Masukkan angka yang valid.");
-            }
-        });
-    }
-
     private void updateTotals() {
         subtotal = cartItems.stream().mapToDouble(PenjualanDetail::getSubtotal).sum();
-
-        double discountRate = discountService.getDiscountRate(currentMember, subtotal);
-        double potongan = discountService.getDiscountAmount(currentMember, subtotal);
-        totalTagihan = subtotal - potongan;
+        totalTagihan = subtotal;
 
         subtotalLabel.setText(rupiahFormat.format(subtotal));
-        discountLabel.setText((int)(discountRate * 100) + "%");
-        potonganLabel.setText("Rp " + rupiahFormat.format(potongan));
         totalTagihanLabel.setText(rupiahFormat.format(totalTagihan));
         grandTotalLabel.setText(rupiahFormat.format(totalTagihan));
 
@@ -613,7 +556,7 @@ public class POSController {
                         "QR Code sudah aktif. Minta pelanggan scan QR di HP kasir.");
             }
         } else {
-            // Cash/Debit/eWallet: normal flow
+            // Tunai: normal flow
             double bayar = parsePayField();
             if (bayar < totalTagihan) {
                 showAlert(Alert.AlertType.WARNING, "Pembayaran kurang",
@@ -632,12 +575,9 @@ public class POSController {
     private void finalizeBayar() {
         double bayar = isQrisPayment ? totalTagihan : parsePayField();
         double kembalian = isQrisPayment ? 0 : bayar - totalTagihan;
-        double potongan = discountService.getDiscountAmount(currentMember, subtotal);
-        double discountRate = discountService.getDiscountRate(currentMember, subtotal);
 
         Penjualan penjualan = new Penjualan();
         penjualan.setNoTransaksi(penjualanDAO.generateNoTransaksi());
-        penjualan.setIdMember(currentMember != null ? currentMember.getIdMember() : null);
         penjualan.setIdUser(Session.getCurrentUserId());
         penjualan.setTotalBelanja(totalTagihan);
         penjualan.setBayar(bayar);
@@ -668,9 +608,9 @@ public class POSController {
 
             Optional<ButtonType> result = successAlert.showAndWait();
             if (result.isPresent() && result.get() == btnCetak) {
-                ReceiptPrinter.printToPrinter(penjualan, lastCartItems, currentMember, discountRate, potongan);
+                ReceiptPrinter.printToPrinter(penjualan, lastCartItems);
             } else if (result.isPresent() && result.get() == btnLihat) {
-                ReceiptPrinter.showReceiptDialog(penjualan, lastCartItems, currentMember, discountRate, potongan);
+                ReceiptPrinter.showReceiptDialog(penjualan, lastCartItems);
             }
 
             // Reset
@@ -688,9 +628,7 @@ public class POSController {
     @FXML
     private void handleCetakStruk() {
         if (lastPenjualan != null && lastCartItems != null) {
-            double potongan = discountService.getDiscountAmount(currentMember, lastPenjualan.getTotalBelanja());
-            double discountRate = discountService.getDiscountRate(currentMember, lastPenjualan.getTotalBelanja());
-            ReceiptPrinter.printToPrinter(lastPenjualan, lastCartItems, currentMember, discountRate, potongan);
+            ReceiptPrinter.printToPrinter(lastPenjualan, lastCartItems);
         } else if (!cartItems.isEmpty()) {
             showAlert(Alert.AlertType.INFORMATION, "Info",
                     "Struk hanya tersedia setelah transaksi selesai. Klik BAYAR dulu.");
@@ -708,9 +646,6 @@ public class POSController {
         cartItems.clear();
         payField.setText("0");
         searchField.clear();
-
-        currentMember = null;
-        memberLabel.setText("Member: -");
 
         updateTotals();
         Platform.runLater(() -> searchField.requestFocus());

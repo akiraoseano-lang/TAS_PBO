@@ -6,7 +6,6 @@ public class Penjualan {
 
     private int idPenjualan;
     private String noTransaksi;
-    private Integer idMember; // nullable -> walk-in customer
     private int idUser;
     private double totalBelanja;
     private double bayar;
@@ -30,14 +29,6 @@ public class Penjualan {
 
     public void setNoTransaksi(String noTransaksi) {
         this.noTransaksi = noTransaksi;
-    }
-
-    public Integer getIdMember() {
-        return idMember;
-    }
-
-    public void setIdMember(Integer idMember) {
-        this.idMember = idMember;
     }
 
     public int getIdUser() {

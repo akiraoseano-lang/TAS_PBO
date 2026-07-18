@@ -29,8 +29,7 @@
             <Label text="|" styleClass="topbar-sep"/>
             <Label text="Toko Kelontong" styleClass="store-name"/>
             <Region HBox.hgrow="ALWAYS"/>
-            <Label fx:id="memberLabel" text="Member: -" styleClass="topbar-info"/>
-            <Label text="|" styleClass="topbar-sep"/>
+            <Button text="LOGOUT" styleClass="logout-btn-danger" onAction="#handleLogout"/>
             <Label fx:id="kasirLabel" text="Kasir:" styleClass="topbar-info"/>
             <Label text="|" styleClass="topbar-sep"/>
             <Label fx:id="dateLabel" text="Senin, 15 Januari 2024" styleClass="topbar-info"/>
@@ -98,23 +97,15 @@
                     </TableView>
 
                     <HBox spacing="6" alignment="CENTER">
-                        <Button text="BAYAR&#10;F1" styleClass="func-btn, func-btn-pay"
-                                HBox.hgrow="ALWAYS" maxWidth="Infinity" onAction="#handleBayar"/>
                         <Button text="EDIT QTY&#10;F3" styleClass="func-btn"
                                 HBox.hgrow="ALWAYS" maxWidth="Infinity" onAction="#handleEditQty"/>
                         <Button text="HAPUS ITEM&#10;F4" styleClass="func-btn"
                                 HBox.hgrow="ALWAYS" maxWidth="Infinity" onAction="#handleHapusItem"/>
-                        <Button text="CEK MEMBER&#10;F5" styleClass="func-btn"
-                                HBox.hgrow="ALWAYS" maxWidth="Infinity" onAction="#handleCekMember"/>
-                        <Button text="CEK HARGA&#10;F6" styleClass="func-btn"
+                        <Button text="CEK HARGA&#10;F5" styleClass="func-btn"
                                 HBox.hgrow="ALWAYS" maxWidth="Infinity" onAction="#handleCekHarga"/>
-                        <Button text="LOGOUT&#10;F7" styleClass="func-btn"
-                                HBox.hgrow="ALWAYS" maxWidth="Infinity" onAction="#handleLogout"/>
-                        <Button text="CETAK STRUK&#10;F8" styleClass="func-btn"
+                        <Button text="CETAK STRUK&#10;F7" styleClass="func-btn"
                                 HBox.hgrow="ALWAYS" maxWidth="Infinity" onAction="#handleCetakStruk"/>
-                        <Button text="DISKON&#10;F9" styleClass="func-btn"
-                                HBox.hgrow="ALWAYS" maxWidth="Infinity" onAction="#handleDiskon"/>
-                        <Button text="RESET&#10;F10" styleClass="func-btn"
+                        <Button text="RESET&#10;F8" styleClass="func-btn"
                                 HBox.hgrow="ALWAYS" maxWidth="Infinity" onAction="#handleReset"/>
                     </HBox>
                 </VBox>
@@ -141,41 +132,23 @@
                     <Label fx:id="subtotalLabel" text="0" styleClass="summary-value"
                            GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
-                    <Label text="Diskon/Promo" styleClass="summary-label"
-                           GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-                    <Label fx:id="discountLabel" text="0%" styleClass="summary-value"
-                           GridPane.rowIndex="1" GridPane.columnIndex="1"/>
-
-                    <Label text="Potongan" styleClass="summary-label"
-                           GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-                    <Label fx:id="potonganLabel" text="Rp 0" styleClass="summary-value"
-                           GridPane.rowIndex="2" GridPane.columnIndex="1"/>
-
                     <Label text="Total Tagihan" styleClass="summary-label-bold"
-                           GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                           GridPane.rowIndex="1" GridPane.columnIndex="0"/>
                     <Label fx:id="totalTagihanLabel" text="0" styleClass="summary-value-bold"
-                           GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                           GridPane.rowIndex="1" GridPane.columnIndex="1"/>
                 </GridPane>
 
                 <!-- Payment method buttons -->
                 <GridPane hgap="8" vgap="8">
                     <columnConstraints>
-                        <ColumnConstraints percentWidth="25"/>
-                        <ColumnConstraints percentWidth="25"/>
-                        <ColumnConstraints percentWidth="25"/>
-                        <ColumnConstraints percentWidth="25"/>
+                        <ColumnConstraints percentWidth="50"/>
+                        <ColumnConstraints percentWidth="50"/>
                     </columnConstraints>
                     <Button text="💵&#10;Tunai" styleClass="pay-method-btn, pay-method-active"
                             maxWidth="Infinity" GridPane.rowIndex="0" GridPane.columnIndex="0"
                             onAction="#handlePaymentMethod"/>
-                    <Button text="💳&#10;Debit" styleClass="pay-method-btn"
-                            maxWidth="Infinity" GridPane.rowIndex="0" GridPane.columnIndex="1"
-                            onAction="#handlePaymentMethod"/>
                     <Button text="🔳&#10;QRIS" styleClass="pay-method-btn"
-                            maxWidth="Infinity" GridPane.rowIndex="0" GridPane.columnIndex="2"
-                            onAction="#handlePaymentMethod"/>
-                    <Button text="📱&#10;e-Wallet" styleClass="pay-method-btn"
-                            maxWidth="Infinity" GridPane.rowIndex="0" GridPane.columnIndex="3"
+                            maxWidth="Infinity" GridPane.rowIndex="0" GridPane.columnIndex="1"
                             onAction="#handlePaymentMethod"/>
                 </GridPane>
 

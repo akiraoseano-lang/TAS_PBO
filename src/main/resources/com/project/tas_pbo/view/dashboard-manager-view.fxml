@@ -49,9 +49,6 @@
                         <Button fx:id="btnProduk" alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="45.0" prefWidth="250.0" styleClass="nav-btn" text="Produk" onAction="#showProdukView">
                             <padding><Insets left="30.0" /></padding>
                         </Button>
-                        <Button fx:id="btnPelanggan" alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="45.0" prefWidth="250.0" styleClass="nav-btn" text="Pelanggan" onAction="#showPelangganView">
-                            <padding><Insets left="30.0" /></padding>
-                        </Button>
                         <Button fx:id="btnLaporan" alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="45.0" prefWidth="250.0" styleClass="nav-btn" text="Laporan" onAction="#showLaporanView">
                             <padding><Insets left="30.0" /></padding>
                         </Button>
@@ -164,21 +161,6 @@
                                             <padding><Insets bottom="15.0" left="20.0" right="20.0" top="15.0" /></padding>
                                         </HBox>
 
-                                        <HBox alignment="CENTER_LEFT" prefHeight="100.0" spacing="15.0" styleClass="summary-card" HBox.hgrow="ALWAYS">
-                                            <children>
-                                                <StackPane prefHeight="60.0" prefWidth="60.0" style="-fx-background-color: #8b5cf6; -fx-background-radius: 10;">
-                                                    <children><Label text="👥" textFill="WHITE"><font><Font size="28.0" /></font></Label></children>
-                                                </StackPane>
-                                                <VBox alignment="CENTER_LEFT" spacing="5.0">
-                                                    <children>
-                                                        <Label styleClass="card-title" text="Total Pelanggan" />
-                                                        <Label fx:id="lblTotalPelanggan" styleClass="card-value" text="0" />
-                                                        <Label styleClass="card-subtitle" text="Semua Pelanggan" />
-                                                    </children>
-                                                </VBox>
-                                            </children>
-                                            <padding><Insets bottom="15.0" left="20.0" right="20.0" top="15.0" /></padding>
-                                        </HBox>
                                     </children>
                                 </HBox>
 
@@ -256,7 +238,6 @@
                                                     <columns>
                                                         <TableColumn fx:id="colPenjualanNo" prefWidth="40.0" text="No" />
                                                         <TableColumn fx:id="colPenjualanNoTrx" prefWidth="120.0" text="No. Transaksi" />
-                                                        <TableColumn fx:id="colPenjualanMember" prefWidth="100.0" text="Pelanggan" />
                                                         <TableColumn fx:id="colPenjualanTotal" prefWidth="100.0" text="Total" />
                                                         <TableColumn fx:id="colPenjualanWaktu" prefWidth="120.0" text="Waktu" />
                                                     </columns>
@@ -318,7 +299,6 @@
                                     <columns>
                                         <TableColumn fx:id="colPenjualanAllNo" prefWidth="40.0" text="No" />
                                         <TableColumn fx:id="colPenjualanAllNoTrx" prefWidth="120.0" text="No. Transaksi" />
-                                        <TableColumn fx:id="colPenjualanAllMember" prefWidth="120.0" text="Pelanggan" />
                                         <TableColumn fx:id="colPenjualanAllTotal" prefWidth="100.0" text="Total" />
                                         <TableColumn fx:id="colPenjualanAllWaktu" prefWidth="120.0" text="Waktu" />
                                     </columns>
@@ -405,38 +385,6 @@
                     </children>
                 </VBox>
 
-                <!-- ================= PELANGGAN VIEW ================= -->
-                <VBox fx:id="pelangganView" visible="false" managed="false" spacing="20.0" styleClass="main-content-bg">
-                    <padding><Insets bottom="30.0" left="30.0" right="30.0" top="20.0" /></padding>
-                    <children>
-                        <HBox alignment="CENTER_LEFT" prefHeight="50.0">
-                            <children>
-                                <Label styleClass="header-title" text="☰   Pelanggan" />
-                                <Pane HBox.hgrow="ALWAYS" />
-                                <Button styleClass="btn-link" text="+ Tambah Pelanggan" />
-                            </children>
-                        </HBox>
-                        <VBox styleClass="content-box" VBox.vgrow="ALWAYS">
-                            <children>
-                                <Label styleClass="section-title" text="Daftar Pelanggan" />
-                                <TableView fx:id="tablePelanggan" VBox.vgrow="ALWAYS">
-                                    <columns>
-                                        <TableColumn fx:id="colMemberNo" prefWidth="40.0" text="No" />
-                                        <TableColumn fx:id="colMemberKode" prefWidth="120.0" text="Kode" />
-                                        <TableColumn fx:id="colMemberNama" prefWidth="180.0" text="Nama" />
-                                        <TableColumn fx:id="colMemberTelepon" prefWidth="120.0" text="No. Telepon" />
-                                        <TableColumn fx:id="colMemberAlamat" prefWidth="150.0" text="Alamat" />
-                                    </columns>
-                                    <columnResizePolicy>
-                                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-                                    </columnResizePolicy>
-                                </TableView>
-                            </children>
-                            <padding><Insets bottom="20.0" left="20.0" right="20.0" top="20.0" /></padding>
-                        </VBox>
-                    </children>
-                </VBox>
-
                 <!-- ================= USER VIEW ================= -->
                 <VBox fx:id="userView" visible="false" managed="false" spacing="20.0" styleClass="main-content-bg">
                     <padding><Insets bottom="30.0" left="30.0" right="30.0" top="20.0" /></padding>
@@ -448,36 +396,81 @@
                                 <Button styleClass="btn-link" text="+ Tambah Pengguna" onAction="#handleTambahUser" />
                             </children>
                         </HBox>
-                        <HBox spacing="10.0" alignment="CENTER_LEFT">
+
+                        <!-- Filter buttons -->
+                        <HBox spacing="10.0">
                             <children>
-                                <TextField fx:id="searchUserField" promptText="Cari pengguna..." HBox.hgrow="ALWAYS" />
-                                <Button text="🔍 Cari" onAction="#handleSearchUser" />
+                                <Button fx:id="btnFilterActiveUser" text="Semua Pengguna" styleClass="btn-link"
+                                        style="-fx-font-weight: bold;" onAction="#showFilterActiveUser"/>
+                                <Button fx:id="btnFilterDeletedUser" text="User Dihapus" styleClass="btn-link"
+                                        onAction="#showFilterDeletedUser"/>
                             </children>
                         </HBox>
-                        <VBox styleClass="content-box" VBox.vgrow="ALWAYS">
+
+                        <!-- ===== ACTIVE USER SECTION ===== -->
+                        <VBox fx:id="activeUserSection" visible="true" managed="true">
                             <children>
-                                <Label styleClass="section-title" text="Daftar Pengguna" />
-                                <TableView fx:id="tableUser" VBox.vgrow="ALWAYS">
-                                    <columns>
-                                        <TableColumn fx:id="colUserNo" prefWidth="40.0" text="No" />
-                                        <TableColumn fx:id="colUserUsername" prefWidth="130.0" text="Username" />
-                                        <TableColumn fx:id="colUserNama" prefWidth="180.0" text="Nama Lengkap" />
-                                        <TableColumn fx:id="colUserRole" prefWidth="100.0" text="Role" />
-                                    </columns>
-                                    <columnResizePolicy>
-                                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-                                    </columnResizePolicy>
-                                </TableView>
-                                <HBox spacing="10.0">
-                                    <padding><Insets top="10.0" /></padding>
+                                <HBox spacing="10.0" alignment="CENTER_LEFT">
                                     <children>
-                                        <Button text="✏️ Edit Pengguna" styleClass="btn-link" onAction="#handleEditUser" />
-                                        <Button text="🔑 Ganti Password" styleClass="btn-link" onAction="#handleGantiPasswordUser" />
-                                        <Button text="🗑️ Hapus Pengguna" styleClass="btn-link" onAction="#handleHapusUser" />
+                                        <TextField fx:id="searchUserField" promptText="Cari pengguna..." HBox.hgrow="ALWAYS" />
+                                        <Button text="🔍 Cari" onAction="#handleSearchUser" />
                                     </children>
                                 </HBox>
+                                <VBox styleClass="content-box" VBox.vgrow="ALWAYS">
+                                    <children>
+                                        <Label styleClass="section-title" text="Daftar Pengguna" />
+                                        <TableView fx:id="tableUser" VBox.vgrow="ALWAYS">
+                                            <columns>
+                                                <TableColumn fx:id="colUserNo" prefWidth="40.0" text="No" />
+                                                <TableColumn fx:id="colUserUsername" prefWidth="130.0" text="Username" />
+                                                <TableColumn fx:id="colUserNama" prefWidth="180.0" text="Nama Lengkap" />
+                                                <TableColumn fx:id="colUserRole" prefWidth="100.0" text="Role" />
+                                            </columns>
+                                            <columnResizePolicy>
+                                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                            </columnResizePolicy>
+                                        </TableView>
+                                        <HBox spacing="10.0">
+                                            <padding><Insets top="10.0" /></padding>
+                                            <children>
+                                                <Button text="✏️ Edit Pengguna" styleClass="btn-link" onAction="#handleEditUser" />
+                                                <Button text="🔑 Ganti Password" styleClass="btn-link" onAction="#handleGantiPasswordUser" />
+                                                <Button text="🗑️ Hapus Pengguna" styleClass="btn-link" onAction="#handleHapusUser" />
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                    <padding><Insets bottom="20.0" left="20.0" right="20.0" top="20.0" /></padding>
+                                </VBox>
                             </children>
-                            <padding><Insets bottom="20.0" left="20.0" right="20.0" top="20.0" /></padding>
+                        </VBox>
+
+                        <!-- ===== DELETED USER SECTION ===== -->
+                        <VBox fx:id="deletedUserSection" visible="false" managed="false">
+                            <children>
+                                <VBox styleClass="content-box" VBox.vgrow="ALWAYS">
+                                    <children>
+                                        <Label styleClass="section-title" text="Daftar Pengguna yang Dihapus" />
+                                        <TableView fx:id="tableDeletedUser" VBox.vgrow="ALWAYS">
+                                            <columns>
+                                                <TableColumn fx:id="colDltUserNo" prefWidth="40.0" text="No" />
+                                                <TableColumn fx:id="colDltUserUsername" prefWidth="130.0" text="Username" />
+                                                <TableColumn fx:id="colDltUserNama" prefWidth="180.0" text="Nama Lengkap" />
+                                                <TableColumn fx:id="colDltUserRole" prefWidth="100.0" text="Role" />
+                                            </columns>
+                                            <columnResizePolicy>
+                                                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                            </columnResizePolicy>
+                                        </TableView>
+                                        <HBox spacing="10.0">
+                                            <padding><Insets top="10.0" /></padding>
+                                            <children>
+                                                <Button text="🔁 Pulihkan Pengguna" styleClass="btn-link" onAction="#handlePulihkanUser" />
+                                            </children>
+                                        </HBox>
+                                    </children>
+                                    <padding><Insets bottom="20.0" left="20.0" right="20.0" top="20.0" /></padding>
+                                </VBox>
+                            </children>
                         </VBox>
                     </children>
                 </VBox>
@@ -504,9 +497,7 @@
                                         <Button text="👁 Preview"
                                                 styleClass="btn-link"
                                                 onAction="#handlePreviewLaporan"/>
-                                        <Button text="🖨 Cetak"
-                                                styleClass="btn-link"
-                                                onAction="#handleCetakLaporan"/>
+
                                         <Button text="💾 Simpan PDF"
                                                 styleClass="btn-link"
                                                 onAction="#handleSimpanPdf"/>

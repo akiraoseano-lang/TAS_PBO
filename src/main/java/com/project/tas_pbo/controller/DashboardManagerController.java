@@ -3,13 +3,11 @@ package com.project.tas_pbo.controller;
 import com.project.tas_pbo.DAO.ProdukDAO;
 import com.project.tas_pbo.DAO.LaporanDAO;
 import com.project.tas_pbo.DAO.PenjualanDAO;
-import com.project.tas_pbo.DAO.MemberDAO;
 import com.project.tas_pbo.DAO.UserDAO;
 import com.project.tas_pbo.model.Produk;
 import com.project.tas_pbo.model.LaporanHarian;
 import com.project.tas_pbo.model.Penjualan;
 import com.project.tas_pbo.model.ProdukTerlaris;
-import com.project.tas_pbo.model.Member;
 import com.project.tas_pbo.model.User;
 import com.project.tas_pbo.service.ReportGenerator;
 import com.project.tas_pbo.util.Session;
@@ -47,7 +45,6 @@ public class DashboardManagerController {
     @FXML private ScrollPane dashboardView;
     @FXML private VBox penjualanView;
     @FXML private VBox produkView;
-    @FXML private VBox pelangganView;
     @FXML private ScrollPane laporanView;
     @FXML private VBox userView;
 
@@ -61,7 +58,6 @@ public class DashboardManagerController {
     @FXML private Button btnDashboard;
     @FXML private Button btnPenjualan;
     @FXML private Button btnProduk;
-    @FXML private Button btnPelanggan; // Sesuai dengan fx:id="btnPelanggan" di FXML [cite: 9]
     @FXML private Button btnLaporan;
     @FXML private Button btnUser;
 
@@ -69,14 +65,12 @@ public class DashboardManagerController {
     @FXML private Label lblTotalPenjualan;
     @FXML private Label lblTotalProduk;
     @FXML private Label lblTotalStok;
-    @FXML private Label lblTotalPelanggan;
 
     @FXML private TableView<Produk> tableStok;
     @FXML private TableView<Penjualan> tablePenjualan;
     @FXML private TableView<ProdukTerlaris> tableTerlaris;
     @FXML private TableView<Penjualan> tablePenjualanAll;
     @FXML private TableView<Produk> tableProduk;
-    @FXML private TableView<Member> tablePelanggan;
 
     // ===== Dashboard chart =====
     @FXML private AreaChart<String, Number> salesChart;
@@ -101,7 +95,6 @@ public class DashboardManagerController {
     // tablePenjualan columns (Dashboard)
     @FXML private TableColumn<Penjualan, Integer> colPenjualanNo;
     @FXML private TableColumn<Penjualan, String> colPenjualanNoTrx;
-    @FXML private TableColumn<Penjualan, String> colPenjualanMember;
     @FXML private TableColumn<Penjualan, Double> colPenjualanTotal;
     @FXML private TableColumn<Penjualan, String> colPenjualanWaktu;
 
@@ -114,24 +107,27 @@ public class DashboardManagerController {
     // tablePenjualanAll columns (Penjualan Tab) [cite: 121, 122, 123, 124]
     @FXML private TableColumn<Penjualan, Integer> colPenjualanAllNo;
     @FXML private TableColumn<Penjualan, String> colPenjualanAllNoTrx;
-    @FXML private TableColumn<Penjualan, String> colPenjualanAllMember;
     @FXML private TableColumn<Penjualan, Double> colPenjualanAllTotal;
     @FXML private TableColumn<Penjualan, String> colPenjualanAllWaktu;
 
-    // tablePelanggan columns [cite: 155, 156, 157]
-    @FXML private TableColumn<Member, Integer> colMemberNo;
-    @FXML private TableColumn<Member, String> colMemberKode;
-    @FXML private TableColumn<Member, String> colMemberNama;
-    @FXML private TableColumn<Member, String> colMemberTelepon;
-    @FXML private TableColumn<Member, String> colMemberAlamat;
-
     // user view
+    @FXML private Button btnFilterActiveUser;
+    @FXML private Button btnFilterDeletedUser;
+    @FXML private VBox activeUserSection;
+    @FXML private VBox deletedUserSection;
     @FXML private TableView<User> tableUser;
     @FXML private TableColumn<User, Integer> colUserNo;
     @FXML private TableColumn<User, String> colUserUsername;
     @FXML private TableColumn<User, String> colUserNama;
     @FXML private TableColumn<User, String> colUserRole;
     @FXML private TextField searchUserField;
+
+    // deleted user table
+    @FXML private TableView<User> tableDeletedUser;
+    @FXML private TableColumn<User, Integer> colDltUserNo;
+    @FXML private TableColumn<User, String> colDltUserUsername;
+    @FXML private TableColumn<User, String> colDltUserNama;
+    @FXML private TableColumn<User, String> colDltUserRole;
 
     // laporan view
     @FXML private Button btnLaporan7Hari;
@@ -150,7 +146,6 @@ public class DashboardManagerController {
 
     private final ProdukDAO produkDAO = new ProdukDAO();
     private final PenjualanDAO penjualanDAO = new PenjualanDAO();
-    private final MemberDAO memberDAO = new MemberDAO();
     private final UserDAO userDAO = new UserDAO();
     private final NumberFormat rupiahFormat = NumberFormat.getCurrencyInstance(new Locale("in", "ID"));
 
@@ -171,19 +166,19 @@ public class DashboardManagerController {
     public void initialize() {
         allViews = new Node[] {
                 dashboardView, penjualanView, produkView,
-                pelangganView, laporanView, userView
+                laporanView, userView
         };
         allButtons = new Button[] {
                 btnDashboard, btnPenjualan, btnProduk,
-                btnPelanggan, btnLaporan, btnUser
+                btnLaporan, btnUser
         };
 
         setupProdukTable();
         loadProdukData();
         setupDashboardTables();
         setupPenjualanTable(); 
-        setupMemberTable();
         setupUserTable();
+        setupDeletedUserTable();
         setupLaporanTable();
         startClock();
         loadDashboardStats();
@@ -351,51 +346,37 @@ public class DashboardManagerController {
     }
 
     @FXML
-    private void handleCetakLaporan() {
-        generateAndPrint(false);
-    }
-
-    @FXML
     private void handleSimpanPdf() {
-        generateAndPrint(true);
-    }
-
-    private void generateAndPrint(boolean savePdf) {
-        Task<String> task = new Task<>() {
+        Task<Void> task = new Task<>() {
             @Override
-            protected String call() {
+            protected Void call() {
                 List<LaporanHarian> daily = LaporanDAO.getDailySales(currentLaporanDays);
                 LaporanHarian summary = LaporanDAO.getSummary(currentLaporanDays);
                 List<String[]> topProduk = LaporanDAO.getTopProduk(currentLaporanDays, 10);
-                return ReportGenerator.generateReportText(daily, summary, topProduk, currentLaporanDays);
+                javafx.application.Platform.runLater(() -> {
+                    Stage stage = (Stage) laporanView.getScene().getWindow();
+                    ReportGenerator.saveAsPdf(daily, summary, topProduk, currentLaporanDays, stage);
+                });
+                return null;
             }
         };
-
-        task.setOnSucceeded(e -> {
-            String reportText = task.getValue();
-            if (savePdf) {
-                Stage stage = (Stage) laporanView.getScene().getWindow();
-                ReportGenerator.saveAsPdf(reportText, stage);
-            } else {
-                ReportGenerator.printReport(reportText);
-            }
-        });
-
         new Thread(task).start();
     }
 
     @FXML
     private void handlePreviewLaporan() {
-        Task<String> task = new Task<>() {
+        Task<Void> task = new Task<>() {
             @Override
-            protected String call() {
+            protected Void call() {
                 List<LaporanHarian> daily = LaporanDAO.getDailySales(currentLaporanDays);
                 LaporanHarian summary = LaporanDAO.getSummary(currentLaporanDays);
                 List<String[]> topProduk = LaporanDAO.getTopProduk(currentLaporanDays, 10);
-                return ReportGenerator.generateReportText(daily, summary, topProduk, currentLaporanDays);
+                javafx.application.Platform.runLater(() ->
+                    ReportGenerator.showPreview(daily, summary, topProduk, currentLaporanDays)
+                );
+                return null;
             }
         };
-        task.setOnSucceeded(e -> ReportGenerator.showPreview(task.getValue()));
         new Thread(task).start();
     }
 
@@ -418,10 +399,6 @@ public class DashboardManagerController {
                 tablePenjualanAll.getItems().indexOf(cellData.getValue()) + 1
         ).asObject());
         colPenjualanAllNoTrx.setCellValueFactory(new PropertyValueFactory<>("noTransaksi"));
-        colPenjualanAllMember.setCellValueFactory(cellData -> {
-            Integer memberId = cellData.getValue().getIdMember();
-            return new SimpleStringProperty(memberId == null ? "Umum" : "Member " + memberId);
-        });
         colPenjualanAllTotal.setCellValueFactory(new PropertyValueFactory<>("totalBelanja"));
         colPenjualanAllWaktu.setCellValueFactory(cellData -> {
             java.sql.Timestamp waktu = cellData.getValue().getWaktuTransaksi();
@@ -430,18 +407,6 @@ public class DashboardManagerController {
             }
             return new SimpleStringProperty("-");
         });
-    }
-
-    public void setupMemberTable() {
-        if (tablePelanggan == null) return;
-
-        colMemberNo.setCellValueFactory(cellData -> new SimpleIntegerProperty(
-                tablePelanggan.getItems().indexOf(cellData.getValue()) + 1
-        ).asObject());
-        colMemberKode.setCellValueFactory(new PropertyValueFactory<>("kodeMember"));
-        colMemberNama.setCellValueFactory(new PropertyValueFactory<>("namaMember"));
-        colMemberTelepon.setCellValueFactory(new PropertyValueFactory<>("noTelepon"));
-        colMemberAlamat.setCellValueFactory(new PropertyValueFactory<>("alamat"));
     }
 
     private void setupDashboardTables() {
@@ -464,10 +429,6 @@ public class DashboardManagerController {
                 tablePenjualan.getItems().indexOf(cellData.getValue()) + 1
         ).asObject());
         colPenjualanNoTrx.setCellValueFactory(new PropertyValueFactory<>("noTransaksi"));
-        colPenjualanMember.setCellValueFactory(cellData -> {
-            Integer memberId = cellData.getValue().getIdMember();
-            return new SimpleStringProperty(memberId == null ? "Umum" : "Member " + memberId);
-        });
         colPenjualanTotal.setCellValueFactory(new PropertyValueFactory<>("totalBelanja"));
         colPenjualanWaktu.setCellValueFactory(cellData -> {
             java.sql.Timestamp waktu = cellData.getValue().getWaktuTransaksi();
@@ -490,25 +451,21 @@ public class DashboardManagerController {
             private double totalPenjualanVal;
             private int totalProdukVal;
             private int totalStokVal;
-            private int totalPelangganVal;
             private List<Produk> produkMenipisList;
             private List<Penjualan> latestPenjualanList;
             private List<ProdukTerlaris> produkTerlarisList;
             private List<Penjualan> allPenjualanList;
-            private List<Member> memberList;
 
             @Override
             protected Void call() {
                 totalPenjualanVal = penjualanDAO.getTotalPenjualan();
                 totalProdukVal = produkDAO.getTotalProduk();
                 totalStokVal = produkDAO.getTotalStok();
-                totalPelangganVal = penjualanDAO.getTotalPelanggan();
 
                 produkMenipisList = produkDAO.getProdukMenipis();
                 latestPenjualanList = penjualanDAO.getLatestPenjualan(5);
                 produkTerlarisList = produkDAO.getProdukTerlaris(5);
                 allPenjualanList = penjualanDAO.getAllPenjualan();
-                memberList = memberDAO.getAllMember();
                 return null;
             }
 
@@ -517,7 +474,6 @@ public class DashboardManagerController {
                 lblTotalPenjualan.setText(rupiahFormat.format(totalPenjualanVal));
                 lblTotalProduk.setText(String.valueOf(totalProdukVal));
                 lblTotalStok.setText(String.valueOf(totalStokVal));
-                lblTotalPelanggan.setText(String.valueOf(totalPelangganVal));
 
                 tableStok.setItems(FXCollections.observableArrayList(produkMenipisList));
                 tablePenjualan.setItems(FXCollections.observableArrayList(latestPenjualanList));
@@ -526,10 +482,6 @@ public class DashboardManagerController {
                 if (tablePenjualanAll != null) {
                     tablePenjualanAll.setItems(FXCollections.observableArrayList(allPenjualanList));
                     tablePenjualanAll.refresh();
-                }
-                if (tablePelanggan != null) {
-                    tablePelanggan.setItems(FXCollections.observableArrayList(memberList));
-                    tablePelanggan.refresh();
                 }
 
                 tableStok.refresh();
@@ -620,12 +572,6 @@ public class DashboardManagerController {
     }
 
     @FXML
-    private void showPelangganView() {
-        switchTo(pelangganView, btnPelanggan); // Diubah dari btnMember ke btnPelanggan sesuai deklarasi komponen baru [cite: 9]
-        loadDashboardStats();
-    }
-
-    @FXML
     private void showLaporanView() {
         switchTo(laporanView, btnLaporan);
         loadLaporanData(currentLaporanDays);
@@ -634,7 +580,29 @@ public class DashboardManagerController {
     @FXML
     private void showUserView() {
         switchTo(userView, btnUser);
+        showFilterActiveUser();
+    }
+
+    @FXML
+    private void showFilterActiveUser() {
+        setUserFilterStyle(btnFilterActiveUser);
+        activeUserSection.setVisible(true); activeUserSection.setManaged(true);
+        deletedUserSection.setVisible(false); deletedUserSection.setManaged(false);
         loadUserData();
+    }
+
+    @FXML
+    private void showFilterDeletedUser() {
+        setUserFilterStyle(btnFilterDeletedUser);
+        activeUserSection.setVisible(false); activeUserSection.setManaged(false);
+        deletedUserSection.setVisible(true); deletedUserSection.setManaged(true);
+        loadDeletedUserData();
+    }
+
+    private void setUserFilterStyle(Button active) {
+        for (Button b : new Button[]{btnFilterActiveUser, btnFilterDeletedUser}) {
+            b.setStyle(b == active ? "-fx-font-weight: bold;" : "");
+        }
     }
 
     private void switchTo(Node activeView, Button activeBtn) {
@@ -837,8 +805,59 @@ public class DashboardManagerController {
         }
     }
 
+    // =========================================================
+    // DELETED USER TABLE SETUP + DATA
+    // =========================================================
+    private void setupDeletedUserTable() {
+        colDltUserNo.setCellValueFactory(cd -> new SimpleIntegerProperty(
+                tableDeletedUser.getItems().indexOf(cd.getValue()) + 1).asObject());
+        colDltUserUsername.setCellValueFactory(new PropertyValueFactory<>("username"));
+        colDltUserNama.setCellValueFactory(new PropertyValueFactory<>("namaLengkap"));
+        colDltUserRole.setCellValueFactory(new PropertyValueFactory<>("role"));
+    }
+
+    private void loadDeletedUserData() {
+        List<User> list = userDAO.getDeletedUsers();
+        tableDeletedUser.setItems(FXCollections.observableArrayList(list));
+    }
+
+    @FXML
+    private void handlePulihkanUser() {
+        User selected = tableDeletedUser.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showAlert(Alert.AlertType.INFORMATION, "Pilih Pengguna", "Pilih pengguna yang ingin dipulihkan.");
+            return;
+        }
+
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Pulihkan Pengguna");
+        confirm.setHeaderText("Yakin ingin memulihkan " + selected.getNamaLengkap() + "?");
+        confirm.setContentText("Pengguna akan diaktifkan kembali.");
+
+        Optional<ButtonType> result = confirm.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            boolean success = userDAO.restoreUser(selected.getIdUser());
+            if (success) {
+                selected.setStatus(1);
+                loadDeletedUserData();
+                showAlert(Alert.AlertType.INFORMATION, "Berhasil",
+                        "Pengguna " + selected.getNamaLengkap() + " berhasil dipulihkan.");
+            } else {
+                showAlert(Alert.AlertType.ERROR, "Gagal", "Gagal memulihkan pengguna.");
+            }
+        }
+    }
+
     @FXML
     private void handleLogin(ActionEvent event) {
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Logout");
+        confirm.setHeaderText("Yakin ingin logout?");
+        confirm.setContentText("Anda akan kembali ke halaman login.");
+        Optional<ButtonType> result = confirm.showAndWait();
+        if (result.isEmpty() || result.get() != ButtonType.OK) {
+            return;
+        }
         Session.clear();
         try {
             SceneController.switchTo("/com/project/tas_pbo/view/login-view.fxml", event);

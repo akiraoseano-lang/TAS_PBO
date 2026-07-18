@@ -13,7 +13,7 @@ import java.util.List;
 public class UserDAO {
 
     public User login(String username, String password) {
-        String sql = "SELECT * FROM users WHERE username = ? AND password = ?";
+        String sql = "SELECT * FROM users WHERE status = 1 AND username = ? AND password = ?";
 
         try (Connection conn = DBconnection.connect();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -36,7 +36,7 @@ public class UserDAO {
 
     public List<User> getAllUsers() {
         List<User> list = new ArrayList<>();
-        String sql = "SELECT * FROM users ORDER BY id_user ASC";
+        String sql = "SELECT * FROM users WHERE status = 1 ORDER BY id_user ASC";
 
         try (Connection conn = DBconnection.connect();
              PreparedStatement stmt = conn.prepareStatement(sql);
@@ -55,7 +55,7 @@ public class UserDAO {
 
     public List<User> searchUser(String keyword) {
         List<User> list = new ArrayList<>();
-        String sql = "SELECT * FROM users WHERE username LIKE ? OR nama_lengkap LIKE ? ORDER BY id_user ASC";
+        String sql = "SELECT * FROM users WHERE status = 1 AND (username LIKE ? OR nama_lengkap LIKE ?) ORDER BY id_user ASC";
 
         try (Connection conn = DBconnection.connect();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -78,7 +78,7 @@ public class UserDAO {
     }
 
     public boolean addUser(User user) {
-        String sql = "INSERT INTO users (username, password, nama_lengkap, role) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO users (username, password, nama_lengkap, role, status) VALUES (?, ?, ?, ?, 1)";
 
         try (Connection conn = DBconnection.connect();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -133,7 +133,41 @@ public class UserDAO {
     }
 
     public boolean deleteUser(int idUser) {
-        String sql = "DELETE FROM users WHERE id_user = ?";
+        String sql = "UPDATE users SET status = 0 WHERE id_user = ?";
+
+        try (Connection conn = DBconnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, idUser);
+            return stmt.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public List<User> getDeletedUsers() {
+        List<User> list = new ArrayList<>();
+        String sql = "SELECT * FROM users WHERE status = 0 ORDER BY id_user ASC";
+
+        try (Connection conn = DBconnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                list.add(mapResultSetToUser(rs));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+    public boolean restoreUser(int idUser) {
+        String sql = "UPDATE users SET status = 1 WHERE id_user = ?";
 
         try (Connection conn = DBconnection.connect();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -154,6 +188,7 @@ public class UserDAO {
         user.setPassword(rs.getString("password"));
         user.setNamaLengkap(rs.getString("nama_lengkap"));
         user.setRole(rs.getString("role"));
+        user.setStatus(rs.getInt("status"));
         return user;
     }
 }

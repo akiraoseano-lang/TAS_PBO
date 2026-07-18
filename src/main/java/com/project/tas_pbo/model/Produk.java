@@ -10,6 +10,7 @@ public class Produk {
     private int stok;
     private String satuan;
     private int stokMinimum;
+    private int status;
 
     public Produk() {
     }
@@ -87,5 +88,13 @@ public class Produk {
 
     public void setStokMinimum(int stokMinimum) {
         this.stokMinimum = stokMinimum;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 }

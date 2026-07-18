@@ -7,6 +7,7 @@ public class User {
     private String password;
     private String namaLengkap;
     private String role;
+    private int status = 1;
 
     public User() {}
 
@@ -32,4 +33,7 @@ public class User {
 
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }
+
+    public int getStatus() { return status; }
+    public void setStatus(int status) { this.status = status; }
 }

@@ -42,6 +42,27 @@
     -fx-font-size: 12px;
 }
 
+.logout-btn-danger {
+    -fx-background-color: #dc2626;
+    -fx-text-fill: white;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 4;
+    -fx-border-radius: 4;
+    -fx-border-color: #b91c1c;
+    -fx-border-width: 1;
+    -fx-cursor: hand;
+    -fx-padding: 6 14;
+}
+
+.logout-btn-danger:hover {
+    -fx-background-color: #b91c1c;
+}
+
+.logout-btn-danger:pressed {
+    -fx-background-color: #991b1b;
+}
+
 /* ===================== PANELS ===================== */
 .panel {
     -fx-background-color: white;

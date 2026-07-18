@@ -11,7 +11,9 @@ module com.project.tas_pbo {
     requires eu.hansolo.tilesfx;
     requires java.sql;
     requires java.net.http;
+    requires java.desktop;
     requires com.fasterxml.jackson.databind;
+    requires itext;
 
     opens com.project.tas_pbo to javafx.fxml;
     exports com.project.tas_pbo;

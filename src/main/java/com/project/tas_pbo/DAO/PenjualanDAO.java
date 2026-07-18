@@ -14,8 +14,8 @@ import java.util.List;
 public class PenjualanDAO {
 
     public int saveTransaction(Penjualan penjualan, List<PenjualanDetail> items) {
-        String sqlHeader = "INSERT INTO penjualan (no_transaksi, id_member, id_user, total_belanja, bayar, kembalian) " +
-                "VALUES (?, ?, ?, ?, ?, ?)";
+        String sqlHeader = "INSERT INTO penjualan (no_transaksi, id_user, total_belanja, bayar, kembalian) " +
+                "VALUES (?, ?, ?, ?, ?)";
 
         String sqlDetail = "INSERT INTO penjualan_detail (id_penjualan, id_produk, nama_produk, harga_satuan, jumlah, subtotal) " +
                 "VALUES (?, ?, ?, ?, ?, ?)";
@@ -33,17 +33,10 @@ public class PenjualanDAO {
 
             try (PreparedStatement stmt = conn.prepareStatement(sqlHeader, Statement.RETURN_GENERATED_KEYS)) {
                 stmt.setString(1, penjualan.getNoTransaksi());
-
-                if (penjualan.getIdMember() != null) {
-                    stmt.setInt(2, penjualan.getIdMember());
-                } else {
-                    stmt.setNull(2, java.sql.Types.INTEGER);
-                }
-
-                stmt.setInt(3, penjualan.getIdUser());
-                stmt.setDouble(4, penjualan.getTotalBelanja());
-                stmt.setDouble(5, penjualan.getBayar());
-                stmt.setDouble(6, penjualan.getKembalian());
+                stmt.setInt(2, penjualan.getIdUser());
+                stmt.setDouble(3, penjualan.getTotalBelanja());
+                stmt.setDouble(4, penjualan.getBayar());
+                stmt.setDouble(5, penjualan.getKembalian());
 
                 stmt.executeUpdate();
 
@@ -142,20 +135,6 @@ public class PenjualanDAO {
         return 0.0;
     }
 
-    public int getTotalPelanggan() {
-        String sql = "SELECT COUNT(*) AS total FROM member";
-        try (Connection conn = DBconnection.connect();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
-            if (rs.next()) {
-                return rs.getInt("total");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return 0;
-    }
-
     public List<Penjualan> getAllPenjualan() {
         List<Penjualan> list = new java.util.ArrayList<>();
         String sql = "SELECT * FROM penjualan ORDER BY waktu_transaksi DESC, id_penjualan DESC";
@@ -166,12 +145,6 @@ public class PenjualanDAO {
                 Penjualan p = new Penjualan();
                 p.setIdPenjualan(rs.getInt("id_penjualan"));
                 p.setNoTransaksi(rs.getString("no_transaksi"));
-                int idMember = rs.getInt("id_member");
-                if (rs.wasNull()) {
-                    p.setIdMember(null);
-                } else {
-                    p.setIdMember(idMember);
-                }
                 p.setIdUser(rs.getInt("id_user"));
                 p.setTotalBelanja(rs.getDouble("total_belanja"));
                 p.setBayar(rs.getDouble("bayar"));
@@ -196,12 +169,6 @@ public class PenjualanDAO {
                     Penjualan p = new Penjualan();
                     p.setIdPenjualan(rs.getInt("id_penjualan"));
                     p.setNoTransaksi(rs.getString("no_transaksi"));
-                    int idMember = rs.getInt("id_member");
-                    if (rs.wasNull()) {
-                        p.setIdMember(null);
-                    } else {
-                        p.setIdMember(idMember);
-                    }
                     p.setIdUser(rs.getInt("id_user"));
                     p.setTotalBelanja(rs.getDouble("total_belanja"));
                     p.setBayar(rs.getDouble("bayar"));

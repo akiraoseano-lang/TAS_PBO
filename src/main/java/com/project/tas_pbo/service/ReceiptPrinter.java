@@ -1,6 +1,5 @@
 package com.project.tas_pbo.service;
 
-import com.project.tas_pbo.model.Member;
 import com.project.tas_pbo.model.Penjualan;
 import com.project.tas_pbo.model.PenjualanDetail;
 import javafx.print.*;
@@ -21,7 +20,7 @@ public class ReceiptPrinter {
 
     private static final DecimalFormat rupiahFormat = new DecimalFormat("#,###");
 
-    // Diubah menjadi 27 agar tidak keluar batas kertas 58mm
+    // width menjadi 30 agar tidak keluar batas kertas 58mm
     private static final int CHAR_WIDTH = 30;
 
     // =========================================================
@@ -29,10 +28,7 @@ public class ReceiptPrinter {
     // =========================================================
     public static String generateReceipt(
             Penjualan penjualan,
-            List<PenjualanDetail> items,
-            Member member,
-            double diskonRate,
-            double potongan
+            List<PenjualanDetail> items
     ) {
         StringBuilder sb = new StringBuilder();
 
@@ -47,11 +43,6 @@ public class ReceiptPrinter {
         sb.append("Tgl : ").append(
                 LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yy HH:mm"))
         ).append("\n");
-
-        if (member != null) {
-            sb.append("Mbr : ").append(member.getNamaMember()).append("\n");
-            sb.append("Kode: ").append(member.getKodeMember()).append("\n");
-        }
 
         sb.append(line(CHAR_WIDTH)).append("\n");
 
@@ -71,17 +62,6 @@ public class ReceiptPrinter {
 
         sb.append(line(CHAR_WIDTH)).append("\n");
 
-        // Totals
-        long subtotalBeforeDiskon = (long)(penjualan.getTotalBelanja() + potongan);
-        sb.append(rowFit("Subtotal",
-                "Rp " + rupiahFormat.format(subtotalBeforeDiskon), CHAR_WIDTH)).append("\n");
-
-        if (diskonRate > 0) {
-            sb.append(rowFit("Diskon " + (int)(diskonRate * 100) + "%",
-                    "-Rp " + rupiahFormat.format((long) potongan), CHAR_WIDTH)).append("\n");
-        }
-
-        sb.append(line(CHAR_WIDTH)).append("\n");
         sb.append(rowFit("TOTAL",
                 "Rp " + rupiahFormat.format((long) penjualan.getTotalBelanja()), CHAR_WIDTH)).append("\n");
         sb.append(rowFit("Bayar",
@@ -103,23 +83,20 @@ public class ReceiptPrinter {
     // =========================================================
     public static void printToPrinter(
             Penjualan penjualan,
-            List<PenjualanDetail> items,
-            Member member,
-            double diskonRate,
-            double potongan
+            List<PenjualanDetail> items
     ) {
-        String receiptText = generateReceipt(penjualan, items, member, diskonRate, potongan);
+        String receiptText = generateReceipt(penjualan, items);
 
         PrinterJob job = PrinterJob.createPrinterJob();
         if (job == null) {
-            showReceiptDialog(penjualan, items, member, diskonRate, potongan);
+            showReceiptDialog(penjualan, items);
             return;
         }
 
         // Tampilkan dialog pemilih printer
         boolean proceed = job.showPrintDialog(null);
         if (!proceed) {
-            showReceiptDialog(penjualan, items, member, diskonRate, potongan);
+            showReceiptDialog(penjualan, items);
             return;
         }
 
@@ -151,7 +128,7 @@ public class ReceiptPrinter {
         if (printed) {
             job.endJob();
         } else {
-            showReceiptDialog(penjualan, items, member, diskonRate, potongan);
+            showReceiptDialog(penjualan, items);
         }
     }
 
@@ -160,12 +137,9 @@ public class ReceiptPrinter {
     // =========================================================
     public static void showReceiptDialog(
             Penjualan penjualan,
-            List<PenjualanDetail> items,
-            Member member,
-            double diskonRate,
-            double potongan
+            List<PenjualanDetail> items
     ) {
-        String receiptText = generateReceipt(penjualan, items, member, diskonRate, potongan);
+        String receiptText = generateReceipt(penjualan, items);
 
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Struk Pembayaran");

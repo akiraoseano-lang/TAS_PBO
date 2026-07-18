@@ -14,7 +14,7 @@ public class ProdukDAO {
 
     public List<Produk> getAllProduk() {
         List<Produk> list = new ArrayList<>();
-        String sql = "SELECT * FROM produk ORDER BY id_produk ASC";
+        String sql = "SELECT * FROM produk WHERE status = 1 ORDER BY id_produk ASC";
 
         try (Connection conn = DBconnection.connect();
              PreparedStatement stmt = conn.prepareStatement(sql);
@@ -33,7 +33,7 @@ public class ProdukDAO {
 
     public List<Produk> searchProduk(String keyword) {
         List<Produk> list = new ArrayList<>();
-        String sql = "SELECT * FROM produk WHERE nama_produk LIKE ? OR id_produk = ? ORDER BY nama_produk ASC LIMIT 20";
+        String sql = "SELECT * FROM produk WHERE status = 1 AND (nama_produk LIKE ? OR id_produk = ?) ORDER BY nama_produk ASC LIMIT 20";
 
         try (Connection conn = DBconnection.connect();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -58,9 +58,31 @@ public class ProdukDAO {
         return list;
     }
 
+    public List<Produk> searchByName(String name) {
+        List<Produk> list = new ArrayList<>();
+        String sql = "SELECT * FROM produk WHERE status = 1 AND nama_produk LIKE ? ORDER BY nama_produk ASC LIMIT 20";
+
+        try (Connection conn = DBconnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, "%" + name + "%");
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapResultSetToProduk(rs));
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
     public Produk findByBarcodeOrId(String keyword) {
 
-        String sqlByBarcode = "SELECT * FROM produk WHERE barcode = ?";
+        String sqlByBarcode = "SELECT * FROM produk WHERE status = 1 AND barcode = ?";
         try (Connection conn = DBconnection.connect();
              PreparedStatement stmt = conn.prepareStatement(sqlByBarcode)) {
 
@@ -76,7 +98,7 @@ public class ProdukDAO {
         }
 
         if (keyword.matches("\\d+")) {
-            String sqlById = "SELECT * FROM produk WHERE id_produk = ?";
+            String sqlById = "SELECT * FROM produk WHERE status = 1 AND id_produk = ?";
             try (Connection conn = DBconnection.connect();
                  PreparedStatement stmt = conn.prepareStatement(sqlById)) {
 
@@ -96,7 +118,7 @@ public class ProdukDAO {
     }
 
     public Produk getProdukById(int id) {
-        String sql = "SELECT * FROM produk WHERE id_produk = ?";
+        String sql = "SELECT * FROM produk WHERE status = 1 AND id_produk = ?";
 
         try (Connection conn = DBconnection.connect();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -116,7 +138,7 @@ public class ProdukDAO {
     }
 
     public boolean addProduk(Produk produk) {
-        String sql = "INSERT INTO produk (nama_produk, barcode, kategori, harga, stok, satuan, stok_minimum) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO produk (nama_produk, barcode, kategori, harga, stok, satuan, stok_minimum, status) VALUES (?, ?, ?, ?, ?, ?, ?, 1)";
 
         try (Connection conn = DBconnection.connect();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -161,7 +183,7 @@ public class ProdukDAO {
     }
 
     public boolean deleteProduk(int id) {
-        String sql = "DELETE FROM produk WHERE id_produk = ?";
+        String sql = "UPDATE produk SET stok = 0, status = 0 WHERE id_produk = ?";
 
         try (Connection conn = DBconnection.connect();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -170,14 +192,13 @@ public class ProdukDAO {
             return stmt.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 
     private Produk mapResultSetToProduk(ResultSet rs) throws SQLException {
         Produk produk = new Produk();
-        produk.setIdProduk(rs.getInt("id_produk")); // ADD THIS LINE
+        produk.setIdProduk(rs.getInt("id_produk"));
         produk.setBarcode(rs.getString("barcode"));
         produk.setNamaProduk(rs.getString("nama_produk"));
         produk.setKategori(rs.getString("kategori"));
@@ -185,11 +206,12 @@ public class ProdukDAO {
         produk.setStok(rs.getInt("stok"));
         produk.setSatuan(rs.getString("satuan"));
         produk.setStokMinimum(rs.getInt("stok_minimum"));
+        produk.setStatus(rs.getInt("status"));
         return produk;
     }
 
     public int getTotalProduk() {
-        String sql = "SELECT COUNT(*) AS total FROM produk";
+        String sql = "SELECT COUNT(*) AS total FROM produk WHERE status = 1";
         try (Connection conn = DBconnection.connect();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
@@ -203,7 +225,7 @@ public class ProdukDAO {
     }
 
     public int getTotalStok() {
-        String sql = "SELECT SUM(stok) AS total FROM produk";
+        String sql = "SELECT SUM(stok) AS total FROM produk WHERE status = 1";
         try (Connection conn = DBconnection.connect();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
@@ -216,9 +238,24 @@ public class ProdukDAO {
         return 0;
     }
 
+    public List<Produk> getDeletedProduk() {
+        List<Produk> list = new ArrayList<>();
+        String sql = "SELECT * FROM produk WHERE status = 0 ORDER BY id_produk ASC";
+        try (Connection conn = DBconnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                list.add(mapResultSetToProduk(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
     public List<Produk> getProdukMenipis() {
         List<Produk> list = new ArrayList<>();
-        String sql = "SELECT * FROM produk WHERE stok <= stok_minimum ORDER BY stok ASC";
+        String sql = "SELECT * FROM produk WHERE status = 1 AND stok <= stok_minimum ORDER BY stok ASC";
         try (Connection conn = DBconnection.connect();
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {

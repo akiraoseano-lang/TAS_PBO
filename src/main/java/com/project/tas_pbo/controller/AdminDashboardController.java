@@ -1,9 +1,8 @@
 package com.project.tas_pbo.controller;
 
-import com.project.tas_pbo.DAO.MemberDAO;
 import com.project.tas_pbo.DAO.ProdukDAO;
 import com.project.tas_pbo.DAO.UserDAO;
-import com.project.tas_pbo.model.Member;
+import com.project.tas_pbo.database.DBconnection;
 import com.project.tas_pbo.model.Produk;
 import com.project.tas_pbo.model.User;
 import com.project.tas_pbo.util.Session;
@@ -26,6 +25,9 @@ import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -40,14 +42,20 @@ public class AdminDashboardController {
     @FXML private Button btnProduk;
     @FXML private Button btnStok;
     @FXML private Button btnUser;
-    @FXML private Button btnMember;
 
     // ===== Views =====
     @FXML private ScrollPane dashboardView;
     @FXML private VBox produkView;
     @FXML private VBox stokView;
-    @FXML private VBox memberView;
     @FXML private VBox userView;
+
+    // ===== Produk filter buttons & sections =====
+    @FXML private Button btnFilterActive;
+    @FXML private Button btnFilterDeleted;
+    @FXML private Button btnFilterLowStock;
+    @FXML private VBox activeProdukSection;
+    @FXML private VBox deletedProdukSection;
+    @FXML private VBox lowStockSection;
 
     // ===== Top bar =====
     @FXML private Label welcomeLabel;
@@ -58,7 +66,6 @@ public class AdminDashboardController {
     // ===== Dashboard cards =====
     @FXML private Label cardTotalProduk;
     @FXML private Label cardTotalStok;
-    @FXML private Label cardTotalMember;
     @FXML private Label cardStokMenipis;
 
     // ===== Dashboard stok menipis table =====
@@ -79,6 +86,7 @@ public class AdminDashboardController {
     @FXML private TableColumn<Produk, String> colProdukHarga;
     @FXML private TableColumn<Produk, Integer> colProdukStok;
     @FXML private TableColumn<Produk, String> colProdukSatuan;
+    @FXML private TableColumn<Produk, String> colProdukStatus;
     @FXML private TextField searchProdukField;
     @FXML private Button btnPrevProduk;
     @FXML private Button btnNextProduk;
@@ -93,17 +101,30 @@ public class AdminDashboardController {
     @FXML private TableColumn<Produk, String> colStokAllSatuan;
     @FXML private TableColumn<Produk, String> colStokAllStatus;
 
-    // ===== Member view =====
-    @FXML private TableView<Member> tableMember;
-    @FXML private TableColumn<Member, Integer> colMemberNo;
-    @FXML private TableColumn<Member, String> colMemberKode;
-    @FXML private TableColumn<Member, String> colMemberNama;
-    @FXML private TableColumn<Member, String> colMemberTelp;
-    @FXML private TableColumn<Member, Integer> colMemberPoin;
-    @FXML private TableColumn<Member, String> colMemberTotal;
-    @FXML private TextField searchMemberField;
+    // ===== Deleted Produk view =====
+    @FXML private TableView<Produk> tableDeletedProduk;
+    @FXML private TableColumn<Produk, Integer> colDltNo;
+    @FXML private TableColumn<Produk, String> colDltBarcode;
+    @FXML private TableColumn<Produk, String> colDltNama;
+    @FXML private TableColumn<Produk, String> colDltKategori;
+    @FXML private TableColumn<Produk, String> colDltHarga;
+    @FXML private TableColumn<Produk, String> colDltSatuan;
+    @FXML private TableColumn<Produk, String> colDltStatus;
+
+    // ===== Low Stock view =====
+    @FXML private TableView<Produk> tableLowStock;
+    @FXML private TableColumn<Produk, Integer> colLsNo;
+    @FXML private TableColumn<Produk, String> colLsNama;
+    @FXML private TableColumn<Produk, Integer> colLsStok;
+    @FXML private TableColumn<Produk, Integer> colLsMin;
+    @FXML private TableColumn<Produk, String> colLsSatuan;
+    @FXML private TableColumn<Produk, String> colLsStatus;
 
     // ===== User view =====
+    @FXML private Button btnFilterActiveUser;
+    @FXML private Button btnFilterDeletedUser;
+    @FXML private VBox activeUserSection;
+    @FXML private VBox deletedUserSection;
     @FXML private TableView<User> tableUser;
     @FXML private TableColumn<User, Integer> colUserNo;
     @FXML private TableColumn<User, String> colUserUsername;
@@ -111,9 +132,15 @@ public class AdminDashboardController {
     @FXML private TableColumn<User, String> colUserRole;
     @FXML private TextField searchUserField;
 
+    // ===== Deleted User table =====
+    @FXML private TableView<User> tableDeletedUser;
+    @FXML private TableColumn<User, Integer> colDltUserNo;
+    @FXML private TableColumn<User, String> colDltUserUsername;
+    @FXML private TableColumn<User, String> colDltUserNama;
+    @FXML private TableColumn<User, String> colDltUserRole;
+
     // ===== DAOs =====
     private final ProdukDAO produkDAO = new ProdukDAO();
-    private final MemberDAO memberDAO = new MemberDAO();
     private final UserDAO userDAO = new UserDAO();
     private final DecimalFormat rupiahFormat = new DecimalFormat("#,###");
 
@@ -132,13 +159,15 @@ public class AdminDashboardController {
 
     @FXML
     public void initialize() {
-        allViews = new Node[]{dashboardView, produkView, stokView, userView, memberView};
-        allButtons = new Button[]{btnDashboard, btnProduk, btnStok, btnUser, btnMember};
+        allViews = new Node[]{dashboardView, produkView, stokView, userView};
+        allButtons = new Button[]{btnDashboard, btnProduk, btnStok, btnUser};
 
         setupProdukTable();
         setupStokTable();
-        setupMemberTable();
+        setupDeletedProdukTable();
+        setupLowStockTable();
         setupUserTable();
+        setupDeletedUserTable();
         setupStokMenipisTable();
         startClock();
 
@@ -157,7 +186,7 @@ public class AdminDashboardController {
 
     @FXML private void showProdukView() {
         switchTo(produkView, btnProduk);
-        if (allProdukData.isEmpty()) loadProdukData();
+        showFilterActive();
     }
 
     @FXML private void showStokView() {
@@ -165,14 +194,60 @@ public class AdminDashboardController {
         loadStokData();
     }
 
-    @FXML private void showMemberView() {
-        switchTo(memberView, btnMember);
-        loadMemberData();
+    // ===== Produk filter navigation =====
+    @FXML private void showFilterActive() {
+        setFilterStyle(btnFilterActive);
+        activeProdukSection.setVisible(true); activeProdukSection.setManaged(true);
+        deletedProdukSection.setVisible(false); deletedProdukSection.setManaged(false);
+        lowStockSection.setVisible(false); lowStockSection.setManaged(false);
+        if (allProdukData.isEmpty()) loadProdukData();
+    }
+
+    @FXML private void showFilterDeleted() {
+        setFilterStyle(btnFilterDeleted);
+        activeProdukSection.setVisible(false); activeProdukSection.setManaged(false);
+        deletedProdukSection.setVisible(true); deletedProdukSection.setManaged(true);
+        lowStockSection.setVisible(false); lowStockSection.setManaged(false);
+        loadDeletedProdukData();
+    }
+
+    @FXML private void showFilterLowStock() {
+        setFilterStyle(btnFilterLowStock);
+        activeProdukSection.setVisible(false); activeProdukSection.setManaged(false);
+        deletedProdukSection.setVisible(false); deletedProdukSection.setManaged(false);
+        lowStockSection.setVisible(true); lowStockSection.setManaged(true);
+        loadLowStockData();
+    }
+
+    private void setFilterStyle(Button active) {
+        for (Button b : new Button[]{btnFilterActive, btnFilterDeleted, btnFilterLowStock}) {
+            b.setStyle(b == active ? "-fx-font-weight: bold;" : "");
+        }
     }
 
     @FXML private void showUserView() {
         switchTo(userView, btnUser);
+        showFilterActiveUser();
+    }
+
+    @FXML private void showFilterActiveUser() {
+        setUserFilterStyle(btnFilterActiveUser);
+        activeUserSection.setVisible(true); activeUserSection.setManaged(true);
+        deletedUserSection.setVisible(false); deletedUserSection.setManaged(false);
         loadUserData();
+    }
+
+    @FXML private void showFilterDeletedUser() {
+        setUserFilterStyle(btnFilterDeletedUser);
+        activeUserSection.setVisible(false); activeUserSection.setManaged(false);
+        deletedUserSection.setVisible(true); deletedUserSection.setManaged(true);
+        loadDeletedUserData();
+    }
+
+    private void setUserFilterStyle(Button active) {
+        for (Button b : new Button[]{btnFilterActiveUser, btnFilterDeletedUser}) {
+            b.setStyle(b == active ? "-fx-font-weight: bold;" : "");
+        }
     }
 
     private void switchTo(Node activeView, Button activeBtn) {
@@ -204,7 +279,6 @@ public class AdminDashboardController {
             cardTotalProduk.setText(String.valueOf(all.size()));
             cardTotalStok.setText(String.valueOf(totalStok));
             cardStokMenipis.setText(String.valueOf(menipis));
-            cardTotalMember.setText(String.valueOf(memberDAO.countMember()));
 
             tableStokMenipis.setItems(FXCollections.observableArrayList(stokMenipisList));
             tableStokMenipis.refresh();
@@ -226,6 +300,12 @@ public class AdminDashboardController {
                 "Rp " + rupiahFormat.format(cd.getValue().getHarga())));
         colProdukStok.setCellValueFactory(new PropertyValueFactory<>("stok"));
         colProdukSatuan.setCellValueFactory(new PropertyValueFactory<>("satuan"));
+        colProdukStatus.setCellValueFactory(cd -> {
+            Produk p = cd.getValue();
+            if (p.getStatus() == 0) return new SimpleStringProperty("Dihapus");
+            if (p.getStok() <= 0) return new SimpleStringProperty("Habis");
+            return new SimpleStringProperty("Tersedia");
+        });
         tableProduk.setItems(produkPageData);
     }
 
@@ -387,20 +467,32 @@ public class AdminDashboardController {
             return;
         }
 
+        if (selected.getStatus() == 0) {
+            showAlert(Alert.AlertType.INFORMATION, "Sudah Dihapus", "Produk ini sudah dihapus sebelumnya.");
+            return;
+        }
+
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
         confirm.setTitle("Hapus Produk");
         confirm.setHeaderText("Yakin ingin menghapus " + selected.getNamaProduk() + "?");
-        confirm.setContentText("Data yang dihapus tidak dapat dikembalikan.");
+        confirm.setContentText("Stok produk akan diatur menjadi 0 dan produk akan ditandai sebagai dihapus.");
 
         Optional<ButtonType> result = confirm.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            boolean success = produkDAO.deleteProduk(selected.getIdProduk());
-            if (success) {
-                allProdukData.remove(selected);
-                showProdukPage(currentProdukPage);
-                showAlert(Alert.AlertType.INFORMATION, "Berhasil", "Produk berhasil dihapus.");
-            } else {
-                showAlert(Alert.AlertType.ERROR, "Gagal", "Produk gagal dihapus.");
+            try {
+                boolean success = produkDAO.deleteProduk(selected.getIdProduk());
+                if (success) {
+                    allProdukData.remove(selected);
+                    if (currentProdukPage > 0 && currentProdukPage * PAGE_SIZE >= allProdukData.size()) {
+                        currentProdukPage--;
+                    }
+                    showProdukPage(currentProdukPage);
+                    showAlert(Alert.AlertType.INFORMATION, "Berhasil", "Produk berhasil dihapus.");
+                }
+            } catch (RuntimeException e) {
+                showAlert(Alert.AlertType.ERROR, "Gagal",
+                        "Produk tidak dapat dihapus karena masih memiliki data penjualan terkait.\n\n" +
+                        "Hapus atau edit data penjualan yang menggunakan produk ini terlebih dahulu.");
             }
         }
     }
@@ -513,149 +605,110 @@ public class AdminDashboardController {
     }
 
     // =========================================================
-    // MEMBER TABLE SETUP + DATA
+    // DELETED PRODUK TABLE SETUP + DATA
     // =========================================================
-    private void setupMemberTable() {
-        colMemberNo.setCellValueFactory(cd -> new SimpleIntegerProperty(
-                tableMember.getItems().indexOf(cd.getValue()) + 1).asObject());
-        colMemberKode.setCellValueFactory(new PropertyValueFactory<>("kodeMember"));
-        colMemberNama.setCellValueFactory(new PropertyValueFactory<>("namaMember"));
-        colMemberTelp.setCellValueFactory(new PropertyValueFactory<>("noTelepon"));
-        colMemberPoin.setCellValueFactory(new PropertyValueFactory<>("poin"));
-        colMemberTotal.setCellValueFactory(cd -> new SimpleStringProperty(
-                "Rp " + rupiahFormat.format(cd.getValue().getTotalBelanja())));
+    private void setupDeletedProdukTable() {
+        colDltNo.setCellValueFactory(cd -> new SimpleIntegerProperty(
+                tableDeletedProduk.getItems().indexOf(cd.getValue()) + 1).asObject());
+        colDltBarcode.setCellValueFactory(new PropertyValueFactory<>("barcode"));
+        colDltNama.setCellValueFactory(new PropertyValueFactory<>("namaProduk"));
+        colDltKategori.setCellValueFactory(new PropertyValueFactory<>("kategori"));
+        colDltHarga.setCellValueFactory(cd -> new SimpleStringProperty(
+                "Rp " + rupiahFormat.format(cd.getValue().getHarga())));
+        colDltSatuan.setCellValueFactory(new PropertyValueFactory<>("satuan"));
+        colDltStatus.setCellValueFactory(cd -> new SimpleStringProperty("Dihapus"));
     }
 
-    private void loadMemberData() {
-        List<Member> list = memberDAO.getAllMember();
-        tableMember.setItems(FXCollections.observableArrayList(list));
+    private void loadDeletedProdukData() {
+        List<Produk> list = produkDAO.getDeletedProduk();
+        tableDeletedProduk.setItems(FXCollections.observableArrayList(list));
     }
 
-    @FXML
-    private void handleSearchMember() {
-        String keyword = searchMemberField.getText().trim();
-        List<Member> results = keyword.isEmpty()
-                ? memberDAO.getAllMember()
-                : memberDAO.searchMember(keyword);
-        tableMember.setItems(FXCollections.observableArrayList(results));
-    }
-
-    @FXML
-    private void handleTambahMember() {
-        Dialog<Member> dialog = new Dialog<>();
-        dialog.setTitle("Tambah Member");
-        dialog.setHeaderText("Isi data member baru");
-        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-
-        TextField fNama = new TextField(); fNama.setPromptText("Nama Member");
-        TextField fTelp = new TextField(); fTelp.setPromptText("No. Telepon");
-        TextField fAlamat = new TextField(); fAlamat.setPromptText("Alamat");
-
-        String kode = memberDAO.generateKodeMember();
-        Label lKode = new Label("Kode Member: " + kode);
-
-        VBox form = new VBox(8, lKode, fNama, fTelp, fAlamat);
-        dialog.getDialogPane().setContent(form);
-        Platform.runLater(fNama::requestFocus);
-
-        dialog.setResultConverter(btn -> {
-            if (btn == ButtonType.OK) {
-                Member m = new Member();
-                m.setKodeMember(kode);
-                m.setNamaMember(fNama.getText().trim());
-                m.setNoTelepon(fTelp.getText().trim());
-                m.setAlamat(fAlamat.getText().trim());
-                m.setPoin(0);
-                m.setTotalBelanja(0);
-                return m;
-            }
-            return null;
-        });
-
-        Optional<Member> result = dialog.showAndWait();
-        result.ifPresent(m -> {
-            boolean success = memberDAO.addMember(m);
-            if (success) {
-                loadMemberData();
-                showAlert(Alert.AlertType.INFORMATION, "Berhasil", "Member " + m.getNamaMember() + " berhasil ditambahkan.\nKode: " + m.getKodeMember());
-            } else {
-                showAlert(Alert.AlertType.ERROR, "Gagal", "Member gagal ditambahkan.");
-            }
+    // =========================================================
+    // LOW STOCK TABLE SETUP + DATA
+    // =========================================================
+    private void setupLowStockTable() {
+        colLsNo.setCellValueFactory(cd -> new SimpleIntegerProperty(
+                tableLowStock.getItems().indexOf(cd.getValue()) + 1).asObject());
+        colLsNama.setCellValueFactory(new PropertyValueFactory<>("namaProduk"));
+        colLsStok.setCellValueFactory(new PropertyValueFactory<>("stok"));
+        colLsMin.setCellValueFactory(new PropertyValueFactory<>("stokMinimum"));
+        colLsSatuan.setCellValueFactory(new PropertyValueFactory<>("satuan"));
+        colLsStatus.setCellValueFactory(cd -> {
+            Produk p = cd.getValue();
+            String status = p.getStok() <= 0 ? "Habis" :
+                    p.getStok() <= p.getStokMinimum() ? "Menipis" : "Aman";
+            return new SimpleStringProperty(status);
         });
     }
 
+    private void loadLowStockData() {
+        List<Produk> list = produkDAO.getProdukMenipis();
+        tableLowStock.setItems(FXCollections.observableArrayList(list));
+    }
+
     @FXML
-    private void handleEditMember() {
-        Member selected = tableMember.getSelectionModel().getSelectedItem();
+    private void handleTambahStokLowStock() {
+        Produk selected = tableLowStock.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            showAlert(Alert.AlertType.INFORMATION, "Pilih Member", "Pilih member yang ingin diedit.");
+            showAlert(Alert.AlertType.INFORMATION, "Pilih Produk", "Pilih produk yang stoknya ingin ditambah.");
             return;
         }
+        TextInputDialog dialog = new TextInputDialog("0");
+        dialog.setTitle("Tambah Stok");
+        dialog.setHeaderText("Tambah stok untuk: " + selected.getNamaProduk());
+        dialog.setContentText("Jumlah tambah:");
+        Optional<String> result = dialog.showAndWait();
+        result.ifPresent(input -> {
+            try {
+                int tambah = Integer.parseInt(input.trim());
+                selected.setStok(selected.getStok() + tambah);
+                produkDAO.updateProduk(selected);
+                loadLowStockData();
+                showAlert(Alert.AlertType.INFORMATION, "Berhasil",
+                        "Stok " + selected.getNamaProduk() + " berhasil ditambah " + tambah + ".");
+            } catch (NumberFormatException e) {
+                showAlert(Alert.AlertType.ERROR, "Input salah", "Masukkan angka yang valid.");
+            }
+        });
+    }
 
-        Dialog<Member> dialog = new Dialog<>();
-        dialog.setTitle("Edit Member");
-        dialog.setHeaderText("Edit data: " + selected.getNamaMember());
-        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-
-        TextField fNama = new TextField(selected.getNamaMember());
-        TextField fTelp = new TextField(selected.getNoTelepon());
-        TextField fAlamat = new TextField(selected.getAlamat());
-        TextField fPoin = new TextField(String.valueOf(selected.getPoin()));
-
-        VBox form = new VBox(8,
-                new Label("Kode: " + selected.getKodeMember()),
-                fNama, fTelp, fAlamat, fPoin);
-        dialog.getDialogPane().setContent(form);
-
-        dialog.setResultConverter(btn -> {
-            if (btn == ButtonType.OK) {
-                try {
-                    selected.setNamaMember(fNama.getText().trim());
-                    selected.setNoTelepon(fTelp.getText().trim());
-                    selected.setAlamat(fAlamat.getText().trim());
-                    selected.setPoin(Integer.parseInt(fPoin.getText().trim()));
-                    return selected;
-                } catch (NumberFormatException e) {
-                    showAlert(Alert.AlertType.ERROR, "Input salah", "Poin harus berupa angka.");
+    @FXML
+    private void handlePulihkanProduk() {
+        Produk selected = tableDeletedProduk.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showAlert(Alert.AlertType.INFORMATION, "Pilih Produk", "Pilih produk yang ingin dipulihkan.");
+            return;
+        }
+        TextInputDialog dialog = new TextInputDialog("0");
+        dialog.setTitle("Pulihkan Produk");
+        dialog.setHeaderText("Pulihkan: " + selected.getNamaProduk());
+        dialog.setContentText("Masukkan stok awal:");
+        Optional<String> result = dialog.showAndWait();
+        result.ifPresent(input -> {
+            try {
+                int stokBaru = Integer.parseInt(input.trim());
+                String sql = "UPDATE produk SET status = 1, stok = ? WHERE id_produk = ?";
+                try (Connection conn = DBconnection.connect();
+                     PreparedStatement stmt = conn.prepareStatement(sql)) {
+                    stmt.setInt(1, stokBaru);
+                    stmt.setInt(2, selected.getIdProduk());
+                    if (stmt.executeUpdate() > 0) {
+                        selected.setStatus(1);
+                        selected.setStok(stokBaru);
+                        allProdukData.clear();
+                        loadDeletedProdukData();
+                        showAlert(Alert.AlertType.INFORMATION, "Berhasil",
+                                "Produk " + selected.getNamaProduk() + " berhasil dipulihkan dengan stok " + stokBaru + ".");
+                    }
                 }
-            }
-            return null;
-        });
-
-        Optional<Member> result = dialog.showAndWait();
-        result.ifPresent(m -> {
-            boolean success = memberDAO.updateMember(m);
-            if (success) {
-                tableMember.refresh();
-                showAlert(Alert.AlertType.INFORMATION, "Berhasil", "Member berhasil diupdate.");
-            } else {
-                showAlert(Alert.AlertType.ERROR, "Gagal", "Member gagal diupdate.");
+            } catch (NumberFormatException e) {
+                showAlert(Alert.AlertType.ERROR, "Input salah", "Masukkan angka yang valid.");
+            } catch (SQLException e) {
+                e.printStackTrace();
+                showAlert(Alert.AlertType.ERROR, "Gagal", "Gagal memulihkan produk.");
             }
         });
-    }
-
-    @FXML
-    private void handleHapusMember() {
-        Member selected = tableMember.getSelectionModel().getSelectedItem();
-        if (selected == null) {
-            showAlert(Alert.AlertType.INFORMATION, "Pilih Member", "Pilih member yang ingin dihapus.");
-            return;
-        }
-
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Hapus Member");
-        confirm.setHeaderText("Yakin ingin menghapus " + selected.getNamaMember() + "?");
-
-        Optional<ButtonType> result = confirm.showAndWait();
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            boolean success = memberDAO.deleteMember(selected.getIdMember());
-            if (success) {
-                loadMemberData();
-                showAlert(Alert.AlertType.INFORMATION, "Berhasil", "Member berhasil dihapus.");
-            } else {
-                showAlert(Alert.AlertType.ERROR, "Gagal", "Member gagal dihapus.");
-            }
-        }
     }
 
     // =========================================================
@@ -848,10 +901,61 @@ public class AdminDashboardController {
     }
 
     // =========================================================
+    // DELETED USER TABLE SETUP + DATA
+    // =========================================================
+    private void setupDeletedUserTable() {
+        colDltUserNo.setCellValueFactory(cd -> new SimpleIntegerProperty(
+                tableDeletedUser.getItems().indexOf(cd.getValue()) + 1).asObject());
+        colDltUserUsername.setCellValueFactory(new PropertyValueFactory<>("username"));
+        colDltUserNama.setCellValueFactory(new PropertyValueFactory<>("namaLengkap"));
+        colDltUserRole.setCellValueFactory(new PropertyValueFactory<>("role"));
+    }
+
+    private void loadDeletedUserData() {
+        List<User> list = userDAO.getDeletedUsers();
+        tableDeletedUser.setItems(FXCollections.observableArrayList(list));
+    }
+
+    @FXML
+    private void handlePulihkanUser() {
+        User selected = tableDeletedUser.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showAlert(Alert.AlertType.INFORMATION, "Pilih Pengguna", "Pilih pengguna yang ingin dipulihkan.");
+            return;
+        }
+
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Pulihkan Pengguna");
+        confirm.setHeaderText("Yakin ingin memulihkan " + selected.getNamaLengkap() + "?");
+        confirm.setContentText("Pengguna akan diaktifkan kembali.");
+
+        Optional<ButtonType> result = confirm.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            boolean success = userDAO.restoreUser(selected.getIdUser());
+            if (success) {
+                selected.setStatus(1);
+                loadDeletedUserData();
+                showAlert(Alert.AlertType.INFORMATION, "Berhasil",
+                        "Pengguna " + selected.getNamaLengkap() + " berhasil dipulihkan.");
+            } else {
+                showAlert(Alert.AlertType.ERROR, "Gagal", "Gagal memulihkan pengguna.");
+            }
+        }
+    }
+
+    // =========================================================
     // LOGOUT
     // =========================================================
     @FXML
     private void handleLogout(ActionEvent event) {
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Logout");
+        confirm.setHeaderText("Yakin ingin logout?");
+        confirm.setContentText("Anda akan kembali ke halaman login.");
+        java.util.Optional<ButtonType> result = confirm.showAndWait();
+        if (result.isEmpty() || result.get() != ButtonType.OK) {
+            return;
+        }
         Session.clear();
         try {
             SceneController.switchTo("/com/project/tas_pbo/view/login-view.fxml", event);
