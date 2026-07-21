@@ -2,6 +2,7 @@ package com.project.tas_pbo.controller;
 
 import com.project.tas_pbo.DAO.ProdukDAO;
 import com.project.tas_pbo.DAO.UserDAO;
+import com.project.tas_pbo.service.ReAuthService;
 import com.project.tas_pbo.database.DBconnection;
 import com.project.tas_pbo.model.Produk;
 import com.project.tas_pbo.model.User;
@@ -197,25 +198,34 @@ public class AdminDashboardController {
     // ===== Produk filter navigation =====
     @FXML private void showFilterActive() {
         setFilterStyle(btnFilterActive);
-        activeProdukSection.setVisible(true); activeProdukSection.setManaged(true);
-        deletedProdukSection.setVisible(false); deletedProdukSection.setManaged(false);
-        lowStockSection.setVisible(false); lowStockSection.setManaged(false);
+        activeProdukSection.setVisible(true);
+        activeProdukSection.setManaged(true);
+        deletedProdukSection.setVisible(false);
+        deletedProdukSection.setManaged(false);
+        lowStockSection.setVisible(false);
+        lowStockSection.setManaged(false);
         if (allProdukData.isEmpty()) loadProdukData();
     }
 
     @FXML private void showFilterDeleted() {
         setFilterStyle(btnFilterDeleted);
-        activeProdukSection.setVisible(false); activeProdukSection.setManaged(false);
-        deletedProdukSection.setVisible(true); deletedProdukSection.setManaged(true);
-        lowStockSection.setVisible(false); lowStockSection.setManaged(false);
+        activeProdukSection.setVisible(false);
+        activeProdukSection.setManaged(false);
+        deletedProdukSection.setVisible(true);
+        deletedProdukSection.setManaged(true);
+        lowStockSection.setVisible(false);
+        lowStockSection.setManaged(false);
         loadDeletedProdukData();
     }
 
     @FXML private void showFilterLowStock() {
         setFilterStyle(btnFilterLowStock);
-        activeProdukSection.setVisible(false); activeProdukSection.setManaged(false);
-        deletedProdukSection.setVisible(false); deletedProdukSection.setManaged(false);
-        lowStockSection.setVisible(true); lowStockSection.setManaged(true);
+        activeProdukSection.setVisible(false);
+        activeProdukSection.setManaged(false);
+        deletedProdukSection.setVisible(false);
+        deletedProdukSection.setManaged(false);
+        lowStockSection.setVisible(true);
+        lowStockSection.setManaged(true);
         loadLowStockData();
     }
 
@@ -287,9 +297,7 @@ public class AdminDashboardController {
         new Thread(task).start();
     }
 
-    // =========================================================
     // PRODUK TABLE SETUP + DATA
-    // =========================================================
     private void setupProdukTable() {
         colProdukNo.setCellValueFactory(cd -> new SimpleIntegerProperty(
                 tableProduk.getItems().indexOf(cd.getValue()) + 1).asObject());
@@ -355,7 +363,7 @@ public class AdminDashboardController {
 
     @FXML
     private void handleTambahProduk() {
-        // Dialog for adding produk
+        if (!ReAuthService.requireReAuth()) return;
         Dialog<Produk> dialog = new Dialog<>();
         dialog.setTitle("Tambah Produk");
         dialog.setHeaderText("Isi data produk baru");
@@ -407,6 +415,7 @@ public class AdminDashboardController {
 
     @FXML
     private void handleEditProduk() {
+        if (!ReAuthService.requireReAuth()) return;
         Produk selected = tableProduk.getSelectionModel().getSelectedItem();
         if (selected == null) {
             showAlert(Alert.AlertType.INFORMATION, "Pilih Produk", "Pilih produk yang ingin diedit.");
@@ -461,6 +470,7 @@ public class AdminDashboardController {
 
     @FXML
     private void handleHapusProduk() {
+        if (!ReAuthService.requireReAuth()) return;
         Produk selected = tableProduk.getSelectionModel().getSelectedItem();
         if (selected == null) {
             showAlert(Alert.AlertType.INFORMATION, "Pilih Produk", "Pilih produk yang ingin dihapus.");
@@ -497,9 +507,7 @@ public class AdminDashboardController {
         }
     }
 
-    // =========================================================
     // STOK TABLE SETUP + DATA
-    // =========================================================
     private void setupStokTable() {
         colStokAllNo.setCellValueFactory(cd -> new SimpleIntegerProperty(
                 tableStok.getItems().indexOf(cd.getValue()) + 1).asObject());
@@ -522,6 +530,7 @@ public class AdminDashboardController {
 
     @FXML
     private void handleTambahStok() {
+        if (!ReAuthService.requireReAuth()) return;
         Produk selected = tableStok.getSelectionModel().getSelectedItem();
         if (selected == null) {
             showAlert(Alert.AlertType.INFORMATION, "Pilih Produk", "Pilih produk yang stoknya ingin ditambah.");
@@ -550,6 +559,7 @@ public class AdminDashboardController {
 
     @FXML
     private void handleKurangiStok() {
+        if (!ReAuthService.requireReAuth()) return;
         Produk selected = tableStok.getSelectionModel().getSelectedItem();
         if (selected == null) {
             showAlert(Alert.AlertType.INFORMATION, "Pilih Produk", "Pilih produk yang stoknya ingin dikurangi.");
@@ -587,9 +597,7 @@ public class AdminDashboardController {
         showAlert(Alert.AlertType.INFORMATION, "Refresh", "Data stok berhasil diperbarui.");
     }
 
-    // =========================================================
     // STOK MENIPIS TABLE (dashboard)
-    // =========================================================
     private void setupStokMenipisTable() {
         colStokNo.setCellValueFactory(cd -> new SimpleIntegerProperty(
                 tableStokMenipis.getItems().indexOf(cd.getValue()) + 1).asObject());
@@ -604,9 +612,7 @@ public class AdminDashboardController {
         });
     }
 
-    // =========================================================
     // DELETED PRODUK TABLE SETUP + DATA
-    // =========================================================
     private void setupDeletedProdukTable() {
         colDltNo.setCellValueFactory(cd -> new SimpleIntegerProperty(
                 tableDeletedProduk.getItems().indexOf(cd.getValue()) + 1).asObject());
@@ -624,9 +630,7 @@ public class AdminDashboardController {
         tableDeletedProduk.setItems(FXCollections.observableArrayList(list));
     }
 
-    // =========================================================
     // LOW STOCK TABLE SETUP + DATA
-    // =========================================================
     private void setupLowStockTable() {
         colLsNo.setCellValueFactory(cd -> new SimpleIntegerProperty(
                 tableLowStock.getItems().indexOf(cd.getValue()) + 1).asObject());
@@ -649,6 +653,7 @@ public class AdminDashboardController {
 
     @FXML
     private void handleTambahStokLowStock() {
+        if (!ReAuthService.requireReAuth()) return;
         Produk selected = tableLowStock.getSelectionModel().getSelectedItem();
         if (selected == null) {
             showAlert(Alert.AlertType.INFORMATION, "Pilih Produk", "Pilih produk yang stoknya ingin ditambah.");
@@ -675,6 +680,7 @@ public class AdminDashboardController {
 
     @FXML
     private void handlePulihkanProduk() {
+        if (!ReAuthService.requireReAuth()) return;
         Produk selected = tableDeletedProduk.getSelectionModel().getSelectedItem();
         if (selected == null) {
             showAlert(Alert.AlertType.INFORMATION, "Pilih Produk", "Pilih produk yang ingin dipulihkan.");
@@ -711,9 +717,7 @@ public class AdminDashboardController {
         });
     }
 
-    // =========================================================
     // USER TABLE SETUP + DATA
-    // =========================================================
     private void setupUserTable() {
         colUserNo.setCellValueFactory(cd -> new SimpleIntegerProperty(
                 tableUser.getItems().indexOf(cd.getValue()) + 1).asObject());
@@ -723,21 +727,26 @@ public class AdminDashboardController {
     }
 
     private void loadUserData() {
-        List<User> list = userDAO.getAllUsers();
+        List<User> list = userDAO.getAllUsers().stream()
+                .filter(u -> "Kasir".equals(u.getRole()))
+                .toList();
         tableUser.setItems(FXCollections.observableArrayList(list));
     }
 
     @FXML
     private void handleSearchUser() {
         String keyword = searchUserField.getText().trim();
-        List<User> results = keyword.isEmpty()
+        List<User> results = (keyword.isEmpty()
                 ? userDAO.getAllUsers()
-                : userDAO.searchUser(keyword);
+                : userDAO.searchUser(keyword)).stream()
+                .filter(u -> "Kasir".equals(u.getRole()))
+                .toList();
         tableUser.setItems(FXCollections.observableArrayList(results));
     }
 
     @FXML
     private void handleTambahUser() {
+        if (!ReAuthService.requireReAuth()) return;
         Dialog<User> dialog = new Dialog<>();
         dialog.setTitle("Tambah Pengguna");
         dialog.setHeaderText("Isi data pengguna baru");
@@ -747,7 +756,7 @@ public class AdminDashboardController {
         PasswordField fPassword = new PasswordField(); fPassword.setPromptText("Password");
         TextField fNama = new TextField(); fNama.setPromptText("Nama Lengkap");
         ComboBox<String> fRole = new ComboBox<>();
-        fRole.getItems().addAll("Admin", "Kasir", "Manager");
+        fRole.getItems().addAll("Kasir");
         fRole.setValue("Kasir");
 
         VBox form = new VBox(8, fUsername, fPassword, fNama, fRole);
@@ -784,6 +793,7 @@ public class AdminDashboardController {
 
     @FXML
     private void handleEditUser() {
+        if (!ReAuthService.requireReAuth()) return;
         User selected = tableUser.getSelectionModel().getSelectedItem();
         if (selected == null) {
             showAlert(Alert.AlertType.INFORMATION, "Pilih Pengguna", "Pilih pengguna yang ingin diedit.");
@@ -798,8 +808,8 @@ public class AdminDashboardController {
         TextField fUsername = new TextField(selected.getUsername());
         TextField fNama = new TextField(selected.getNamaLengkap());
         ComboBox<String> fRole = new ComboBox<>();
-        fRole.getItems().addAll("Admin", "Kasir", "Manager");
-        fRole.setValue(selected.getRole());
+        fRole.getItems().addAll("Kasir");
+        fRole.setValue("Kasir");
 
         VBox form = new VBox(8,
                 new Label("ID: " + selected.getIdUser()),
@@ -830,6 +840,7 @@ public class AdminDashboardController {
 
     @FXML
     private void handleGantiPasswordUser() {
+        if (!ReAuthService.requireReAuth()) return;
         User selected = tableUser.getSelectionModel().getSelectedItem();
         if (selected == null) {
             showAlert(Alert.AlertType.INFORMATION, "Pilih Pengguna", "Pilih pengguna yang ingin diganti passwordnya.");
@@ -872,6 +883,7 @@ public class AdminDashboardController {
 
     @FXML
     private void handleHapusUser() {
+        if (!ReAuthService.requireReAuth()) return;
         User selected = tableUser.getSelectionModel().getSelectedItem();
         if (selected == null) {
             showAlert(Alert.AlertType.INFORMATION, "Pilih Pengguna", "Pilih pengguna yang ingin dihapus.");
@@ -900,9 +912,7 @@ public class AdminDashboardController {
         }
     }
 
-    // =========================================================
     // DELETED USER TABLE SETUP + DATA
-    // =========================================================
     private void setupDeletedUserTable() {
         colDltUserNo.setCellValueFactory(cd -> new SimpleIntegerProperty(
                 tableDeletedUser.getItems().indexOf(cd.getValue()) + 1).asObject());
@@ -912,12 +922,15 @@ public class AdminDashboardController {
     }
 
     private void loadDeletedUserData() {
-        List<User> list = userDAO.getDeletedUsers();
+        List<User> list = userDAO.getDeletedUsers().stream()
+                .filter(u -> "Kasir".equals(u.getRole()))
+                .toList();
         tableDeletedUser.setItems(FXCollections.observableArrayList(list));
     }
 
     @FXML
     private void handlePulihkanUser() {
+        if (!ReAuthService.requireReAuth()) return;
         User selected = tableDeletedUser.getSelectionModel().getSelectedItem();
         if (selected == null) {
             showAlert(Alert.AlertType.INFORMATION, "Pilih Pengguna", "Pilih pengguna yang ingin dipulihkan.");
@@ -943,9 +956,7 @@ public class AdminDashboardController {
         }
     }
 
-    // =========================================================
     // LOGOUT
-    // =========================================================
     @FXML
     private void handleLogout(ActionEvent event) {
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
@@ -964,9 +975,7 @@ public class AdminDashboardController {
         }
     }
 
-    // =========================================================
     // CLOCK
-    // =========================================================
     private void startClock() {
         updateClock();
         Timeline clock = new Timeline(new KeyFrame(Duration.seconds(1), e -> updateClock()));
@@ -980,9 +989,7 @@ public class AdminDashboardController {
         if (dateLabel != null) dateLabel.setText(now.format(DATE_FORMAT));
     }
 
-    // =========================================================
     // HELPERS
-    // =========================================================
     private void showAlert(Alert.AlertType type, String title, String message) {
         Alert alert = new Alert(type);
         alert.setTitle(title);

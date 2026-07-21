@@ -4,6 +4,7 @@ import com.project.tas_pbo.DAO.ProdukDAO;
 import com.project.tas_pbo.DAO.LaporanDAO;
 import com.project.tas_pbo.DAO.PenjualanDAO;
 import com.project.tas_pbo.DAO.UserDAO;
+import com.project.tas_pbo.service.ReAuthService;
 import com.project.tas_pbo.model.Produk;
 import com.project.tas_pbo.model.LaporanHarian;
 import com.project.tas_pbo.model.Penjualan;
@@ -643,6 +644,7 @@ public class DashboardManagerController {
 
     @FXML
     private void handleTambahUser() {
+        if (!ReAuthService.requireReAuth()) return;
         Dialog<User> dialog = new Dialog<>();
         dialog.setTitle("Tambah Pengguna");
         dialog.setHeaderText("Isi data pengguna baru");
@@ -689,6 +691,7 @@ public class DashboardManagerController {
 
     @FXML
     private void handleEditUser() {
+        if (!ReAuthService.requireReAuth()) return;
         User selected = tableUser.getSelectionModel().getSelectedItem();
         if (selected == null) {
             showAlert(Alert.AlertType.INFORMATION, "Pilih Pengguna", "Pilih pengguna yang ingin diedit.");
@@ -735,6 +738,7 @@ public class DashboardManagerController {
 
     @FXML
     private void handleGantiPasswordUser() {
+        if (!ReAuthService.requireReAuth()) return;
         User selected = tableUser.getSelectionModel().getSelectedItem();
         if (selected == null) {
             showAlert(Alert.AlertType.INFORMATION, "Pilih Pengguna", "Pilih pengguna yang ingin diganti passwordnya.");
@@ -777,6 +781,7 @@ public class DashboardManagerController {
 
     @FXML
     private void handleHapusUser() {
+        if (!ReAuthService.requireReAuth()) return;
         User selected = tableUser.getSelectionModel().getSelectedItem();
         if (selected == null) {
             showAlert(Alert.AlertType.INFORMATION, "Pilih Pengguna", "Pilih pengguna yang ingin dihapus.");
@@ -823,6 +828,7 @@ public class DashboardManagerController {
 
     @FXML
     private void handlePulihkanUser() {
+        if (!ReAuthService.requireReAuth()) return;
         User selected = tableDeletedUser.getSelectionModel().getSelectedItem();
         if (selected == null) {
             showAlert(Alert.AlertType.INFORMATION, "Pilih Pengguna", "Pilih pengguna yang ingin dipulihkan.");
