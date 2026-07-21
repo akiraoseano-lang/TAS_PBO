@@ -10,8 +10,8 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 
 /**
- * HTTP client used by POSController to talk to the Spring Boot QRIS server.
- * Spring Boot must be running on localhost:8080 before calling these methods.
+ * HTTP client yang digunakan POSController untuk berkomunikasi dengan server Spring Boot QRIS.
+ * Server Spring Boot harus berjalan di localhost:8080 sebelum memanggil method ini.
  */
 public class QrisClient {
 
@@ -22,9 +22,8 @@ public class QrisClient {
             .build();
 
     /**
-     * Creates a new QRIS charge for the given amount.
-     * Returns the view URL to open on mobile (http://localhost:8080/qris).
-     * Returns null if server is unreachable.
+     * Membuat tagihan QRIS baru untuk jumlah tertentu.
+     * Mengembalikan URL yang bisa dibuka di HP (http://localhost:8080/qris).
      */
     public static QrisResult createQris(long amount) {
         try {
@@ -61,8 +60,8 @@ public class QrisClient {
     }
 
     /**
-     * Polls payment status.
-     * Returns: PENDING, SUCCESS, EXPIRED, CANCELLED, NO_SESSION, ERROR
+     * Mengecek status pembayaran.
+     * Mengembalikan: PENDING, SUCCESS, EXPIRED, CANCELLED, NO_SESSION, ERROR
      */
     public static String checkStatus() {
         try {
@@ -84,8 +83,8 @@ public class QrisClient {
     }
 
     /**
-     * Cancels the current QRIS session.
-     * Call when cashier switches payment method or resets transaction.
+     * Membatalkan sesi QRIS yang sedang aktif.
+     * Dipanggil saat kasir mengganti metode pembayaran atau mereset transaksi.
      */
     public static void cancelQris() {
         try {
@@ -99,13 +98,13 @@ public class QrisClient {
             httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
         } catch (Exception e) {
-            System.err.println("QRIS cancel failed: " + e.getMessage());
+            System.err.println("QRIS cancel gagal: " + e.getMessage());
         }
     }
 
     /**
-     * Marks QRIS session as complete after saving transaction to DB.
-     * Clears mobile page so it shows waiting state for next customer.
+     * Menandai sesi QRIS sebagai selesai setelah transaksi disimpan ke DB.
+     * Membersihkan halaman mobile agar menampilkan status menunggu untuk pelanggan berikutnya.
      */
     public static void completeQris() {
         try {
@@ -119,17 +118,15 @@ public class QrisClient {
             httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
         } catch (Exception e) {
-            System.err.println("QRIS complete failed: " + e.getMessage());
+            System.err.println("QRIS complete gagal: " + e.getMessage());
         }
     }
 
-    // =========================================================
-    // Result wrapper
-    // =========================================================
+    // Pembungkus hasil QRIS
     public static class QrisResult {
         public final boolean success;
         public final String orderId;
-        public final String viewUrl;  // URL to show cashier: open on phone
+        public final String viewUrl;  // URL untuk dibuka di HP kasir
         public final String error;
 
         public QrisResult(boolean success, String orderId, String viewUrl, String error) {

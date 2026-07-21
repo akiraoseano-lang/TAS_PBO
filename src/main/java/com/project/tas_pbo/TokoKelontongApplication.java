@@ -7,6 +7,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
+// Kelas utama aplikasi JavaFX
 public class TokoKelontongApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {

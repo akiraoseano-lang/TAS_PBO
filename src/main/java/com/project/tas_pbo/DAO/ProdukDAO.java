@@ -10,8 +10,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+// DAO untuk operasi database tabel produk
 public class ProdukDAO {
 
+    // Mengambil semua produk aktif
     public List<Produk> getAllProduk() {
         List<Produk> list = new ArrayList<>();
         String sql = "SELECT * FROM produk WHERE status = 1 ORDER BY id_produk ASC";
@@ -31,6 +33,7 @@ public class ProdukDAO {
         return list;
     }
 
+    // Mencari produk berdasarkan nama atau ID
     public List<Produk> searchProduk(String keyword) {
         List<Produk> list = new ArrayList<>();
         String sql = "SELECT * FROM produk WHERE status = 1 AND (nama_produk LIKE ? OR id_produk = ?) ORDER BY nama_produk ASC LIMIT 20";
@@ -42,7 +45,7 @@ public class ProdukDAO {
             try {
                 stmt.setInt(2, Integer.parseInt(keyword));
             } catch (NumberFormatException e) {
-                stmt.setInt(2, -1); // no match if not numeric
+                stmt.setInt(2, -1); // tidak cocok jika bukan angka
             }
 
             try (ResultSet rs = stmt.executeQuery()) {
@@ -58,6 +61,7 @@ public class ProdukDAO {
         return list;
     }
 
+    // Mencari produk berdasarkan nama saja
     public List<Produk> searchByName(String name) {
         List<Produk> list = new ArrayList<>();
         String sql = "SELECT * FROM produk WHERE status = 1 AND nama_produk LIKE ? ORDER BY nama_produk ASC LIMIT 20";
@@ -80,6 +84,7 @@ public class ProdukDAO {
         return list;
     }
 
+    // Mencari produk berdasarkan barcode atau ID
     public Produk findByBarcodeOrId(String keyword) {
 
         String sqlByBarcode = "SELECT * FROM produk WHERE status = 1 AND barcode = ?";
@@ -117,6 +122,7 @@ public class ProdukDAO {
         return null;
     }
 
+    // Mengambil produk berdasarkan ID
     public Produk getProdukById(int id) {
         String sql = "SELECT * FROM produk WHERE status = 1 AND id_produk = ?";
 
@@ -137,6 +143,7 @@ public class ProdukDAO {
         return null;
     }
 
+    // Menambahkan produk baru
     public boolean addProduk(Produk produk) {
         String sql = "INSERT INTO produk (nama_produk, barcode, kategori, harga, stok, satuan, stok_minimum, status) VALUES (?, ?, ?, ?, ?, ?, ?, 1)";
 
@@ -159,6 +166,7 @@ public class ProdukDAO {
         }
     }
 
+    // Mengupdate data produk
     public boolean updateProduk(Produk produk) {
         String sql = "UPDATE produk SET nama_produk = ?, barcode = ?, kategori = ?, harga = ?, stok = ?, satuan = ?, stok_minimum = ? WHERE id_produk = ?";
 
@@ -182,6 +190,7 @@ public class ProdukDAO {
         }
     }
 
+    // Menghapus produk (soft delete - set stok = 0, status = 0)
     public boolean deleteProduk(int id) {
         String sql = "UPDATE produk SET stok = 0, status = 0 WHERE id_produk = ?";
 
@@ -196,6 +205,7 @@ public class ProdukDAO {
         }
     }
 
+    // Memetakan hasil query ke objek Produk
     private Produk mapResultSetToProduk(ResultSet rs) throws SQLException {
         Produk produk = new Produk();
         produk.setIdProduk(rs.getInt("id_produk"));
@@ -210,6 +220,7 @@ public class ProdukDAO {
         return produk;
     }
 
+    // Mengambil total jumlah produk
     public int getTotalProduk() {
         String sql = "SELECT COUNT(*) AS total FROM produk WHERE status = 1";
         try (Connection conn = DBconnection.connect();
@@ -224,6 +235,7 @@ public class ProdukDAO {
         return 0;
     }
 
+    // Mengambil total stok semua produk
     public int getTotalStok() {
         String sql = "SELECT SUM(stok) AS total FROM produk WHERE status = 1";
         try (Connection conn = DBconnection.connect();
@@ -238,6 +250,7 @@ public class ProdukDAO {
         return 0;
     }
 
+    // Mengambil produk yang telah dihapus
     public List<Produk> getDeletedProduk() {
         List<Produk> list = new ArrayList<>();
         String sql = "SELECT * FROM produk WHERE status = 0 ORDER BY id_produk ASC";
@@ -253,6 +266,7 @@ public class ProdukDAO {
         return list;
     }
 
+    // Mengambil produk dengan stok menipis
     public List<Produk> getProdukMenipis() {
         List<Produk> list = new ArrayList<>();
         String sql = "SELECT * FROM produk WHERE status = 1 AND stok <= stok_minimum ORDER BY stok ASC";
@@ -268,6 +282,7 @@ public class ProdukDAO {
         return list;
     }
 
+    // Mengambil produk terlaris berdasarkan jumlah penjualan
     public List<com.project.tas_pbo.model.ProdukTerlaris> getProdukTerlaris(int limit) {
         List<com.project.tas_pbo.model.ProdukTerlaris> list = new ArrayList<>();
         String sql = "SELECT pd.nama_produk, SUM(pd.jumlah) AS total_terjual, p.satuan " +

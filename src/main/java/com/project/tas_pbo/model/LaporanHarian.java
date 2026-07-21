@@ -3,6 +3,7 @@ package com.project.tas_pbo.model;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
+// Model untuk laporan penjualan harian
 public class LaporanHarian {
 
     private LocalDate tanggal;

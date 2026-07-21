@@ -16,29 +16,31 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+// Service untuk mencetak struk pembayaran
 public class ReceiptPrinter {
 
     private static final DecimalFormat rupiahFormat = new DecimalFormat("#,###");
 
-    // width menjadi 30 agar tidak keluar batas kertas 58mm
+    // Lebar karakter menjadi 30 agar tidak keluar batas kertas 58mm
     private static final int CHAR_WIDTH = 30;
 
     // =========================================================
-    // GENERATE RECEIPT TEXT
+    // GENERATE TEKS STRUK
     // =========================================================
+    // Menghasilkan teks struk pembayaran
     public static String generateReceipt(
             Penjualan penjualan,
             List<PenjualanDetail> items
     ) {
         StringBuilder sb = new StringBuilder();
 
-        // Header
+        // Header toko
         sb.append(center("TOKO KELONTONG", CHAR_WIDTH)).append("\n");
         sb.append(center("Jl. Contoh No. 1", CHAR_WIDTH)).append("\n");
         sb.append(center("Telp: 021-12345678", CHAR_WIDTH)).append("\n");
         sb.append(line(CHAR_WIDTH)).append("\n");
 
-        // Transaction info
+        // Informasi transaksi
         sb.append("No  : ").append(penjualan.getNoTransaksi()).append("\n");
         sb.append("Tgl : ").append(
                 LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yy HH:mm"))
@@ -46,7 +48,7 @@ public class ReceiptPrinter {
 
         sb.append(line(CHAR_WIDTH)).append("\n");
 
-        // Items
+        // Daftar item
         for (PenjualanDetail item : items) {
             String nama = item.getNamaProduk();
             if (nama.length() > CHAR_WIDTH) {
@@ -79,8 +81,9 @@ public class ReceiptPrinter {
     }
 
     // =========================================================
-    // PRINT TO 58MM THERMAL PRINTER
+    // CETAK KE PRINTER THERMAL 58MM
     // =========================================================
+    // Mencetak struk ke printer thermal 58mm
     public static void printToPrinter(
             Penjualan penjualan,
             List<PenjualanDetail> items
@@ -102,7 +105,7 @@ public class ReceiptPrinter {
 
         Printer printer = job.getPrinter();
 
-        // Set 58mm paper size
+        // Atur ukuran kertas 58mm
         Paper paper58mm = Paper.NA_LETTER; // fallback
 
         // Ubah margin (kiri, kanan, atas, bawah) menjadi 0
@@ -112,13 +115,13 @@ public class ReceiptPrinter {
                 0, 0, 0, 0
         );
 
-        // Build receipt as a Text node
+        // Buat struk sebagai node Text
         Text receiptNode = new Text(receiptText);
         // Turunkan ukuran font menjadi 7.5 agar muat sempurna
         receiptNode.setFont(Font.font("Courier New", 7.5));
         receiptNode.setTextAlignment(TextAlignment.LEFT);
 
-        // Wrap in VBox for proper layout
+        // Bungkus dalam VBox untuk tata letak yang rapi
         VBox printBox = new VBox(receiptNode);
         // Hapus padding menjadi 0
         printBox.setPadding(new Insets(0));
@@ -133,8 +136,9 @@ public class ReceiptPrinter {
     }
 
     // =========================================================
-    // SHOW RECEIPT IN DIALOG (fallback / digital receipt)
+    // TAMPILKAN STRUK DALAM DIALOG (fallback / struk digital)
     // =========================================================
+    // Menampilkan struk dalam dialog (fallback jika printer tidak tersedia)
     public static void showReceiptDialog(
             Penjualan penjualan,
             List<PenjualanDetail> items
@@ -157,18 +161,21 @@ public class ReceiptPrinter {
     }
 
     // =========================================================
-    // HELPERS
+    // FUNGSI BANTU
     // =========================================================
+    // Membuat teks rata tengah
     private static String center(String text, int width) {
         if (text.length() >= width) return text;
         int pad = (width - text.length()) / 2;
         return " ".repeat(pad) + text;
     }
 
+    // Membuat garis pemisah
     private static String line(int width) {
         return "-".repeat(width);
     }
 
+    // Mengatur teks kiri dan kanan dalam satu baris
     private static String rowFit(String left, String right, int width) {
         int space = width - left.length() - right.length();
         if (space >= 1) {

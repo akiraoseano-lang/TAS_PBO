@@ -16,8 +16,10 @@ import java.time.format.DateTimeFormatter;
 import java.io.IOException;
 import javafx.event.ActionEvent;
 
+// Controller untuk halaman login
 public class LoginController {
 
+    // ===== Komponen UI =====
     @FXML private StackPane rootPane;
     @FXML private TextField txtUsername;
     @FXML private PasswordField txtPassword;
@@ -32,6 +34,7 @@ public class LoginController {
 
     private final UserDAO userDAO = new UserDAO();
 
+    // Inisialisasi controller, dipanggil otomatis oleh JavaFX
     @FXML
     public void initialize() {
         startClock();
@@ -40,6 +43,7 @@ public class LoginController {
         txtPassword.managedProperty().bind(txtPassword.visibleProperty());
     }
 
+    // Memulai jam digital
     @FXML
     public void startClock() {
         updateTime();
@@ -50,6 +54,7 @@ public class LoginController {
         clock.play();
     }
 
+    // Memperbarui tampilan jam dan tanggal
     @FXML
     public void updateTime() {
         LocalDateTime now = LocalDateTime.now();
@@ -57,6 +62,7 @@ public class LoginController {
         if (dateLabel != null) dateLabel.setText(now.format(DATE_FORMAT));
     }
 
+    // Menangani proses login
     @FXML
     private void handleLogin(ActionEvent event) {
         String username = txtUsername.getText().trim();
@@ -80,6 +86,7 @@ public class LoginController {
         System.out.println("Login berhasil: " + user.getNamaLengkap() + " (" + user.getRole() + ")");
 
         try {
+            // Arahkan ke halaman sesuai role
             switch (user.getRole()) {
                 case "Manager" ->
                         SceneController.switchTo("/com/project/tas_pbo/view/dashboard-manager-view.fxml", event);
@@ -98,6 +105,7 @@ public class LoginController {
         }
     }
 
+    // Menampilkan/menyembunyikan password
     @FXML
     private void handleShowPassword() {
         if (chkShowPassword.isSelected()) {
@@ -113,6 +121,7 @@ public class LoginController {
         }
     }
 
+    // Menampilkan pesan alert di layar login
     private void showAlert(String message, boolean isError) {
         loginTextAlert.setText(message);
         loginTextAlert.setStyle(isError

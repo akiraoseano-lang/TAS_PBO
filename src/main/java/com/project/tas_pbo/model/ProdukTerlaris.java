@@ -1,5 +1,6 @@
 package com.project.tas_pbo.model;
 
+// Model untuk daftar produk terlaris
 public class ProdukTerlaris {
     private String namaProduk;
     private int terjual;

@@ -1,5 +1,6 @@
 package com.project.tas_pbo.model;
 
+// Model untuk tabel users
 public class User {
 
     private int idUser;

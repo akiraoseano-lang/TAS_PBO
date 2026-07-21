@@ -8,7 +8,9 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import java.io.IOException;
 
+// Controller untuk berpindah scene/halaman
 public class SceneController {
+    // Berpindah ke halaman FXML yang ditentukan
     public static void switchTo(String fxmlPath, ActionEvent event) throws IOException {
 
         Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();

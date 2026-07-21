@@ -1,5 +1,6 @@
 package com.project.tas_pbo.model;
 
+// Model untuk tabel produk
 public class Produk {
 
     private int idProduk;

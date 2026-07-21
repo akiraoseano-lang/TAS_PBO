@@ -34,11 +34,13 @@ import java.util.Optional;
 
 public class POSController {
 
+    // ===== Komponen UI =====
     @FXML private BorderPane rootPane;
     @FXML private Label kasirLabel;
     @FXML private Label dateLabel;
     @FXML private Label timeLabel;
 
+    // ===== Tabel Produk =====
     @FXML private TableView<Produk> produkTable;
     @FXML private TableColumn<Produk, Integer> colProdukNo;
     @FXML private TableColumn<Produk, String> colProdukBarcode;
@@ -49,6 +51,7 @@ public class POSController {
     @FXML private TableColumn<Produk, Void> colProdukAksi;
     @FXML private TextField searchField;
 
+    // ===== Tabel Keranjang =====
     @FXML private TableView<PenjualanDetail> cartTable;
     @FXML private TableColumn<PenjualanDetail, Integer> colNo;
     @FXML private TableColumn<PenjualanDetail, String> colBarcode;
@@ -58,13 +61,16 @@ public class POSController {
     @FXML private TableColumn<PenjualanDetail, String> colHarga;
     @FXML private TableColumn<PenjualanDetail, String> colTotal;
 
+    // ===== Label Total =====
     @FXML private Label grandTotalLabel;
     @FXML private Label subtotalLabel;
     @FXML private Label totalTagihanLabel;
 
+    // ===== Input Pembayaran =====
     @FXML private TextField payField;
     @FXML private Button bayarButton;
 
+    // ===== Data dan DAO =====
     private final ObservableList<PenjualanDetail> cartItems = FXCollections.observableArrayList();
     private final ObservableList<Produk> produkItems = FXCollections.observableArrayList();
     private final ProdukDAO produkDAO = new ProdukDAO();
@@ -77,6 +83,7 @@ public class POSController {
     private double subtotal = 0;
     private double totalTagihan = 0;
 
+    // menyimpan transaksi terakhir untuk cetak ulang struk
     private Penjualan lastPenjualan = null;
     private List<PenjualanDetail> lastCartItems = null;
 
@@ -95,6 +102,7 @@ public class POSController {
         Platform.runLater(() -> searchField.requestFocus());
     }
 
+    // Mengatur kolom-kolom pada tabel produk
     private void setupProdukTable() {
         colProdukNo.setCellValueFactory(cd -> new SimpleIntegerProperty(
                 produkTable.getItems().indexOf(cd.getValue()) + 1).asObject());
@@ -105,6 +113,7 @@ public class POSController {
         colProdukStok.setCellValueFactory(new PropertyValueFactory<>("stok"));
         colProdukSatuan.setCellValueFactory(new PropertyValueFactory<>("satuan"));
 
+        // Tombol tambah produk ke keranjang
         colProdukAksi.setCellFactory(col -> new TableCell<>() {
             private final Button addBtn = new Button("+");
 
@@ -128,6 +137,7 @@ public class POSController {
         produkTable.setPlaceholder(new Label("Tidak ada produk ditemukan"));
     }
 
+    // Memuat data produk dari database menggunakan background thread
     private void loadProdukData() {
         Task<List<Produk>> task = new Task<>() {
             @Override protected List<Produk> call() {
@@ -138,6 +148,7 @@ public class POSController {
         new Thread(task).start();
     }
 
+    // Mencari produk berdasarkan keyword
     @FXML
     private void handleSearchProduk() {
         String keyword = searchField.getText().trim();
@@ -149,6 +160,7 @@ public class POSController {
         produkItems.setAll(results);
     }
 
+    // Mereset pencarian dan menampilkan semua produk
     @FXML
     private void handleResetSearch() {
         searchField.clear();
@@ -156,6 +168,7 @@ public class POSController {
         searchField.requestFocus();
     }
 
+    // Mengatur kolom-kolom pada tabel keranjang
     private void setupCartTable() {
         colNo.setCellValueFactory(cd -> new SimpleIntegerProperty(
                 cartTable.getItems().indexOf(cd.getValue()) + 1).asObject());
@@ -172,6 +185,7 @@ public class POSController {
         cartTable.setPlaceholder(new Label("Keranjang kosong - klik + pada produk untuk menambahkan"));
     }
 
+    // Menambahkan produk ke keranjang belanja
     private void addToCart(Produk produk, int qty) {
         if (produk.getStok() < qty) {
             showAlert(Alert.AlertType.WARNING, "Stok tidak cukup",
@@ -179,6 +193,7 @@ public class POSController {
             return;
         }
 
+        // Jika produk sudah ada di keranjang, tambah jumlahnya
         for (PenjualanDetail item : cartItems) {
             if (item.getIdProduk() == produk.getIdProduk()) {
                 int newQty = item.getJumlah() + qty;
@@ -194,6 +209,7 @@ public class POSController {
             }
         }
 
+        // Produk baru, buat item keranjang baru
         PenjualanDetail detail = new PenjualanDetail(
                 produk.getIdProduk(),
                 produk.getBarcode(),
@@ -205,6 +221,7 @@ public class POSController {
         updateTotals();
     }
 
+    // Mengubah jumlah item di keranjang
     @FXML
     private void handleEditQty() {
         PenjualanDetail selected = cartTable.getSelectionModel().getSelectedItem();
@@ -241,6 +258,7 @@ public class POSController {
         });
     }
 
+    // Menghapus item dari keranjang
     @FXML
     private void handleHapusItem() {
         PenjualanDetail selected = cartTable.getSelectionModel().getSelectedItem();
@@ -252,12 +270,14 @@ public class POSController {
         updateTotals();
     }
 
+    // Fokus ke field pencarian untuk scan barcode
     @FXML
     private void handleScanBarcode() {
         searchField.requestFocus();
         searchField.clear();
     }
 
+    // Mereset seluruh transaksi (mengosongkan keranjang)
     @FXML
     private void handleReset() {
         if (cartItems.isEmpty()) {
@@ -276,6 +296,7 @@ public class POSController {
         }
     }
 
+    // Mengecek harga produk berdasarkan nama
     @FXML
     private void handleCekHarga() {
         TextInputDialog dialog = new TextInputDialog();
@@ -305,6 +326,7 @@ public class POSController {
         });
     }
 
+    // Logout dari sistem
     @FXML
     private void handleLogout(ActionEvent event) {
         String header = cartItems.isEmpty()
@@ -329,6 +351,7 @@ public class POSController {
         }
     }
 
+    // Memperbarui tampilan total belanja
     private void updateTotals() {
         subtotal = cartItems.stream().mapToDouble(PenjualanDetail::getSubtotal).sum();
         totalTagihan = subtotal;
@@ -340,10 +363,12 @@ public class POSController {
         updateKembalian();
     }
 
+    // Menghitung kembalian (saat ini kosong, untuk pengembangan)
     private void updateKembalian() {
 
     }
 
+    // Mengambil nilai input pembayaran
     private double parsePayField() {
         try {
             return Double.parseDouble(payField.getText().trim());
@@ -352,6 +377,7 @@ public class POSController {
         }
     }
 
+    // Menangani input dari numpad
     @FXML
     private void handleNumpad(javafx.event.ActionEvent event) {
         Button source = (Button) event.getSource();
@@ -363,12 +389,14 @@ public class POSController {
         updateKembalian();
     }
 
+    // Mereset input pembayaran
     @FXML
     private void handleClearPay() {
         payField.setText("0");
         updateKembalian();
     }
 
+    // Menghapus digit terakhir pada input pembayaran
     @FXML
     private void handleBackspace() {
         String current = payField.getText();
@@ -382,24 +410,18 @@ public class POSController {
 
     private String selectedPaymentMethod = "Tunai";
 
-// =========================================================
-// ADD THESE FIELDS to POSController class:
-// =========================================================
-
+    // Field untuk pembayaran QRIS
     private boolean isQrisPayment = false;
     private String activeQrisOrderId = null;
     private javafx.animation.Timeline qrisStatusPoller = null;
 
-// =========================================================
-// REPLACE handlePaymentMethod with this:
-// =========================================================
-
+    // Menangani pemilihan metode pembayaran
     @FXML
     private void handlePaymentMethod(javafx.event.ActionEvent event) {
         Button source = (Button) event.getSource();
         String method = source.getText().replaceAll("[^a-zA-Z\\-]", "").trim();
 
-        // Cancel QRIS if switching away from it
+        // Batalkan QRIS jika berpindah dari metode QRIS
         if (isQrisPayment && !method.contains("QRIS")) {
             cancelQrisIfActive();
         }
@@ -407,21 +429,18 @@ public class POSController {
         selectedPaymentMethod = method;
         isQrisPayment = method.contains("QRIS");
 
-        // Update button styles
+        // Perbarui gaya tombol metode pembayaran
         source.getParent().getChildrenUnmodifiable().forEach(node ->
                 node.getStyleClass().remove("pay-method-active"));
         source.getStyleClass().add("pay-method-active");
 
-        // If QRIS selected and cart not empty → create QR immediately
+        // Jika QRIS dipilih dan keranjang tidak kosong, buat QR segera
         if (isQrisPayment && !cartItems.isEmpty()) {
             initiateQrisPayment();
         }
     }
 
-// =========================================================
-// ADD THESE NEW METHODS to POSController:
-// =========================================================
-
+    // Memulai pembayaran QRIS
     private void initiateQrisPayment() {
         if (totalTagihan <= 0) {
             showAlert(Alert.AlertType.WARNING, "Keranjang kosong",
@@ -429,14 +448,14 @@ public class POSController {
             return;
         }
 
-        // Show loading alert
+        // Tampilkan alert loading
         Alert loadingAlert = new Alert(Alert.AlertType.INFORMATION);
         loadingAlert.setTitle("QRIS");
         loadingAlert.setHeaderText("Membuat QR Code...");
         loadingAlert.setContentText("Mohon tunggu sebentar.");
         loadingAlert.show();
 
-        // Call Spring Boot in background thread
+        // Panggil server Spring Boot di background thread
         javafx.concurrent.Task<QrisClient.QrisResult> task = new javafx.concurrent.Task<>() {
             @Override
             protected QrisClient.QrisResult call() {
@@ -451,7 +470,7 @@ public class POSController {
             if (result.success) {
                 activeQrisOrderId = result.orderId;
 
-                // Tell cashier where to open the QR on their phone
+                // Beritahu kasir untuk membuka QR di HP
                 Alert qrisAlert = new Alert(Alert.AlertType.INFORMATION);
                 qrisAlert.setTitle("QRIS Siap");
                 qrisAlert.setHeaderText("QR Code berhasil dibuat!");
@@ -463,7 +482,7 @@ public class POSController {
                 );
                 qrisAlert.show();
 
-                // Start polling status every 3 seconds
+                // Mulai polling status setiap 3 detik
                 startQrisStatusPolling(qrisAlert);
 
             } else {
@@ -480,6 +499,7 @@ public class POSController {
         new Thread(task).start();
     }
 
+    // Memulai polling status pembayaran QRIS secara berkala
     private void startQrisStatusPolling(Alert qrisAlert) {
         if (qrisStatusPoller != null) {
             qrisStatusPoller.stop();
@@ -495,6 +515,7 @@ public class POSController {
         qrisStatusPoller.play();
     }
 
+    // Mengecek status pembayaran QRIS
     private void pollQrisStatus(Alert qrisAlert) {
         javafx.concurrent.Task<String> task = new javafx.concurrent.Task<>() {
             @Override
@@ -507,11 +528,11 @@ public class POSController {
             String status = task.getValue();
 
             if ("SUCCESS".equals(status)) {
-                // Payment done!
+                // Pembayaran berhasil
                 if (qrisStatusPoller != null) qrisStatusPoller.stop();
                 if (qrisAlert.isShowing()) qrisAlert.close();
 
-                // Complete the transaction
+                // Selesaikan transaksi
                 finalizeBayar();
 
             } else if ("EXPIRED".equals(status) || "CANCELLED".equals(status)) {
@@ -526,6 +547,7 @@ public class POSController {
         new Thread(task).start();
     }
 
+    // Membatalkan QRIS jika aktif
     private void cancelQrisIfActive() {
         if (activeQrisOrderId != null) {
             if (qrisStatusPoller != null) qrisStatusPoller.stop();
@@ -535,10 +557,7 @@ public class POSController {
         }
     }
 
-// =========================================================
-// REPLACE handleBayar with this (supports both cash + QRIS):
-// =========================================================
-
+    // Menangani pembayaran (tunai atau QRIS)
     @FXML
     private void handleBayar() {
         if (cartItems.isEmpty()) {
@@ -548,7 +567,7 @@ public class POSController {
         }
 
         if (isQrisPayment) {
-            // QRIS: initiate or check if already active
+            // QRIS: inisiasi atau cek jika sudah aktif
             if (activeQrisOrderId == null) {
                 initiateQrisPayment();
             } else {
@@ -556,7 +575,7 @@ public class POSController {
                         "QR Code sudah aktif. Minta pelanggan scan QR di HP kasir.");
             }
         } else {
-            // Tunai: normal flow
+            // Tunai: alur normal
             double bayar = parsePayField();
             if (bayar < totalTagihan) {
                 showAlert(Alert.AlertType.WARNING, "Pembayaran kurang",
@@ -569,8 +588,8 @@ public class POSController {
     }
 
     /**
-     * Saves transaction to DB, prints receipt, and resets.
-     * Called for both cash and QRIS (after QRIS confirmed).
+     * Menyimpan transaksi ke database, mencetak struk, dan mereset.
+     * Dipanggil untuk tunai dan QRIS (setelah QRIS dikonfirmasi).
      */
     private void finalizeBayar() {
         double bayar = isQrisPayment ? totalTagihan : parsePayField();
@@ -589,7 +608,7 @@ public class POSController {
         int generatedId = penjualanDAO.saveTransaction(penjualan, cartItems);
 
         if (generatedId > 0) {
-            // Notify Spring Boot to clear mobile page
+            // Beri tahu Spring Boot untuk membersihkan halaman mobile
             if (isQrisPayment) {
                 new Thread(QrisClient::completeQris).start();
             }
@@ -613,7 +632,7 @@ public class POSController {
                 ReceiptPrinter.showReceiptDialog(penjualan, lastCartItems);
             }
 
-            // Reset
+            // Reset state setelah transaksi
             isQrisPayment = false;
             activeQrisOrderId = null;
             if (qrisStatusPoller != null) qrisStatusPoller.stop();
@@ -625,6 +644,7 @@ public class POSController {
         }
     }
 
+    // Mencetak struk transaksi terakhir
     @FXML
     private void handleCetakStruk() {
         if (lastPenjualan != null && lastCartItems != null) {
@@ -638,10 +658,12 @@ public class POSController {
         }
     }
 
+    // Mereset transaksi
     private void resetTransaction() {
         resetTransactionInternal();
     }
 
+    // Mereset internal keranjang dan field input
     private void resetTransactionInternal() {
         cartItems.clear();
         payField.setText("0");
@@ -651,6 +673,7 @@ public class POSController {
         Platform.runLater(() -> searchField.requestFocus());
     }
 
+    // Memulai jam digital
     @FXML
     public void startClock() {
         updateTime();
@@ -659,6 +682,7 @@ public class POSController {
         clock.play();
     }
 
+    // Memperbarui tampilan jam dan tanggal
     @FXML
     public void updateTime() {
         LocalDateTime now = LocalDateTime.now();
@@ -666,6 +690,7 @@ public class POSController {
         if (dateLabel != null) dateLabel.setText(now.format(DATE_FORMAT));
     }
 
+    // Menampilkan alert dialog
     private void showAlert(Alert.AlertType type, String title, String message) {
         Alert alert = new Alert(type);
         alert.setTitle(title);

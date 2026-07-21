@@ -27,13 +27,15 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+// Service untuk membuat laporan PDF
 public class ReportGenerator {
 
     private static final DecimalFormat rupiahFormat = new DecimalFormat("#,###");
 
     // =========================================================
-    // SAVE AS PDF
+    // SIMPAN SEBAGAI PDF
     // =========================================================
+    // Menyimpan laporan ke file PDF
     public static void saveAsPdf(
             List<LaporanHarian> dailyData,
             LaporanHarian summary,
@@ -69,6 +71,7 @@ public class ReportGenerator {
         }
     }
 
+    // Menggambar grafik batang di PDF
     private static void drawBarChart(PdfTemplate template, List<LaporanHarian> data, float width, float height) {
         int n = data.size();
         if (n < 2) return;
@@ -83,7 +86,7 @@ public class ReportGenerator {
         try {
             BaseFont bf = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
 
-            // Axes
+            // Sumbu grafik
             template.setColorStroke(new Color(80, 80, 80));
             template.setLineWidth(0.5f);
             template.moveTo(chartLeft, chartBottom);
@@ -95,7 +98,7 @@ public class ReportGenerator {
             template.lineTo(chartLeft + chartWidth, chartBottom);
             template.stroke();
 
-            // Y-axis labels
+            // Label sumbu Y
             template.setColorFill(new Color(60, 60, 60));
             template.beginText();
             template.setFontAndSize(bf, 7);
@@ -103,7 +106,7 @@ public class ReportGenerator {
             template.showTextAligned(Element.ALIGN_RIGHT, "Rp " + rupiahFormat.format((long) maxPenjualan), chartLeft - 3, chartBottom + chartHeight - 4, 0);
             template.endText();
 
-            // Grid lines
+            // Garis grid
             template.setLineWidth(0.3f);
             template.setColorStroke(new Color(200, 200, 200));
             float yMid = chartBottom + chartHeight / 2;
@@ -111,7 +114,7 @@ public class ReportGenerator {
             template.lineTo(chartLeft + chartWidth, yMid);
             template.stroke();
 
-            // Bars
+            // Batang grafik
             float barArea = chartWidth / n;
             float barWidth = barArea * 0.65f;
             float barGap = barArea * 0.35f;
@@ -121,26 +124,26 @@ public class ReportGenerator {
                 float barH = (float) (h.getTotalPenjualan() / maxPenjualan * chartHeight * 0.92f);
                 float barX = chartLeft + i * barArea + barGap / 2;
 
-                // Gradient-like effect with two overlapping bars
+                // Efek gradasi dengan dua batang yang tumpang tindih
                 template.setColorFill(new Color(54, 162, 235));
                 template.roundRectangle(barX, chartBottom, barWidth, barH, 2);
                 template.fill();
 
-                // Lighter highlight on top
+                // Sorotan lebih terang di atas
                 if (barH > 4) {
                     template.setColorFill(new Color(100, 190, 245));
                     template.roundRectangle(barX, chartBottom + barH - 4, barWidth, 4, 1);
                     template.fill();
                 }
 
-                // Date label
+                // Label tanggal
                 template.setColorFill(new Color(60, 60, 60));
                 template.beginText();
                 template.setFontAndSize(bf, 7);
                 template.showTextAligned(Element.ALIGN_CENTER, h.getTanggalFormatted(), barX + barWidth / 2, chartBottom - 9, 0);
                 template.endText();
 
-                // Value label on top of bar
+                // Label nilai di atas batang
                 template.setColorFill(new Color(54, 162, 235));
                 template.beginText();
                 template.setFontAndSize(bf, 7);
@@ -148,7 +151,7 @@ public class ReportGenerator {
                 template.endText();
             }
 
-            // Legend
+            // Legenda
             float legendY = chartBottom + chartHeight + 4;
             template.setColorFill(new Color(54, 162, 235));
             template.roundRectangle(chartLeft, legendY + 1, 10, 7, 1);
@@ -165,6 +168,7 @@ public class ReportGenerator {
         }
     }
 
+    // Menambahkan sel ke tabel PDF
     private static void addTableCell(PdfPTable table, String text, com.lowagie.text.Font font, int alignment) {
         PdfPCell cell = new PdfPCell(new Paragraph(text, font));
         cell.setHorizontalAlignment(alignment);
@@ -173,8 +177,9 @@ public class ReportGenerator {
     }
 
     // =========================================================
-    // SHOW PREVIEW (generate temp PDF & open with system viewer)
+    // TAMPILKAN PRATINJAU (buat PDF sementara & buka dengan viewer)
     // =========================================================
+    // Menampilkan pratinjau laporan PDF
     public static void showPreview(
             List<LaporanHarian> dailyData,
             LaporanHarian summary,
@@ -318,8 +323,9 @@ public class ReportGenerator {
     }
 
     // =========================================================
-    // HELPERS
+    // FUNGSI BANTU
     // =========================================================
+    // Menampilkan alert dialog
     private static void showAlert(Alert.AlertType type, String title, String message) {
         Alert alert = new Alert(type);
         alert.setTitle(title);

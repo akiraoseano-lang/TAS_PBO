@@ -1,5 +1,6 @@
 package com.project.tas_pbo.model;
 
+// Model untuk tabel penjualan_detail (item transaksi)
 public class PenjualanDetail {
 
     private int idDetail;

@@ -2,6 +2,7 @@ package com.project.tas_pbo.model;
 
 import java.sql.Timestamp;
 
+// Model untuk tabel penjualan (header transaksi)
 public class Penjualan {
 
     private int idPenjualan;

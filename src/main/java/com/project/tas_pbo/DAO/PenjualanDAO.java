@@ -11,8 +11,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 
+// DAO untuk operasi database tabel penjualan dan penjualan_detail
 public class PenjualanDAO {
 
+    // Menyimpan transaksi penjualan beserta detailnya (menggunakan transaksi database)
     public int saveTransaction(Penjualan penjualan, List<PenjualanDetail> items) {
         String sqlHeader = "INSERT INTO penjualan (no_transaksi, id_user, total_belanja, bayar, kembalian) " +
                 "VALUES (?, ?, ?, ?, ?)";
@@ -97,6 +99,7 @@ public class PenjualanDAO {
         }
     }
 
+    // Menghasilkan nomor transaksi otomatis dengan format TRX-YYYYMMDD-XXXX
     public String generateNoTransaksi() {
         String today = new java.text.SimpleDateFormat("yyyyMMdd").format(new java.util.Date());
         String prefix = "TRX-" + today + "-";
@@ -121,6 +124,7 @@ public class PenjualanDAO {
         return prefix + "0001";
     }
 
+    // Mengambil total penjualan
     public double getTotalPenjualan() {
         String sql = "SELECT SUM(total_belanja) AS total FROM penjualan";
         try (Connection conn = DBconnection.connect();
@@ -135,6 +139,7 @@ public class PenjualanDAO {
         return 0.0;
     }
 
+    // Mengambil semua data penjualan
     public List<Penjualan> getAllPenjualan() {
         List<Penjualan> list = new java.util.ArrayList<>();
         String sql = "SELECT * FROM penjualan ORDER BY waktu_transaksi DESC, id_penjualan DESC";
@@ -158,6 +163,7 @@ public class PenjualanDAO {
         return list;
     }
 
+    // Mengambil penjualan terbaru dengan jumlah terbatas
     public List<Penjualan> getLatestPenjualan(int limit) {
         List<Penjualan> list = new java.util.ArrayList<>();
         String sql = "SELECT * FROM penjualan ORDER BY waktu_transaksi DESC, id_penjualan DESC LIMIT ?";

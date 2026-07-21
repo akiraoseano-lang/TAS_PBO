@@ -43,42 +43,47 @@ import javafx.util.Duration;
 
 public class DashboardManagerController {
 
+    // ===== View Panel =====
     @FXML private ScrollPane dashboardView;
     @FXML private VBox penjualanView;
     @FXML private VBox produkView;
     @FXML private ScrollPane laporanView;
     @FXML private VBox userView;
 
+    // ===== Waktu =====
     @FXML private Label dateLabel;
     @FXML private Label timeLabel;
 
+    // ===== Info User =====
     @FXML private Label lblUserName;
     @FXML private Label lblUserRole;
     @FXML private Label lblGreeting;
 
+    // ===== Navigasi Sidebar =====
     @FXML private Button btnDashboard;
     @FXML private Button btnPenjualan;
     @FXML private Button btnProduk;
     @FXML private Button btnLaporan;
     @FXML private Button btnUser;
 
-    // Summary Cards Labels untuk Dashboard
+    // ===== Kartu Ringkasan Dashboard =====
     @FXML private Label lblTotalPenjualan;
     @FXML private Label lblTotalProduk;
     @FXML private Label lblTotalStok;
 
+    // ===== Tabel Dashboard =====
     @FXML private TableView<Produk> tableStok;
     @FXML private TableView<Penjualan> tablePenjualan;
     @FXML private TableView<ProdukTerlaris> tableTerlaris;
     @FXML private TableView<Penjualan> tablePenjualanAll;
     @FXML private TableView<Produk> tableProduk;
 
-    // ===== Dashboard chart =====
+    // ===== Grafik Dashboard =====
     @FXML private AreaChart<String, Number> salesChart;
     @FXML private Button btnChart7Hari;
     @FXML private Button btnChart1Bulan;
 
-    // tableProduk columns
+    // ===== Kolom Tabel Produk =====
     @FXML private TableColumn<Produk, Integer> colNo;
     @FXML private TableColumn<Produk, String> colNamaProduk;
     @FXML private TableColumn<Produk, String> colKategori;
@@ -86,32 +91,32 @@ public class DashboardManagerController {
     @FXML private TableColumn<Produk, Integer> colStok;
     @FXML private TableColumn<Produk, String> colSatuan;
 
-    // tableStok columns (Dashboard)
+    // ===== Kolom Tabel Stok (Dashboard) =====
     @FXML private TableColumn<Produk, Integer> colStokNo;
     @FXML private TableColumn<Produk, String> colStokNama;
     @FXML private TableColumn<Produk, Integer> colStokQty;
     @FXML private TableColumn<Produk, String> colStokSatuan;
     @FXML private TableColumn<Produk, String> colStokStatus;
 
-    // tablePenjualan columns (Dashboard)
+    // ===== Kolom Tabel Penjualan (Dashboard) =====
     @FXML private TableColumn<Penjualan, Integer> colPenjualanNo;
     @FXML private TableColumn<Penjualan, String> colPenjualanNoTrx;
     @FXML private TableColumn<Penjualan, Double> colPenjualanTotal;
     @FXML private TableColumn<Penjualan, String> colPenjualanWaktu;
 
-    // tableTerlaris columns
+    // ===== Kolom Tabel Produk Terlaris =====
     @FXML private TableColumn<ProdukTerlaris, Integer> colTerlarisNo;
     @FXML private TableColumn<ProdukTerlaris, String> colTerlarisNama;
     @FXML private TableColumn<ProdukTerlaris, Integer> colTerlarisJumlah;
     @FXML private TableColumn<ProdukTerlaris, String> colTerlarisSatuan;
 
-    // tablePenjualanAll columns (Penjualan Tab) [cite: 121, 122, 123, 124]
+    // ===== Kolom Tabel Semua Penjualan =====
     @FXML private TableColumn<Penjualan, Integer> colPenjualanAllNo;
     @FXML private TableColumn<Penjualan, String> colPenjualanAllNoTrx;
     @FXML private TableColumn<Penjualan, Double> colPenjualanAllTotal;
     @FXML private TableColumn<Penjualan, String> colPenjualanAllWaktu;
 
-    // user view
+    // ===== Manajemen User =====
     @FXML private Button btnFilterActiveUser;
     @FXML private Button btnFilterDeletedUser;
     @FXML private VBox activeUserSection;
@@ -123,14 +128,14 @@ public class DashboardManagerController {
     @FXML private TableColumn<User, String> colUserRole;
     @FXML private TextField searchUserField;
 
-    // deleted user table
+    // ===== Tabel User yang Dihapus =====
     @FXML private TableView<User> tableDeletedUser;
     @FXML private TableColumn<User, Integer> colDltUserNo;
     @FXML private TableColumn<User, String> colDltUserUsername;
     @FXML private TableColumn<User, String> colDltUserNama;
     @FXML private TableColumn<User, String> colDltUserRole;
 
-    // laporan view
+    // ===== View Laporan =====
     @FXML private Button btnLaporan7Hari;
     @FXML private Button btnLaporan1Bulan;
     @FXML private AreaChart<String, Number> laporanChart;
@@ -163,6 +168,7 @@ public class DashboardManagerController {
     private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("hh:mm:ss a");
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("EEEE, MMMM d");
 
+    // Inisialisasi controller, dipanggil otomatis oleh JavaFX
     @FXML
     public void initialize() {
         allViews = new Node[] {
@@ -188,6 +194,7 @@ public class DashboardManagerController {
         if (btnChart7Hari != null) btnChart7Hari.setStyle("-fx-font-weight: bold;");
     }
 
+    // Memulai jam digital
     @FXML
     public void startClock() {
         updateTime();
@@ -198,6 +205,7 @@ public class DashboardManagerController {
         clock.play();
     }
 
+    // Memperbarui tampilan jam dan tanggal
     @FXML
     public void updateTime() {
         LocalDateTime now = LocalDateTime.now();
@@ -210,6 +218,7 @@ public class DashboardManagerController {
         }
     }
 
+    // Menampilkan informasi user yang login
     private void setUserInfo() {
         var user = Session.getCurrentUser();
         if (user != null) {
@@ -219,6 +228,7 @@ public class DashboardManagerController {
         }
     }
 
+    // Memuat data grafik dashboard
     private void loadChart(int days) {
         Task<List<LaporanHarian>> task = new Task<>() {
             @Override
@@ -235,6 +245,7 @@ public class DashboardManagerController {
         new Thread(task).start();
     }
 
+    // Memuat data grafik laporan
     private void loadLaporanChart(int days) {
         Task<List<LaporanHarian>> task = new Task<>() {
             @Override
@@ -251,6 +262,7 @@ public class DashboardManagerController {
         new Thread(task).start();
     }
 
+    // Memperbarui grafik dengan data terbaru
     private void updateChart(AreaChart<String, Number> chart, List<LaporanHarian> data) {
         chart.getData().clear();
 
@@ -274,6 +286,7 @@ public class DashboardManagerController {
         chart.setTitle(data.isEmpty() ? "Tidak ada data" : "");
     }
 
+    // Menampilkan grafik 7 hari terakhir
     @FXML
     private void handleChart7Hari() {
         loadChart(7);
@@ -281,6 +294,7 @@ public class DashboardManagerController {
         if (btnChart1Bulan != null) btnChart1Bulan.setStyle("");
     }
 
+    // Menampilkan grafik 30 hari terakhir
     @FXML
     private void handleChart1Bulan() {
         loadChart(30);
@@ -288,6 +302,7 @@ public class DashboardManagerController {
         if (btnChart7Hari != null) btnChart7Hari.setStyle("");
     }
 
+    // Mengatur kolom tabel laporan
     private void setupLaporanTable() {
         if (tableLaporan == null) return;
 
@@ -300,6 +315,7 @@ public class DashboardManagerController {
                         (long) cd.getValue().getTotalPenjualan())));
     }
 
+    // Memuat data laporan berdasarkan periode hari
     private void loadLaporanData(int days) {
         currentLaporanDays = days;
 
@@ -332,6 +348,7 @@ public class DashboardManagerController {
         new Thread(task).start();
     }
 
+    // Menampilkan laporan 7 hari terakhir
     @FXML
     private void handleLaporan7Hari() {
         loadLaporanData(7);
@@ -339,6 +356,7 @@ public class DashboardManagerController {
         if (btnLaporan1Bulan != null) btnLaporan1Bulan.setStyle("");
     }
 
+    // Menampilkan laporan 30 hari terakhir
     @FXML
     private void handleLaporan1Bulan() {
         loadLaporanData(30);
@@ -346,6 +364,7 @@ public class DashboardManagerController {
         if (btnLaporan7Hari != null) btnLaporan7Hari.setStyle("");
     }
 
+    // Menyimpan laporan ke file PDF
     @FXML
     private void handleSimpanPdf() {
         Task<Void> task = new Task<>() {
@@ -364,6 +383,7 @@ public class DashboardManagerController {
         new Thread(task).start();
     }
 
+    // Menampilkan pratinjau laporan
     @FXML
     private void handlePreviewLaporan() {
         Task<Void> task = new Task<>() {
@@ -381,6 +401,7 @@ public class DashboardManagerController {
         new Thread(task).start();
     }
 
+    // Mengatur kolom-kolom tabel produk
     private void setupProdukTable() {
         colNo.setCellValueFactory(cellData -> new SimpleIntegerProperty(
                 tableProduk.getItems().indexOf(cellData.getValue()) + 1
@@ -393,6 +414,7 @@ public class DashboardManagerController {
         colSatuan.setCellValueFactory(new PropertyValueFactory<>("satuan"));
     }
 
+    // Mengatur kolom tabel penjualan
     public void setupPenjualanTable() {
         if (tablePenjualanAll == null) return;
 
@@ -410,6 +432,7 @@ public class DashboardManagerController {
         });
     }
 
+    // Mengatur kolom tabel dashboard (stok, penjualan, terlaris)
     private void setupDashboardTables() {
         colStokNo.setCellValueFactory(cellData -> new SimpleIntegerProperty(
                 tableStok.getItems().indexOf(cellData.getValue()) + 1
@@ -447,6 +470,7 @@ public class DashboardManagerController {
         colTerlarisSatuan.setCellValueFactory(new PropertyValueFactory<>("satuan"));
     }
 
+    // Memuat statistik dashboard menggunakan background thread
     private void loadDashboardStats() {
         Task<Void> task = new Task<>() {
             private double totalPenjualanVal;
@@ -501,18 +525,21 @@ public class DashboardManagerController {
         new Thread(task).start();
     }
 
+    // Menampilkan view Dashboard
     @FXML
     private void showDashboardView() {
         switchTo(dashboardView, btnDashboard);
         loadDashboardStats();
     }
 
+    // Menampilkan view Penjualan
     @FXML
     private void showPenjualanView() {
         switchTo(penjualanView, btnPenjualan);
         loadDashboardStats();
     }
 
+    // Menampilkan view Produk
     @FXML
     private void showProdukView() {
         switchTo(produkView, btnProduk);
@@ -521,6 +548,7 @@ public class DashboardManagerController {
         }
     }
 
+    // Memuat data produk dari database
     private void loadProdukData() {
         btnNextProduk.setDisable(true);
         btnPrevProduk.setDisable(true);
@@ -545,6 +573,7 @@ public class DashboardManagerController {
         new Thread(task).start();
     }
 
+    // Menampilkan halaman produk tertentu (paginasi)
     private void showPage(int page) {
         if (allProdukData.isEmpty()) return;
 
@@ -560,30 +589,35 @@ public class DashboardManagerController {
         btnNextProduk.setDisable(toIndex >= allProdukData.size());
     }
 
+    // Halaman produk berikutnya
     @FXML
     private void nextPageProduk() {
         currentPage++;
         showPage(currentPage);
     }
 
+    // Halaman produk sebelumnya
     @FXML
     private void prevPageProduk() {
         currentPage--;
         showPage(currentPage);
     }
 
+    // Menampilkan view Laporan
     @FXML
     private void showLaporanView() {
         switchTo(laporanView, btnLaporan);
         loadLaporanData(currentLaporanDays);
     }
 
+    // Menampilkan view User
     @FXML
     private void showUserView() {
         switchTo(userView, btnUser);
         showFilterActiveUser();
     }
 
+    // Menampilkan filter user aktif
     @FXML
     private void showFilterActiveUser() {
         setUserFilterStyle(btnFilterActiveUser);
@@ -592,6 +626,7 @@ public class DashboardManagerController {
         loadUserData();
     }
 
+    // Menampilkan filter user yang dihapus
     @FXML
     private void showFilterDeletedUser() {
         setUserFilterStyle(btnFilterDeletedUser);
@@ -600,12 +635,14 @@ public class DashboardManagerController {
         loadDeletedUserData();
     }
 
+    // Mengatur gaya tombol filter user
     private void setUserFilterStyle(Button active) {
         for (Button b : new Button[]{btnFilterActiveUser, btnFilterDeletedUser}) {
             b.setStyle(b == active ? "-fx-font-weight: bold;" : "");
         }
     }
 
+    // Berpindah antar view panel
     private void switchTo(Node activeView, Button activeBtn) {
         for (Node v : allViews) {
             boolean isActive = (v == activeView);
@@ -618,8 +655,9 @@ public class DashboardManagerController {
     }
 
     // =========================================================
-    // USER MANAGEMENT (same as Admin)
+    // MANAJEMEN USER (sama seperti Admin)
     // =========================================================
+    // Mengatur kolom tabel user
     private void setupUserTable() {
         colUserNo.setCellValueFactory(cd -> new SimpleIntegerProperty(
                 tableUser.getItems().indexOf(cd.getValue()) + 1).asObject());
@@ -628,11 +666,13 @@ public class DashboardManagerController {
         colUserRole.setCellValueFactory(new PropertyValueFactory<>("role"));
     }
 
+    // Memuat data user dari database
     private void loadUserData() {
         List<User> list = userDAO.getAllUsers();
         tableUser.setItems(FXCollections.observableArrayList(list));
     }
 
+    // Mencari user berdasarkan keyword
     @FXML
     private void handleSearchUser() {
         String keyword = searchUserField.getText().trim();
@@ -642,6 +682,7 @@ public class DashboardManagerController {
         tableUser.setItems(FXCollections.observableArrayList(results));
     }
 
+    // Menambahkan user baru
     @FXML
     private void handleTambahUser() {
         if (!ReAuthService.requireReAuth()) return;
@@ -689,6 +730,7 @@ public class DashboardManagerController {
         });
     }
 
+    // Mengedit data user
     @FXML
     private void handleEditUser() {
         if (!ReAuthService.requireReAuth()) return;
@@ -736,6 +778,7 @@ public class DashboardManagerController {
         });
     }
 
+    // Mengganti password user
     @FXML
     private void handleGantiPasswordUser() {
         if (!ReAuthService.requireReAuth()) return;
@@ -779,6 +822,7 @@ public class DashboardManagerController {
         });
     }
 
+    // Menghapus user (soft delete)
     @FXML
     private void handleHapusUser() {
         if (!ReAuthService.requireReAuth()) return;
@@ -811,8 +855,9 @@ public class DashboardManagerController {
     }
 
     // =========================================================
-    // DELETED USER TABLE SETUP + DATA
+    // TABEL USER YANG DIHAPUS + DATA
     // =========================================================
+    // Mengatur kolom tabel user yang dihapus
     private void setupDeletedUserTable() {
         colDltUserNo.setCellValueFactory(cd -> new SimpleIntegerProperty(
                 tableDeletedUser.getItems().indexOf(cd.getValue()) + 1).asObject());
@@ -821,11 +866,13 @@ public class DashboardManagerController {
         colDltUserRole.setCellValueFactory(new PropertyValueFactory<>("role"));
     }
 
+    // Memuat data user yang dihapus dari database
     private void loadDeletedUserData() {
         List<User> list = userDAO.getDeletedUsers();
         tableDeletedUser.setItems(FXCollections.observableArrayList(list));
     }
 
+    // Memulihkan user yang telah dihapus
     @FXML
     private void handlePulihkanUser() {
         if (!ReAuthService.requireReAuth()) return;
@@ -854,6 +901,7 @@ public class DashboardManagerController {
         }
     }
 
+    // Logout dari sistem
     @FXML
     private void handleLogin(ActionEvent event) {
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
@@ -872,6 +920,7 @@ public class DashboardManagerController {
         }
     }
 
+    // Menampilkan alert dialog
     private void showAlert(Alert.AlertType type, String title, String message) {
         Alert alert = new Alert(type);
         alert.setTitle(title);

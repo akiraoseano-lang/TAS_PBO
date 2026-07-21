@@ -38,19 +38,19 @@ import java.util.Optional;
 
 public class AdminDashboardController {
 
-    // ===== Sidebar buttons =====
+    // ===== Tombol Sidebar =====
     @FXML private Button btnDashboard;
     @FXML private Button btnProduk;
     @FXML private Button btnStok;
     @FXML private Button btnUser;
 
-    // ===== Views =====
+    // ===== Panel View =====
     @FXML private ScrollPane dashboardView;
     @FXML private VBox produkView;
     @FXML private VBox stokView;
     @FXML private VBox userView;
 
-    // ===== Produk filter buttons & sections =====
+    // ===== Filter dan Section Produk =====
     @FXML private Button btnFilterActive;
     @FXML private Button btnFilterDeleted;
     @FXML private Button btnFilterLowStock;
@@ -58,18 +58,18 @@ public class AdminDashboardController {
     @FXML private VBox deletedProdukSection;
     @FXML private VBox lowStockSection;
 
-    // ===== Top bar =====
+    // ===== Bar Atas =====
     @FXML private Label welcomeLabel;
     @FXML private Label userNameLabel;
     @FXML private Label dateLabel;
     @FXML private Label timeLabel;
 
-    // ===== Dashboard cards =====
+    // ===== Kartu Dashboard =====
     @FXML private Label cardTotalProduk;
     @FXML private Label cardTotalStok;
     @FXML private Label cardStokMenipis;
 
-    // ===== Dashboard stok menipis table =====
+    // ===== Tabel Stok Menipis (Dashboard) =====
     @FXML private TableView<Produk> tableStokMenipis;
     @FXML private TableColumn<Produk, Integer> colStokNo;
     @FXML private TableColumn<Produk, String> colStokNama;
@@ -78,7 +78,7 @@ public class AdminDashboardController {
     @FXML private TableColumn<Produk, String> colStokSatuan;
     @FXML private TableColumn<Produk, String> colStokStatus;
 
-    // ===== Produk view =====
+    // ===== View Produk =====
     @FXML private TableView<Produk> tableProduk;
     @FXML private TableColumn<Produk, Integer> colProdukNo;
     @FXML private TableColumn<Produk, String> colProdukBarcode;
@@ -93,7 +93,7 @@ public class AdminDashboardController {
     @FXML private Button btnNextProduk;
     @FXML private Label lblPageProduk;
 
-    // ===== Stok view =====
+    // ===== View Stok =====
     @FXML private TableView<Produk> tableStok;
     @FXML private TableColumn<Produk, Integer> colStokAllNo;
     @FXML private TableColumn<Produk, String> colStokAllNama;
@@ -102,7 +102,7 @@ public class AdminDashboardController {
     @FXML private TableColumn<Produk, String> colStokAllSatuan;
     @FXML private TableColumn<Produk, String> colStokAllStatus;
 
-    // ===== Deleted Produk view =====
+    // ===== View Produk Dihapus =====
     @FXML private TableView<Produk> tableDeletedProduk;
     @FXML private TableColumn<Produk, Integer> colDltNo;
     @FXML private TableColumn<Produk, String> colDltBarcode;
@@ -112,7 +112,7 @@ public class AdminDashboardController {
     @FXML private TableColumn<Produk, String> colDltSatuan;
     @FXML private TableColumn<Produk, String> colDltStatus;
 
-    // ===== Low Stock view =====
+    // ===== View Stok Menipis =====
     @FXML private TableView<Produk> tableLowStock;
     @FXML private TableColumn<Produk, Integer> colLsNo;
     @FXML private TableColumn<Produk, String> colLsNama;
@@ -121,7 +121,7 @@ public class AdminDashboardController {
     @FXML private TableColumn<Produk, String> colLsSatuan;
     @FXML private TableColumn<Produk, String> colLsStatus;
 
-    // ===== User view =====
+    // ===== View User =====
     @FXML private Button btnFilterActiveUser;
     @FXML private Button btnFilterDeletedUser;
     @FXML private VBox activeUserSection;
@@ -133,31 +133,32 @@ public class AdminDashboardController {
     @FXML private TableColumn<User, String> colUserRole;
     @FXML private TextField searchUserField;
 
-    // ===== Deleted User table =====
+    // ===== Tabel User Dihapus =====
     @FXML private TableView<User> tableDeletedUser;
     @FXML private TableColumn<User, Integer> colDltUserNo;
     @FXML private TableColumn<User, String> colDltUserUsername;
     @FXML private TableColumn<User, String> colDltUserNama;
     @FXML private TableColumn<User, String> colDltUserRole;
 
-    // ===== DAOs =====
+    // ===== DAO =====
     private final ProdukDAO produkDAO = new ProdukDAO();
     private final UserDAO userDAO = new UserDAO();
     private final DecimalFormat rupiahFormat = new DecimalFormat("#,###");
 
-    // ===== Pagination =====
+    // ===== Paginasi =====
     private List<Produk> allProdukData = new ArrayList<>();
     private final ObservableList<Produk> produkPageData = FXCollections.observableArrayList();
     private int currentProdukPage = 0;
     private static final int PAGE_SIZE = 10;
 
-    // ===== Nav state =====
+    // ===== State Navigasi =====
     private Node[] allViews;
     private Button[] allButtons;
 
     private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("hh:mm:ss a");
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("EEEE, MMMM d");
 
+    // Inisialisasi controller, dipanggil otomatis oleh JavaFX
     @FXML
     public void initialize() {
         allViews = new Node[]{dashboardView, produkView, stokView, userView};
@@ -180,22 +181,26 @@ public class AdminDashboardController {
         loadDashboardData();
     }
 
+    // Menampilkan view Dashboard
     @FXML private void showDashboardView() {
         switchTo(dashboardView, btnDashboard);
         loadDashboardData();
     }
 
+    // Menampilkan view Produk
     @FXML private void showProdukView() {
         switchTo(produkView, btnProduk);
         showFilterActive();
     }
 
+    // Menampilkan view Stok
     @FXML private void showStokView() {
         switchTo(stokView, btnStok);
         loadStokData();
     }
 
-    // ===== Produk filter navigation =====
+    // ===== Navigasi filter produk =====
+    // Menampilkan produk aktif
     @FXML private void showFilterActive() {
         setFilterStyle(btnFilterActive);
         activeProdukSection.setVisible(true);
@@ -207,6 +212,7 @@ public class AdminDashboardController {
         if (allProdukData.isEmpty()) loadProdukData();
     }
 
+    // Menampilkan produk yang dihapus
     @FXML private void showFilterDeleted() {
         setFilterStyle(btnFilterDeleted);
         activeProdukSection.setVisible(false);
@@ -218,6 +224,7 @@ public class AdminDashboardController {
         loadDeletedProdukData();
     }
 
+    // Menampilkan produk dengan stok menipis
     @FXML private void showFilterLowStock() {
         setFilterStyle(btnFilterLowStock);
         activeProdukSection.setVisible(false);
@@ -229,17 +236,20 @@ public class AdminDashboardController {
         loadLowStockData();
     }
 
+    // Mengatur gaya tombol filter
     private void setFilterStyle(Button active) {
         for (Button b : new Button[]{btnFilterActive, btnFilterDeleted, btnFilterLowStock}) {
             b.setStyle(b == active ? "-fx-font-weight: bold;" : "");
         }
     }
 
+    // Menampilkan view User
     @FXML private void showUserView() {
         switchTo(userView, btnUser);
         showFilterActiveUser();
     }
 
+    // Menampilkan filter user aktif
     @FXML private void showFilterActiveUser() {
         setUserFilterStyle(btnFilterActiveUser);
         activeUserSection.setVisible(true); activeUserSection.setManaged(true);
@@ -247,6 +257,7 @@ public class AdminDashboardController {
         loadUserData();
     }
 
+    // Menampilkan filter user yang dihapus
     @FXML private void showFilterDeletedUser() {
         setUserFilterStyle(btnFilterDeletedUser);
         activeUserSection.setVisible(false); activeUserSection.setManaged(false);
@@ -254,12 +265,14 @@ public class AdminDashboardController {
         loadDeletedUserData();
     }
 
+    // Mengatur gaya tombol filter user
     private void setUserFilterStyle(Button active) {
         for (Button b : new Button[]{btnFilterActiveUser, btnFilterDeletedUser}) {
             b.setStyle(b == active ? "-fx-font-weight: bold;" : "");
         }
     }
 
+    // Berpindah antar view panel
     private void switchTo(Node activeView, Button activeBtn) {
         for (Node v : allViews) {
             boolean active = (v == activeView);
@@ -272,8 +285,9 @@ public class AdminDashboardController {
     }
 
     // =========================================================
-    // DASHBOARD DATA
+    // DATA DASHBOARD
     // =========================================================
+    // Memuat data dashboard (total produk, stok, stok menipis)
     private void loadDashboardData() {
         Task<List<Produk>> task = new Task<>() {
             @Override protected List<Produk> call() { return produkDAO.getAllProduk(); }
@@ -297,7 +311,7 @@ public class AdminDashboardController {
         new Thread(task).start();
     }
 
-    // PRODUK TABLE SETUP + DATA
+    // Mengatur kolom tabel produk
     private void setupProdukTable() {
         colProdukNo.setCellValueFactory(cd -> new SimpleIntegerProperty(
                 tableProduk.getItems().indexOf(cd.getValue()) + 1).asObject());
@@ -317,6 +331,7 @@ public class AdminDashboardController {
         tableProduk.setItems(produkPageData);
     }
 
+    // Memuat data produk dari database
     private void loadProdukData() {
         btnNextProduk.setDisable(true);
         btnPrevProduk.setDisable(true);
@@ -333,6 +348,7 @@ public class AdminDashboardController {
         new Thread(task).start();
     }
 
+    // Menampilkan halaman produk tertentu (paginasi)
     private void showProdukPage(int page) {
         if (allProdukData.isEmpty()) return;
         int from = page * PAGE_SIZE;
@@ -345,9 +361,12 @@ public class AdminDashboardController {
         btnNextProduk.setDisable(to >= allProdukData.size());
     }
 
+    // Halaman produk sebelumnya
     @FXML private void prevPageProduk() { currentProdukPage--; showProdukPage(currentProdukPage); }
+    // Halaman produk berikutnya
     @FXML private void nextPageProduk() { currentProdukPage++; showProdukPage(currentProdukPage); }
 
+    // Mencari produk berdasarkan keyword
     @FXML
     private void handleSearchProduk() {
         String keyword = searchProdukField.getText().trim();
@@ -361,6 +380,7 @@ public class AdminDashboardController {
         showProdukPage(0);
     }
 
+    // Menambahkan produk baru
     @FXML
     private void handleTambahProduk() {
         if (!ReAuthService.requireReAuth()) return;
@@ -413,6 +433,7 @@ public class AdminDashboardController {
         });
     }
 
+    // Mengedit data produk
     @FXML
     private void handleEditProduk() {
         if (!ReAuthService.requireReAuth()) return;
@@ -468,6 +489,7 @@ public class AdminDashboardController {
         });
     }
 
+    // Menghapus produk (soft delete)
     @FXML
     private void handleHapusProduk() {
         if (!ReAuthService.requireReAuth()) return;
@@ -507,7 +529,7 @@ public class AdminDashboardController {
         }
     }
 
-    // STOK TABLE SETUP + DATA
+    // Mengatur kolom tabel stok
     private void setupStokTable() {
         colStokAllNo.setCellValueFactory(cd -> new SimpleIntegerProperty(
                 tableStok.getItems().indexOf(cd.getValue()) + 1).asObject());
@@ -523,11 +545,13 @@ public class AdminDashboardController {
         });
     }
 
+    // Memuat data stok dari database
     private void loadStokData() {
         List<Produk> list = produkDAO.getAllProduk();
         tableStok.setItems(FXCollections.observableArrayList(list));
     }
 
+    // Menambah stok produk
     @FXML
     private void handleTambahStok() {
         if (!ReAuthService.requireReAuth()) return;
@@ -557,6 +581,7 @@ public class AdminDashboardController {
         });
     }
 
+    // Mengurangi stok produk
     @FXML
     private void handleKurangiStok() {
         if (!ReAuthService.requireReAuth()) return;
@@ -591,13 +616,14 @@ public class AdminDashboardController {
         });
     }
 
+    // Memperbarui data stok
     @FXML
     private void handleUpdateStok() {
         loadStokData();
         showAlert(Alert.AlertType.INFORMATION, "Refresh", "Data stok berhasil diperbarui.");
     }
 
-    // STOK MENIPIS TABLE (dashboard)
+    // Mengatur kolom tabel stok menipis (dashboard)
     private void setupStokMenipisTable() {
         colStokNo.setCellValueFactory(cd -> new SimpleIntegerProperty(
                 tableStokMenipis.getItems().indexOf(cd.getValue()) + 1).asObject());
@@ -612,7 +638,7 @@ public class AdminDashboardController {
         });
     }
 
-    // DELETED PRODUK TABLE SETUP + DATA
+    // Mengatur kolom tabel produk yang dihapus
     private void setupDeletedProdukTable() {
         colDltNo.setCellValueFactory(cd -> new SimpleIntegerProperty(
                 tableDeletedProduk.getItems().indexOf(cd.getValue()) + 1).asObject());
@@ -625,12 +651,13 @@ public class AdminDashboardController {
         colDltStatus.setCellValueFactory(cd -> new SimpleStringProperty("Dihapus"));
     }
 
+    // Memuat data produk yang dihapus
     private void loadDeletedProdukData() {
         List<Produk> list = produkDAO.getDeletedProduk();
         tableDeletedProduk.setItems(FXCollections.observableArrayList(list));
     }
 
-    // LOW STOCK TABLE SETUP + DATA
+    // Mengatur kolom tabel stok menipis
     private void setupLowStockTable() {
         colLsNo.setCellValueFactory(cd -> new SimpleIntegerProperty(
                 tableLowStock.getItems().indexOf(cd.getValue()) + 1).asObject());
@@ -646,11 +673,13 @@ public class AdminDashboardController {
         });
     }
 
+    // Memuat data produk dengan stok menipis
     private void loadLowStockData() {
         List<Produk> list = produkDAO.getProdukMenipis();
         tableLowStock.setItems(FXCollections.observableArrayList(list));
     }
 
+    // Menambah stok dari view stok menipis
     @FXML
     private void handleTambahStokLowStock() {
         if (!ReAuthService.requireReAuth()) return;
@@ -678,6 +707,7 @@ public class AdminDashboardController {
         });
     }
 
+    // Memulihkan produk yang telah dihapus
     @FXML
     private void handlePulihkanProduk() {
         if (!ReAuthService.requireReAuth()) return;
@@ -717,7 +747,7 @@ public class AdminDashboardController {
         });
     }
 
-    // USER TABLE SETUP + DATA
+    // Mengatur kolom tabel user
     private void setupUserTable() {
         colUserNo.setCellValueFactory(cd -> new SimpleIntegerProperty(
                 tableUser.getItems().indexOf(cd.getValue()) + 1).asObject());
@@ -726,6 +756,7 @@ public class AdminDashboardController {
         colUserRole.setCellValueFactory(new PropertyValueFactory<>("role"));
     }
 
+    // Memuat data user dari database (hanya role Kasir)
     private void loadUserData() {
         List<User> list = userDAO.getAllUsers().stream()
                 .filter(u -> "Kasir".equals(u.getRole()))
@@ -733,6 +764,7 @@ public class AdminDashboardController {
         tableUser.setItems(FXCollections.observableArrayList(list));
     }
 
+    // Mencari user berdasarkan keyword
     @FXML
     private void handleSearchUser() {
         String keyword = searchUserField.getText().trim();
@@ -744,6 +776,7 @@ public class AdminDashboardController {
         tableUser.setItems(FXCollections.observableArrayList(results));
     }
 
+    // Menambahkan user baru (role Kasir)
     @FXML
     private void handleTambahUser() {
         if (!ReAuthService.requireReAuth()) return;
@@ -791,6 +824,7 @@ public class AdminDashboardController {
         });
     }
 
+    // Mengedit data user
     @FXML
     private void handleEditUser() {
         if (!ReAuthService.requireReAuth()) return;
@@ -838,6 +872,7 @@ public class AdminDashboardController {
         });
     }
 
+    // Mengganti password user
     @FXML
     private void handleGantiPasswordUser() {
         if (!ReAuthService.requireReAuth()) return;
@@ -881,6 +916,7 @@ public class AdminDashboardController {
         });
     }
 
+    // Menghapus user (soft delete)
     @FXML
     private void handleHapusUser() {
         if (!ReAuthService.requireReAuth()) return;
@@ -912,7 +948,7 @@ public class AdminDashboardController {
         }
     }
 
-    // DELETED USER TABLE SETUP + DATA
+    // Mengatur kolom tabel user yang dihapus
     private void setupDeletedUserTable() {
         colDltUserNo.setCellValueFactory(cd -> new SimpleIntegerProperty(
                 tableDeletedUser.getItems().indexOf(cd.getValue()) + 1).asObject());
@@ -921,6 +957,7 @@ public class AdminDashboardController {
         colDltUserRole.setCellValueFactory(new PropertyValueFactory<>("role"));
     }
 
+    // Memuat data user yang dihapus (hanya role Kasir)
     private void loadDeletedUserData() {
         List<User> list = userDAO.getDeletedUsers().stream()
                 .filter(u -> "Kasir".equals(u.getRole()))
@@ -928,6 +965,7 @@ public class AdminDashboardController {
         tableDeletedUser.setItems(FXCollections.observableArrayList(list));
     }
 
+    // Memulihkan user yang telah dihapus
     @FXML
     private void handlePulihkanUser() {
         if (!ReAuthService.requireReAuth()) return;
@@ -956,7 +994,7 @@ public class AdminDashboardController {
         }
     }
 
-    // LOGOUT
+    // Logout dari sistem
     @FXML
     private void handleLogout(ActionEvent event) {
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
@@ -975,7 +1013,7 @@ public class AdminDashboardController {
         }
     }
 
-    // CLOCK
+    // Memulai jam digital
     private void startClock() {
         updateClock();
         Timeline clock = new Timeline(new KeyFrame(Duration.seconds(1), e -> updateClock()));
@@ -983,13 +1021,14 @@ public class AdminDashboardController {
         clock.play();
     }
 
+    // Memperbarui tampilan jam dan tanggal
     private void updateClock() {
         LocalDateTime now = LocalDateTime.now();
         if (timeLabel != null) timeLabel.setText(now.format(TIME_FORMAT));
         if (dateLabel != null) dateLabel.setText(now.format(DATE_FORMAT));
     }
 
-    // HELPERS
+    // Menampilkan alert dialog
     private void showAlert(Alert.AlertType type, String title, String message) {
         Alert alert = new Alert(type);
         alert.setTitle(title);

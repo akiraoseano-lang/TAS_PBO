@@ -10,8 +10,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+// DAO untuk operasi database tabel users
 public class UserDAO {
 
+    // Login user dengan username dan password
     public User login(String username, String password) {
         String sql = "SELECT * FROM users WHERE status = 1 AND username = ? AND password = ?";
 
@@ -34,6 +36,7 @@ public class UserDAO {
         return null;
     }
 
+    // Mengambil semua user aktif
     public List<User> getAllUsers() {
         List<User> list = new ArrayList<>();
         String sql = "SELECT * FROM users WHERE status = 1 ORDER BY id_user ASC";
@@ -53,6 +56,7 @@ public class UserDAO {
         return list;
     }
 
+    // Mencari user berdasarkan username atau nama lengkap
     public List<User> searchUser(String keyword) {
         List<User> list = new ArrayList<>();
         String sql = "SELECT * FROM users WHERE status = 1 AND (username LIKE ? OR nama_lengkap LIKE ?) ORDER BY id_user ASC";
@@ -77,6 +81,7 @@ public class UserDAO {
         return list;
     }
 
+    // Menambahkan user baru
     public boolean addUser(User user) {
         String sql = "INSERT INTO users (username, password, nama_lengkap, role, status) VALUES (?, ?, ?, ?, 1)";
 
@@ -96,6 +101,7 @@ public class UserDAO {
         }
     }
 
+    // Mengupdate data user
     public boolean updateUser(User user) {
         String sql = "UPDATE users SET username = ?, nama_lengkap = ?, role = ? WHERE id_user = ?";
 
@@ -115,6 +121,7 @@ public class UserDAO {
         }
     }
 
+    // Mengganti password user
     public boolean updateUserPassword(int idUser, String newPassword) {
         String sql = "UPDATE users SET password = ? WHERE id_user = ?";
 
@@ -132,6 +139,7 @@ public class UserDAO {
         }
     }
 
+    // Menghapus user (soft delete - set status = 0)
     public boolean deleteUser(int idUser) {
         String sql = "UPDATE users SET status = 0 WHERE id_user = ?";
 
@@ -147,6 +155,7 @@ public class UserDAO {
         }
     }
 
+    // Mengambil semua user yang dihapus
     public List<User> getDeletedUsers() {
         List<User> list = new ArrayList<>();
         String sql = "SELECT * FROM users WHERE status = 0 ORDER BY id_user ASC";
@@ -166,6 +175,7 @@ public class UserDAO {
         return list;
     }
 
+    // Memulihkan user yang dihapus (set status = 1)
     public boolean restoreUser(int idUser) {
         String sql = "UPDATE users SET status = 1 WHERE id_user = ?";
 
@@ -181,6 +191,7 @@ public class UserDAO {
         }
     }
 
+    // Memetakan hasil query ke objek User
     private User mapResultSetToUser(ResultSet rs) throws SQLException {
         User user = new User();
         user.setIdUser(rs.getInt("id_user"));

@@ -6,8 +6,10 @@ import javafx.scene.layout.VBox;
 
 import java.util.Optional;
 
+// Service untuk verifikasi ulang password sebelum operasi sensitif
 public class ReAuthService {
 
+    // Meminta user memasukkan ulang password untuk verifikasi
     public static boolean requireReAuth() {
         Dialog<String> dialog = new Dialog<>();
         dialog.setTitle("Verifikasi Password");

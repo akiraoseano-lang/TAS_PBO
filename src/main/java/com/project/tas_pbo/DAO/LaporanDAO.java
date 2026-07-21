@@ -7,11 +7,12 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+// DAO untuk operasi database laporan
 public class LaporanDAO {
 
     /**
-     * Get daily sales summary for the last N days.
-     * Returns list of LaporanHarian sorted by date ascending.
+     * Mengambil ringkasan penjualan harian untuk N hari terakhir.
+     * Mengembalikan daftar LaporanHarian yang diurutkan berdasarkan tanggal.
      */
     public static List<LaporanHarian> getDailySales(int days) {
         List<LaporanHarian> list = new ArrayList<>();
@@ -49,7 +50,7 @@ public class LaporanDAO {
     }
 
     /**
-     * Get summary totals for a period.
+     * Mengambil total ringkasan untuk suatu periode.
      */
     public static LaporanHarian getSummary(int days) {
         String sql = """
@@ -83,7 +84,7 @@ public class LaporanDAO {
     }
 
     /**
-     * Get top selling products for a period.
+     * Mengambil produk terlaris untuk suatu periode.
      */
     public static List<String[]> getTopProduk(int days, int limit) {
         List<String[]> list = new ArrayList<>();
