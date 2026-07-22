@@ -10,6 +10,7 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
@@ -321,6 +322,13 @@
                                 <Label styleClass="header-title" text="☰   Produk" />
                                 <Pane HBox.hgrow="ALWAYS" />
                                 <Button styleClass="btn-link" text="+ Tambah Produk" />
+                            </children>
+                        </HBox>
+                        <HBox spacing="10.0" alignment="CENTER_LEFT">
+                            <children>
+                                <TextField fx:id="searchProdukField" promptText="Cari produk..." HBox.hgrow="ALWAYS" />
+                                <ComboBox fx:id="categoryFilter" prefWidth="180.0" promptText="Semua Kategori" />
+                                <Button text="🔍 Cari" onAction="#handleSearchProduk" />
                             </children>
                         </HBox>
                         <VBox styleClass="content-box" VBox.vgrow="ALWAYS">

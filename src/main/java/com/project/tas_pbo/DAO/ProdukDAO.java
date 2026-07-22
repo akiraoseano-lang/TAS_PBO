@@ -205,6 +205,20 @@ public class ProdukDAO {
         }
     }
 
+    // Memulihkan produk yang dihapus (set status = 1, stok = stokBaru)
+    public boolean restoreProduk(int idProduk, int stokBaru) {
+        String sql = "UPDATE produk SET status = 1, stok = ? WHERE id_produk = ?";
+        try (Connection conn = DBconnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, stokBaru);
+            stmt.setInt(2, idProduk);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     // Memetakan hasil query ke objek Produk
     private Produk mapResultSetToProduk(ResultSet rs) throws SQLException {
         Produk produk = new Produk();
@@ -275,6 +289,40 @@ public class ProdukDAO {
              ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 list.add(mapResultSetToProduk(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    // Mengambil daftar kategori unik
+    public List<String> getAllKategori() {
+        List<String> list = new ArrayList<>();
+        String sql = "SELECT DISTINCT kategori FROM produk WHERE status = 1 ORDER BY kategori ASC";
+        try (Connection conn = DBconnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                list.add(rs.getString("kategori"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    // Mencari produk berdasarkan kategori
+    public List<Produk> getProdukByKategori(String kategori) {
+        List<Produk> list = new ArrayList<>();
+        String sql = "SELECT * FROM produk WHERE status = 1 AND kategori = ? ORDER BY nama_produk ASC";
+        try (Connection conn = DBconnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, kategori);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapResultSetToProduk(rs));
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();

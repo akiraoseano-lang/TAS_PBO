@@ -31,8 +31,7 @@ import javafx.scene.layout.VBox;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.text.NumberFormat;
-import java.util.Locale;
+import java.text.DecimalFormat;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -87,9 +86,13 @@ public class DashboardManagerController {
     @FXML private TableColumn<Produk, Integer> colNo;
     @FXML private TableColumn<Produk, String> colNamaProduk;
     @FXML private TableColumn<Produk, String> colKategori;
-    @FXML private TableColumn<Produk, Double> colHarga;
+    @FXML private TableColumn<Produk, String> colHarga;
     @FXML private TableColumn<Produk, Integer> colStok;
     @FXML private TableColumn<Produk, String> colSatuan;
+
+    // ===== Pencarian & Filter Produk =====
+    @FXML private TextField searchProdukField;
+    @FXML private ComboBox<String> categoryFilter;
 
     // ===== Kolom Tabel Stok (Dashboard) =====
     @FXML private TableColumn<Produk, Integer> colStokNo;
@@ -153,7 +156,7 @@ public class DashboardManagerController {
     private final ProdukDAO produkDAO = new ProdukDAO();
     private final PenjualanDAO penjualanDAO = new PenjualanDAO();
     private final UserDAO userDAO = new UserDAO();
-    private final NumberFormat rupiahFormat = NumberFormat.getCurrencyInstance(new Locale("in", "ID"));
+    private final DecimalFormat rupiahFormat = new DecimalFormat("#,###");
 
     private ObservableList<Produk> produkData = FXCollections.observableArrayList();
     private List<Produk> allProdukData = new ArrayList<>();
@@ -409,9 +412,14 @@ public class DashboardManagerController {
 
         colNamaProduk.setCellValueFactory(new PropertyValueFactory<>("namaProduk"));
         colKategori.setCellValueFactory(new PropertyValueFactory<>("kategori"));
-        colHarga.setCellValueFactory(new PropertyValueFactory<>("harga"));
+        colHarga.setCellValueFactory(cd ->
+                new SimpleStringProperty("Rp " + rupiahFormat.format(cd.getValue().getHarga())));
         colStok.setCellValueFactory(new PropertyValueFactory<>("stok"));
         colSatuan.setCellValueFactory(new PropertyValueFactory<>("satuan"));
+
+        categoryFilter.getItems().add("Semua Kategori");
+        loadCategories();
+        categoryFilter.setOnAction(e -> applyProdukFilter());
     }
 
     // Mengatur kolom tabel penjualan
@@ -496,7 +504,7 @@ public class DashboardManagerController {
 
             @Override
             protected void succeeded() {
-                lblTotalPenjualan.setText(rupiahFormat.format(totalPenjualanVal));
+                lblTotalPenjualan.setText("Rp " + rupiahFormat.format(totalPenjualanVal));
                 lblTotalProduk.setText(String.valueOf(totalProdukVal));
                 lblTotalStok.setText(String.valueOf(totalStokVal));
 
@@ -573,20 +581,37 @@ public class DashboardManagerController {
         new Thread(task).start();
     }
 
-    // Menampilkan halaman produk tertentu (paginasi)
+    // Menampilkan halaman produk tertentu (paginasi + filter)
     private void showPage(int page) {
         if (allProdukData.isEmpty()) return;
 
-        int fromIndex = page * PAGE_SIZE;
-        int toIndex = Math.min(fromIndex + PAGE_SIZE, allProdukData.size());
-        int totalPage = (int) Math.ceil((double) allProdukData.size() / PAGE_SIZE);
+        String keyword = searchProdukField.getText().trim().toLowerCase();
+        String kategori = categoryFilter.getValue();
 
-        produkData.setAll(allProdukData.subList(fromIndex, toIndex));
+        List<Produk> filtered = allProdukData.stream()
+                .filter(p -> keyword.isEmpty() || p.getNamaProduk().toLowerCase().contains(keyword))
+                .filter(p -> kategori == null || "Semua Kategori".equals(kategori) || p.getKategori().equals(kategori))
+                .toList();
+
+        if (filtered.isEmpty()) {
+            produkData.clear();
+            tableProduk.setItems(produkData);
+            lblPageProduk.setText("Tidak ada data");
+            btnPrevProduk.setDisable(true);
+            btnNextProduk.setDisable(true);
+            return;
+        }
+
+        int fromIndex = page * PAGE_SIZE;
+        int toIndex = Math.min(fromIndex + PAGE_SIZE, filtered.size());
+        int totalPage = (int) Math.ceil((double) filtered.size() / PAGE_SIZE);
+
+        produkData.setAll(filtered.subList(fromIndex, toIndex));
         tableProduk.setItems(produkData);
 
         lblPageProduk.setText("Halaman " + (page + 1) + " dari " + totalPage);
         btnPrevProduk.setDisable(page == 0);
-        btnNextProduk.setDisable(toIndex >= allProdukData.size());
+        btnNextProduk.setDisable(toIndex >= filtered.size());
     }
 
     // Halaman produk berikutnya
@@ -601,6 +626,29 @@ public class DashboardManagerController {
     private void prevPageProduk() {
         currentPage--;
         showPage(currentPage);
+    }
+
+    // Memuat daftar kategori dari database
+    private void loadCategories() {
+        Task<List<String>> task = new Task<>() {
+            @Override protected List<String> call() { return produkDAO.getAllKategori(); }
+        };
+        task.setOnSucceeded(e -> {
+            categoryFilter.getItems().addAll(task.getValue());
+        });
+        new Thread(task).start();
+    }
+
+    // Menerapkan filter pencarian dan kategori
+    private void applyProdukFilter() {
+        currentPage = 0;
+        showPage(0);
+    }
+
+    // Mencari produk berdasarkan keyword
+    @FXML
+    private void handleSearchProduk() {
+        applyProdukFilter();
     }
 
     // Menampilkan view Laporan

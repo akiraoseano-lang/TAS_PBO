@@ -26,9 +26,6 @@ import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -89,6 +86,7 @@ public class AdminDashboardController {
     @FXML private TableColumn<Produk, String> colProdukSatuan;
     @FXML private TableColumn<Produk, String> colProdukStatus;
     @FXML private TextField searchProdukField;
+    @FXML private ComboBox<String> categoryFilter;
     @FXML private Button btnPrevProduk;
     @FXML private Button btnNextProduk;
     @FXML private Label lblPageProduk;
@@ -283,10 +281,7 @@ public class AdminDashboardController {
             b.getStyleClass().setAll(b == activeBtn ? "nav-btn-active" : "nav-btn");
         }
     }
-
-    // =========================================================
-    // DATA DASHBOARD
-    // =========================================================
+    
     // Memuat data dashboard (total produk, stok, stok menipis)
     private void loadDashboardData() {
         Task<List<Produk>> task = new Task<>() {
@@ -329,6 +324,10 @@ public class AdminDashboardController {
             return new SimpleStringProperty("Tersedia");
         });
         tableProduk.setItems(produkPageData);
+
+        categoryFilter.getItems().add("Semua Kategori");
+        loadCategoryFilter();
+        categoryFilter.setOnAction(e -> handleSearchProduk());
     }
 
     // Memuat data produk dari database
@@ -348,17 +347,34 @@ public class AdminDashboardController {
         new Thread(task).start();
     }
 
-    // Menampilkan halaman produk tertentu (paginasi)
+    // Menampilkan halaman produk tertentu (paginasi + filter)
     private void showProdukPage(int page) {
         if (allProdukData.isEmpty()) return;
-        int from = page * PAGE_SIZE;
-        int to = Math.min(from + PAGE_SIZE, allProdukData.size());
-        int total = (int) Math.ceil((double) allProdukData.size() / PAGE_SIZE);
 
-        produkPageData.setAll(allProdukData.subList(from, to));
+        String keyword = searchProdukField.getText().trim().toLowerCase();
+        String kategori = categoryFilter.getValue();
+
+        List<Produk> filtered = allProdukData.stream()
+                .filter(p -> keyword.isEmpty() || p.getNamaProduk().toLowerCase().contains(keyword))
+                .filter(p -> kategori == null || "Semua Kategori".equals(kategori) || p.getKategori().equals(kategori))
+                .toList();
+
+        if (filtered.isEmpty()) {
+            produkPageData.clear();
+            lblPageProduk.setText("Tidak ada data");
+            btnPrevProduk.setDisable(true);
+            btnNextProduk.setDisable(true);
+            return;
+        }
+
+        int from = page * PAGE_SIZE;
+        int to = Math.min(from + PAGE_SIZE, filtered.size());
+        int total = (int) Math.ceil((double) filtered.size() / PAGE_SIZE);
+
+        produkPageData.setAll(filtered.subList(from, to));
         lblPageProduk.setText("Halaman " + (page + 1) + " dari " + total);
         btnPrevProduk.setDisable(page == 0);
-        btnNextProduk.setDisable(to >= allProdukData.size());
+        btnNextProduk.setDisable(to >= filtered.size());
     }
 
     // Halaman produk sebelumnya
@@ -369,15 +385,21 @@ public class AdminDashboardController {
     // Mencari produk berdasarkan keyword
     @FXML
     private void handleSearchProduk() {
-        String keyword = searchProdukField.getText().trim();
-        if (keyword.isEmpty()) {
+        if (allProdukData.isEmpty()) {
             loadProdukData();
-            return;
+        } else {
+            currentProdukPage = 0;
+            showProdukPage(0);
         }
-        List<Produk> results = produkDAO.searchProduk(keyword);
-        allProdukData = new ArrayList<>(results);
-        currentProdukPage = 0;
-        showProdukPage(0);
+    }
+
+    // Memuat daftar kategori untuk filter
+    private void loadCategoryFilter() {
+        Task<List<String>> task = new Task<>() {
+            @Override protected List<String> call() { return produkDAO.getAllKategori(); }
+        };
+        task.setOnSucceeded(e -> categoryFilter.getItems().addAll(task.getValue()));
+        new Thread(task).start();
     }
 
     // Menambahkan produk baru
@@ -724,25 +746,19 @@ public class AdminDashboardController {
         result.ifPresent(input -> {
             try {
                 int stokBaru = Integer.parseInt(input.trim());
-                String sql = "UPDATE produk SET status = 1, stok = ? WHERE id_produk = ?";
-                try (Connection conn = DBconnection.connect();
-                     PreparedStatement stmt = conn.prepareStatement(sql)) {
-                    stmt.setInt(1, stokBaru);
-                    stmt.setInt(2, selected.getIdProduk());
-                    if (stmt.executeUpdate() > 0) {
-                        selected.setStatus(1);
-                        selected.setStok(stokBaru);
-                        allProdukData.clear();
-                        loadDeletedProdukData();
-                        showAlert(Alert.AlertType.INFORMATION, "Berhasil",
-                                "Produk " + selected.getNamaProduk() + " berhasil dipulihkan dengan stok " + stokBaru + ".");
-                    }
+                boolean success = produkDAO.restoreProduk(selected.getIdProduk(), stokBaru);
+                if (success) {
+                    selected.setStatus(1);
+                    selected.setStok(stokBaru);
+                    allProdukData.clear();
+                    loadDeletedProdukData();
+                    showAlert(Alert.AlertType.INFORMATION, "Berhasil",
+                            "Produk " + selected.getNamaProduk() + " berhasil dipulihkan dengan stok " + stokBaru + ".");
+                } else {
+                    showAlert(Alert.AlertType.ERROR, "Gagal", "Gagal memulihkan produk.");
                 }
             } catch (NumberFormatException e) {
                 showAlert(Alert.AlertType.ERROR, "Input salah", "Masukkan angka yang valid.");
-            } catch (SQLException e) {
-                e.printStackTrace();
-                showAlert(Alert.AlertType.ERROR, "Gagal", "Gagal memulihkan produk.");
             }
         });
     }
