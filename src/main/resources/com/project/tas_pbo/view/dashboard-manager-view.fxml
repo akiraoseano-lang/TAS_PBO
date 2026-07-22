@@ -290,7 +290,6 @@
                             <children>
                                 <Label styleClass="header-title" text="☰   Penjualan" />
                                 <Pane HBox.hgrow="ALWAYS" />
-                                <Button styleClass="btn-link" text="+ Transaksi Baru" />
                             </children>
                         </HBox>
                         <VBox styleClass="content-box" VBox.vgrow="ALWAYS">
@@ -321,7 +320,6 @@
                             <children>
                                 <Label styleClass="header-title" text="☰   Produk" />
                                 <Pane HBox.hgrow="ALWAYS" />
-                                <Button styleClass="btn-link" text="+ Tambah Produk" />
                             </children>
                         </HBox>
                         <HBox spacing="10.0" alignment="CENTER_LEFT">

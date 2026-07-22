@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 // DAO untuk operasi database tabel users
-public class UserDAO {
+public class UserDAO implements ICrudDAO<User> {
 
     // Login user dengan username dan password
     public User login(String username, String password) {
@@ -190,6 +190,33 @@ public class UserDAO {
             return false;
         }
     }
+
+    @Override
+    public List<User> getAll() { return getAllUsers(); }
+
+    @Override
+    public User getById(int id) {
+        String sql = "SELECT * FROM users WHERE id_user = ?";
+        try (Connection conn = DBconnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) return mapResultSetToUser(rs);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public boolean add(User entity) { return addUser(entity); }
+
+    @Override
+    public boolean update(User entity) { return updateUser(entity); }
+
+    @Override
+    public boolean delete(int id) { return deleteUser(id); }
 
     // Memetakan hasil query ke objek User
     private User mapResultSetToUser(ResultSet rs) throws SQLException {

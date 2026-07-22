@@ -1,7 +1,7 @@
 package com.project.tas_pbo.model;
 
 // Model untuk tabel users
-public class User {
+public class User extends BaseModel {
 
     private int idUser;
     private String username;
@@ -37,4 +37,10 @@ public class User {
 
     public int getStatus() { return status; }
     public void setStatus(int status) { this.status = status; }
+
+    @Override
+    public int getId() { return idUser; }
+
+    @Override
+    public String getDisplayInfo() { return "User: " + namaLengkap + " (" + role + ")"; }
 }

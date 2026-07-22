@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 // Model untuk laporan penjualan harian
-public class LaporanHarian {
+public class LaporanHarian extends BaseModel {
 
     private LocalDate tanggal;
     private int jumlahTransaksi;
@@ -35,4 +35,10 @@ public class LaporanHarian {
         return tanggal.format(DateTimeFormatter.ofPattern("dd MMMM yyyy",
                 new java.util.Locale("id", "ID")));
     }
+
+    @Override
+    public int getId() { return tanggal != null ? tanggal.hashCode() : 0; }
+
+    @Override
+    public String getDisplayInfo() { return "Laporan: " + getTanggalFull() + " - Rp " + totalPenjualan; }
 }

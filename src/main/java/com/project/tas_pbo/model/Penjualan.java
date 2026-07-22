@@ -3,7 +3,7 @@ package com.project.tas_pbo.model;
 import java.sql.Timestamp;
 
 // Model untuk tabel penjualan (header transaksi)
-public class Penjualan {
+public class Penjualan extends BaseModel {
 
     private int idPenjualan;
     private String noTransaksi;
@@ -71,4 +71,10 @@ public class Penjualan {
     public void setWaktuTransaksi(Timestamp waktuTransaksi) {
         this.waktuTransaksi = waktuTransaksi;
     }
+
+    @Override
+    public int getId() { return idPenjualan; }
+
+    @Override
+    public String getDisplayInfo() { return "Penjualan: " + noTransaksi + " - Rp " + totalBelanja; }
 }

@@ -3,7 +3,6 @@ package com.project.tas_pbo.controller;
 import com.project.tas_pbo.DAO.ProdukDAO;
 import com.project.tas_pbo.DAO.UserDAO;
 import com.project.tas_pbo.service.ReAuthService;
-import com.project.tas_pbo.database.DBconnection;
 import com.project.tas_pbo.model.Produk;
 import com.project.tas_pbo.model.User;
 import com.project.tas_pbo.util.Session;
@@ -426,14 +425,21 @@ public class AdminDashboardController {
         dialog.setResultConverter(btn -> {
             if (btn == ButtonType.OK) {
                 try {
+                    int stok = Integer.parseInt(fStok.getText().trim());
+                    int stokMin = Integer.parseInt(fStokMin.getText().trim());
+                    double harga = Double.parseDouble(fHarga.getText().trim());
+                    if (stok < 0 || stokMin < 0 || harga < 0) {
+                        showAlert(Alert.AlertType.ERROR, "Input tidak valid", "Stok, Stok Minimum, dan Harga tidak boleh negatif.");
+                        return null;
+                    }
                     Produk p = new Produk();
                     p.setBarcode(fBarcode.getText().trim());
                     p.setNamaProduk(fNama.getText().trim());
                     p.setKategori(fKategori.getText().trim());
-                    p.setHarga(Double.parseDouble(fHarga.getText().trim()));
-                    p.setStok(Integer.parseInt(fStok.getText().trim()));
+                    p.setHarga(harga);
+                    p.setStok(stok);
                     p.setSatuan(fSatuan.getText().trim());
-                    p.setStokMinimum(Integer.parseInt(fStokMin.getText().trim()));
+                    p.setStokMinimum(stokMin);
                     return p;
                 } catch (NumberFormatException ex) {
                     showAlert(Alert.AlertType.ERROR, "Input salah", "Harga, Stok, dan Stok Minimum harus berupa angka.");
@@ -484,13 +490,20 @@ public class AdminDashboardController {
         dialog.setResultConverter(btn -> {
             if (btn == ButtonType.OK) {
                 try {
+                    int stok = Integer.parseInt(fStok.getText().trim());
+                    int stokMin = Integer.parseInt(fStokMin.getText().trim());
+                    double harga = Double.parseDouble(fHarga.getText().trim());
+                    if (stok < 0 || stokMin < 0 || harga < 0) {
+                        showAlert(Alert.AlertType.ERROR, "Input tidak valid", "Stok, Stok Minimum, dan Harga tidak boleh negatif.");
+                        return null;
+                    }
                     selected.setBarcode(fBarcode.getText().trim());
                     selected.setNamaProduk(fNama.getText().trim());
                     selected.setKategori(fKategori.getText().trim());
-                    selected.setHarga(Double.parseDouble(fHarga.getText().trim()));
-                    selected.setStok(Integer.parseInt(fStok.getText().trim()));
+                    selected.setHarga(harga);
+                    selected.setStok(stok);
                     selected.setSatuan(fSatuan.getText().trim());
-                    selected.setStokMinimum(Integer.parseInt(fStokMin.getText().trim()));
+                    selected.setStokMinimum(stokMin);
                     return selected;
                 } catch (NumberFormatException ex) {
                     showAlert(Alert.AlertType.ERROR, "Input salah", "Harga, Stok, dan Stok Minimum harus berupa angka.");
@@ -592,6 +605,10 @@ public class AdminDashboardController {
         result.ifPresent(input -> {
             try {
                 int tambah = Integer.parseInt(input.trim());
+                if (tambah <= 0) {
+                    showAlert(Alert.AlertType.ERROR, "Input tidak valid", "Jumlah tambah harus lebih dari 0.");
+                    return;
+                }
                 selected.setStok(selected.getStok() + tambah);
                 produkDAO.updateProduk(selected);
                 tableStok.refresh();
@@ -622,6 +639,10 @@ public class AdminDashboardController {
         result.ifPresent(input -> {
             try {
                 int kurangi = Integer.parseInt(input.trim());
+                if (kurangi <= 0) {
+                    showAlert(Alert.AlertType.ERROR, "Input tidak valid", "Jumlah kurangi harus lebih dari 0.");
+                    return;
+                }
                 if (kurangi > selected.getStok()) {
                     showAlert(Alert.AlertType.WARNING, "Stok tidak cukup",
                             "Stok hanya tersisa " + selected.getStok());
@@ -718,6 +739,10 @@ public class AdminDashboardController {
         result.ifPresent(input -> {
             try {
                 int tambah = Integer.parseInt(input.trim());
+                if (tambah <= 0) {
+                    showAlert(Alert.AlertType.ERROR, "Input tidak valid", "Jumlah tambah harus lebih dari 0.");
+                    return;
+                }
                 selected.setStok(selected.getStok() + tambah);
                 produkDAO.updateProduk(selected);
                 loadLowStockData();
@@ -746,6 +771,10 @@ public class AdminDashboardController {
         result.ifPresent(input -> {
             try {
                 int stokBaru = Integer.parseInt(input.trim());
+                if (stokBaru < 0) {
+                    showAlert(Alert.AlertType.ERROR, "Input tidak valid", "Stok awal tidak boleh negatif.");
+                    return;
+                }
                 boolean success = produkDAO.restoreProduk(selected.getIdProduk(), stokBaru);
                 if (success) {
                     selected.setStatus(1);

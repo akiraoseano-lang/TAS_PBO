@@ -1,7 +1,7 @@
 package com.project.tas_pbo.model;
 
 // Model untuk tabel produk
-public class Produk {
+public class Produk extends BaseModel {
 
     private int idProduk;
     private String barcode;
@@ -98,4 +98,10 @@ public class Produk {
     public void setStatus(int status) {
         this.status = status;
     }
+
+    @Override
+    public int getId() { return idProduk; }
+
+    @Override
+    public String getDisplayInfo() { return "Produk: " + namaProduk + " - Rp " + harga; }
 }

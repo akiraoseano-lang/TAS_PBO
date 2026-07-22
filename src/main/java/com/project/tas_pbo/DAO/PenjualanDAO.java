@@ -12,7 +12,7 @@ import java.sql.Statement;
 import java.util.List;
 
 // DAO untuk operasi database tabel penjualan dan penjualan_detail
-public class PenjualanDAO {
+public class PenjualanDAO implements ICrudDAO<Penjualan> {
 
     // Menyimpan transaksi penjualan beserta detailnya (menggunakan transaksi database)
     public int saveTransaction(Penjualan penjualan, List<PenjualanDetail> items) {
@@ -161,6 +161,49 @@ public class PenjualanDAO {
             e.printStackTrace();
         }
         return list;
+    }
+
+    @Override
+    public List<Penjualan> getAll() { return getAllPenjualan(); }
+
+    @Override
+    public Penjualan getById(int id) {
+        String sql = "SELECT * FROM penjualan WHERE id_penjualan = ?";
+        try (Connection conn = DBconnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    Penjualan p = new Penjualan();
+                    p.setIdPenjualan(rs.getInt("id_penjualan"));
+                    p.setNoTransaksi(rs.getString("no_transaksi"));
+                    p.setIdUser(rs.getInt("id_user"));
+                    p.setTotalBelanja(rs.getDouble("total_belanja"));
+                    p.setBayar(rs.getDouble("bayar"));
+                    p.setKembalian(rs.getDouble("kembalian"));
+                    p.setWaktuTransaksi(rs.getTimestamp("waktu_transaksi"));
+                    return p;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public boolean add(Penjualan entity) {
+        throw new UnsupportedOperationException("Gunakan saveTransaction() untuk menyimpan penjualan beserta detailnya");
+    }
+
+    @Override
+    public boolean update(Penjualan entity) {
+        throw new UnsupportedOperationException("Update penjualan tidak didukung");
+    }
+
+    @Override
+    public boolean delete(int id) {
+        throw new UnsupportedOperationException("Hapus penjualan tidak didukung");
     }
 
     // Mengambil penjualan terbaru dengan jumlah terbatas

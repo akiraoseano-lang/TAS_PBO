@@ -1,7 +1,7 @@
 package com.project.tas_pbo.model;
 
 // Model untuk tabel penjualan_detail (item transaksi)
-public class PenjualanDetail {
+public class PenjualanDetail extends BaseModel {
 
     private int idDetail;
     private int idPenjualan;
@@ -50,4 +50,10 @@ public class PenjualanDetail {
 
     public double getSubtotal() { return subtotal; }
     public void setSubtotal(double subtotal) { this.subtotal = subtotal; }
+
+    @Override
+    public int getId() { return idDetail; }
+
+    @Override
+    public String getDisplayInfo() { return namaProduk + " x" + jumlah + " = Rp " + subtotal; }
 }

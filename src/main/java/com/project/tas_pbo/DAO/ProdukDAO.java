@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 // DAO untuk operasi database tabel produk
-public class ProdukDAO {
+public class ProdukDAO implements ICrudDAO<Produk> {
 
     // Mengambil semua produk aktif
     public List<Produk> getAllProduk() {
@@ -218,6 +218,21 @@ public class ProdukDAO {
             return false;
         }
     }
+
+    @Override
+    public List<Produk> getAll() { return getAllProduk(); }
+
+    @Override
+    public Produk getById(int id) { return getProdukById(id); }
+
+    @Override
+    public boolean add(Produk entity) { return addProduk(entity); }
+
+    @Override
+    public boolean update(Produk entity) { return updateProduk(entity); }
+
+    @Override
+    public boolean delete(int id) { return deleteProduk(id); }
 
     // Memetakan hasil query ke objek Produk
     private Produk mapResultSetToProduk(ResultSet rs) throws SQLException {
