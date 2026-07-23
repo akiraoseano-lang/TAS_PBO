@@ -424,6 +424,17 @@ public class AdminDashboardController {
 
         dialog.setResultConverter(btn -> {
             if (btn == ButtonType.OK) {
+                String barcode = fBarcode.getText().trim();
+                String nama = fNama.getText().trim();
+                String kategori = fKategori.getText().trim();
+                if (barcode.isEmpty() || nama.isEmpty() || kategori.isEmpty()) {
+                    showAlert(Alert.AlertType.ERROR, "Input tidak valid", "Barcode, Nama Produk, dan Kategori wajib diisi.");
+                    return null;
+                }
+                if (produkDAO.isBarcodeExists(barcode)) {
+                    showAlert(Alert.AlertType.ERROR, "Barcode sudah ada", "Barcode \"" + barcode + "\" sudah digunakan oleh produk lain.");
+                    return null;
+                }
                 try {
                     int stok = Integer.parseInt(fStok.getText().trim());
                     int stokMin = Integer.parseInt(fStokMin.getText().trim());
@@ -433,9 +444,9 @@ public class AdminDashboardController {
                         return null;
                     }
                     Produk p = new Produk();
-                    p.setBarcode(fBarcode.getText().trim());
-                    p.setNamaProduk(fNama.getText().trim());
-                    p.setKategori(fKategori.getText().trim());
+                    p.setBarcode(barcode);
+                    p.setNamaProduk(nama);
+                    p.setKategori(kategori);
                     p.setHarga(harga);
                     p.setStok(stok);
                     p.setSatuan(fSatuan.getText().trim());
@@ -489,6 +500,17 @@ public class AdminDashboardController {
 
         dialog.setResultConverter(btn -> {
             if (btn == ButtonType.OK) {
+                String barcode = fBarcode.getText().trim();
+                String nama = fNama.getText().trim();
+                String kategori = fKategori.getText().trim();
+                if (barcode.isEmpty() || nama.isEmpty() || kategori.isEmpty()) {
+                    showAlert(Alert.AlertType.ERROR, "Input tidak valid", "Barcode, Nama Produk, dan Kategori wajib diisi.");
+                    return null;
+                }
+                if (!barcode.equals(selected.getBarcode()) && produkDAO.isBarcodeExists(barcode)) {
+                    showAlert(Alert.AlertType.ERROR, "Barcode sudah ada", "Barcode \"" + barcode + "\" sudah digunakan oleh produk lain.");
+                    return null;
+                }
                 try {
                     int stok = Integer.parseInt(fStok.getText().trim());
                     int stokMin = Integer.parseInt(fStokMin.getText().trim());
@@ -497,9 +519,9 @@ public class AdminDashboardController {
                         showAlert(Alert.AlertType.ERROR, "Input tidak valid", "Stok, Stok Minimum, dan Harga tidak boleh negatif.");
                         return null;
                     }
-                    selected.setBarcode(fBarcode.getText().trim());
-                    selected.setNamaProduk(fNama.getText().trim());
-                    selected.setKategori(fKategori.getText().trim());
+                    selected.setBarcode(barcode);
+                    selected.setNamaProduk(nama);
+                    selected.setKategori(kategori);
                     selected.setHarga(harga);
                     selected.setStok(stok);
                     selected.setSatuan(fSatuan.getText().trim());

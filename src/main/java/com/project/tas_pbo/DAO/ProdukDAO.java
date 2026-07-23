@@ -345,6 +345,23 @@ public class ProdukDAO implements ICrudDAO<Produk> {
         return list;
     }
 
+    // Cek apakah barcode sudah ada di database
+    public boolean isBarcodeExists(String barcode) {
+        String sql = "SELECT COUNT(*) FROM produk WHERE barcode = ?";
+        try (Connection conn = DBconnection.connect();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, barcode);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     // Mengambil produk terlaris berdasarkan jumlah penjualan
     public List<com.project.tas_pbo.model.ProdukTerlaris> getProdukTerlaris(int limit) {
         List<com.project.tas_pbo.model.ProdukTerlaris> list = new ArrayList<>();

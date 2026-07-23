@@ -32,9 +32,6 @@ public class ReportGenerator {
 
     private static final DecimalFormat rupiahFormat = new DecimalFormat("#,###");
 
-    // =========================================================
-    // SIMPAN SEBAGAI PDF
-    // =========================================================
     // Menyimpan laporan ke file PDF
     public static void saveAsPdf(
             List<LaporanHarian> dailyData,

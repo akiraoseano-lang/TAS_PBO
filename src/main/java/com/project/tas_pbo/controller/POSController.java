@@ -476,8 +476,7 @@ public class POSController {
                 qrisAlert.setHeaderText("QR Code berhasil dibuat!");
                 qrisAlert.setContentText(
                         "Total: Rp " + rupiahFormat.format((long) totalTagihan) + "\n\n" +
-                                "Buka di HP Anda:\n" + result.viewUrl + "\n\n" +
-                                "Atau tampilkan ke pelanggan untuk scan.\n" +
+                                "Tampilkan Qris ke pelanggan untuk scan.\n" +
                                 "Menunggu pembayaran..."
                 );
                 qrisAlert.show();
